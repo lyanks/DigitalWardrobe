@@ -218,3 +218,15 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --- Digital Wardrobe ---
+# user-uploaded photos (real files, not code)
+uploads/
+# local SQLite databases
+*.db
+*.sqlite3
+# secrets
+.env
+# editor and OS clutter
+.idea/
+.DS_Store
