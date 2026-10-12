@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="card narrow">
+    <h1>Log in</h1>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ render_field(form.login, autocomplete="username") }}
+      {{ render_field(form.password, autocomplete="current-password") }}
+      {{ form.submit(class="button") }}
+    </form>
+    <p class="muted">New here? <a href="{{ url_for('auth.register') }}">Create an account</a>.</p>
+  </div>
+{% endblock %}

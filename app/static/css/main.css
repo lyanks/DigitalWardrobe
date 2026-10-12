@@ -5,6 +5,13 @@
     --color-muted: #6b6b6b;
     --color-primary: #7a5c99;
     --color-border: #e4e0da;
+    --color-on-primary: #ffffff;
+    --color-success-bg: #e6f4ea;
+    --color-success-text: #1e5b32;
+    --color-error-bg: #fbe9e7;
+    --color-error-text: #8a2a1c;
+    --color-info-bg: #ece6f3;
+    --color-info-text: #4a3463;
 
     --radius: 8px;
     --space: 1rem;
@@ -38,4 +45,191 @@ body {
     max-width: 960px;
     margin: 0 auto;
     padding: calc(var(--space) * 2) var(--space);
+}
+
+/* ---------- Phase 1: links and header nav ---------- */
+
+a {
+    color: var(--color-primary);
+}
+
+.site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space);
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: var(--space);
+}
+
+.nav a {
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.nav-user {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.inline-form {
+    display: inline;
+    margin: 0;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    padding: 0;
+    font: inherit;
+    color: var(--color-muted);
+    cursor: pointer;
+}
+
+.link-button:hover {
+    color: var(--color-text);
+}
+
+/* ---------- buttons ---------- */
+
+.button {
+    display: inline-block;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border: none;
+    border-radius: var(--radius);
+    padding: 0.6rem 1.2rem;
+    font: inherit;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.nav a.button {
+    color: var(--color-on-primary);
+}
+
+.button:hover {
+    filter: brightness(1.1);
+}
+
+.button-small {
+    padding: 0.35rem 0.8rem;
+}
+
+/* ---------- flash messages ---------- */
+
+.flash {
+    border-radius: var(--radius);
+    padding: 0.75rem var(--space);
+    margin-bottom: var(--space);
+}
+
+.flash-success { background: var(--color-success-bg); color: var(--color-success-text); }
+.flash-error   { background: var(--color-error-bg);   color: var(--color-error-text); }
+.flash-info    { background: var(--color-info-bg);    color: var(--color-info-text); }
+
+/* ---------- cards and forms ---------- */
+
+.card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: calc(var(--space) * 1.5);
+    margin-bottom: calc(var(--space) * 1.5);
+}
+
+.narrow {
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.field {
+    margin-bottom: var(--space);
+}
+
+.field label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.field input[type="text"],
+.field input[type="email"],
+.field input[type="password"] {
+    width: 100%;
+    padding: 0.55rem 0.7rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font: inherit;
+    background: var(--color-surface);
+    color: var(--color-text);
+}
+
+.field input:focus {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 1px;
+}
+
+.has-error input {
+    border-color: var(--color-error-text);
+}
+
+.field-error {
+    color: var(--color-error-text);
+    font-size: 0.9rem;
+    margin: 0.3rem 0 0;
+}
+
+.muted {
+    color: var(--color-muted);
+}
+
+/* ---------- profile ---------- */
+
+.profile-summary {
+    display: flex;
+    align-items: center;
+    gap: calc(var(--space) * 1.5);
+}
+
+.profile-summary p {
+    margin: 0.2rem 0;
+}
+
+.profile-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.avatar {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatar-sm {
+    width: 28px;
+    height: 28px;
+}
+
+.avatar-lg {
+    width: 96px;
+    height: 96px;
+    flex-shrink: 0;
+}
+
+.avatar-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font-size: 2.5rem;
+    font-weight: 700;
 }

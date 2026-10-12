@@ -3,6 +3,15 @@
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
 {% block content %}
-  <h1>Hello wardrobe 👕</h1>
-  <p>If you can read this, Flask, Jinja and CSS are all working.</p>
+  {% if current_user.is_authenticated %}
+    <h1>Hello, {{ current_user.shown_name }} 👕</h1>
+    <p>Your wardrobe is empty for now. Adding clothes arrives in Phase 2.</p>
+  {% else %}
+    <h1>Hello wardrobe 👕</h1>
+    <p>Keep track of your clothes, build outfits and plan what to wear.</p>
+    <p>
+      <a href="{{ url_for('auth.register') }}" class="button">Create an account</a>
+      or <a href="{{ url_for('auth.login') }}">log in</a>.
+    </p>
+  {% endif %}
 {% endblock %}

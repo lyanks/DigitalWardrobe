@@ -8,10 +8,38 @@
 </head>
 <body>
   <header class="site-header">
-    <a href="{{ url_for('index') }}" class="logo">Digital Wardrobe</a>
+    <a href="{{ url_for('main.index') }}" class="logo">Digital Wardrobe</a>
+
+    {# current_user comes from Flask-Login and is available in every template. #}
+    <nav class="nav">
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('auth.profile') }}" class="nav-user">
+          {% if current_user.avatar_path %}
+            <img src="{{ url_for('main.uploaded_file', filename=current_user.avatar_path) }}"
+                 alt="" class="avatar avatar-sm">
+          {% endif %}
+          {{ current_user.shown_name }}
+        </a>
+        {# Logging out changes state, so it is a POST form, not a link. #}
+        <form action="{{ url_for('auth.logout') }}" method="post" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link-button">Log out</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('auth.login') }}">Log in</a>
+        <a href="{{ url_for('auth.register') }}" class="button button-small">Register</a>
+      {% endif %}
+    </nav>
   </header>
 
   <main class="container">
+    {# Messages saved with flash() in a route appear here once, then vanish. #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
     {% block content %}{% endblock %}
   </main>
 </body>
