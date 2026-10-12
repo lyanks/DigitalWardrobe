@@ -172,11 +172,18 @@ def test_home_shows_today_and_this_week(client):
     assert week_part.count("Date night") == 1
 
 
-def test_outfit_page_lists_its_days(client):
+def test_outfit_page_sums_up_its_days(client):
     weekend, _ = setup_outfits(client)
-    plan(client, weekend, date(2026, 12, 24))
-    page = client.get(f"/outfits/{weekend.id}").data
-    assert b"Thu 24.12.2026" in page
+    plan(client, weekend, YESTERDAY)
+    client.post(f"/planner/{entry_for(weekend, YESTERDAY).id}/worn")
+    soon = TODAY + timedelta(days=30)
+    plan(client, weekend, soon)
+
+    page = client.get(f"/outfits/{weekend.id}").data.decode()
+    # One short line: how often planned and worn, and the next day.
+    assert f"Planned 2×, worn 1× · next {soon.strftime('%a %d.%m')}" in page
+    # The days themselves sit inside the closed <details> as chips.
+    assert soon.strftime("%d.%m") in page and "<details" in page
 
 
 # ---------- JSON API ----------

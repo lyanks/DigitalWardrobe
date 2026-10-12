@@ -4,6 +4,7 @@ from flask_login import current_user, login_required
 from app.extensions import db
 from app.models import Category, Item
 from app.services.images import InvalidImageError, delete_image, save_image
+from app.services.stats import last_worn_date
 from app.wardrobe.choices import COLORS, SEASONS
 from app.wardrobe.forms import DeleteForm, ItemForm
 
@@ -188,6 +189,7 @@ def detail(item_id):
     item = get_own_item_or_404(item_id)
     return render_template(
         "wardrobe/detail.html", title=item.name, item=item, colors=COLORS,
+        last_worn=last_worn_date(item),
     )
 
 

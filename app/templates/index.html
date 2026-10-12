@@ -40,6 +40,15 @@
     {% if total %}
       <p>You have {{ total }} item{{ "s" if total != 1 }} in your wardrobe.
         <a href="{{ url_for('wardrobe.index') }}">See them all</a>.</p>
+      {# Clothes you used to wear but haven't for a while (services/stats.py). #}
+      {% if forgotten %}
+        <h2>Not worn lately</h2>
+        <p class="muted">You haven't worn these for over a month. Maybe plan one in?</p>
+        <div class="item-grid">
+          {% for item, last in forgotten %}{{ item_card(item) }}{% endfor %}
+        </div>
+      {% endif %}
+
       <h2>Recently added</h2>
       <div class="item-grid">
         {% for item in recent %}{{ item_card(item) }}{% endfor %}

@@ -32,7 +32,11 @@
         {% if item.purchase_date %}
           <dt>Bought</dt><dd>{{ item.purchase_date | date }}</dd>
         {% endif %}
-        <dt>Worn</dt><dd>{{ item.times_worn }} time{{ "s" if item.times_worn != 1 }}</dd>
+        <dt>Worn</dt>
+        <dd>
+          {{ item.times_worn }} time{{ "s" if item.times_worn != 1 }}
+          {% if last_worn %}<span class="muted">· last {{ last_worn | date }}</span>{% endif %}
+        </dd>
       </dl>
       {% if item.notes %}<p class="notes">{{ item.notes }}</p>{% endif %}
 
