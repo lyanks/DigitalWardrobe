@@ -1,3 +1,5 @@
+from datetime import date
+
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
 from flask_login import current_user, login_required
 
@@ -119,7 +121,14 @@ def detail(outfit_id):
     # Deleting an item can break an outfit (e.g. its only top is gone).
     # The outfit is kept, but we say what's missing.
     problems = outfit_problems(outfit.items) if outfit.items else ["All its items were deleted."]
-    return render_template("outfits/detail.html", title=outfit.name, outfit=outfit, problems=problems)
+    # For the one-line planner summary: how often worn, and the next planned day.
+    today = date.today()
+    worn_count = sum(1 for entry in outfit.schedule if entry.worn)
+    next_entry = next((entry for entry in outfit.schedule if entry.date >= today), None)
+    return render_template(
+        "outfits/detail.html", title=outfit.name, outfit=outfit, problems=problems,
+        worn_count=worn_count, next_entry=next_entry,
+    )
 
 
 # ---------- Update ----------

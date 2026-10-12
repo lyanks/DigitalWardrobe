@@ -44,7 +44,7 @@ def test_add_item_with_all_fields_and_photo(client, app):
     response = add_item(
         client, name="Linen shirt", category_id=category_id("Tops"), color="white",
         season="summer", style="casual", brand="Uniqlo", size="M",
-        purchase_date="2026-05-01", notes="Wash cold",
+        purchase_date="01.05.2026", notes="Wash cold",
         photo=make_image("IMG_1234.png", size=(3000, 2000)),
     )
 

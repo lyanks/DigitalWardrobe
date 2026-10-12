@@ -6,6 +6,37 @@
 {% block content %}
   {% if current_user.is_authenticated %}
     <h1>Hello, {{ current_user.shown_name }} 👕</h1>
+
+    {# week = [(date, [entries]), ...]: today first, then the next 6 days. #}
+    {% set today_entries = week[0][1] %}
+    <div class="card today-card">
+      <h2>Today</h2>
+      {% if today_entries %}
+        {% for entry in today_entries %}
+          <p>
+            <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}"><strong>{{ entry.outfit.name }}</strong></a>
+            {% if entry.note %}· {{ entry.note }}{% endif %}
+            {% if entry.worn %}<span class="badge">worn</span>{% endif %}
+          </p>
+        {% endfor %}
+      {% else %}
+        <p class="muted">Nothing planned for today. <a href="{{ url_for('planner.index') }}">Plan something</a></p>
+      {% endif %}
+
+      <h3>This week</h3>
+      <ul class="week-list">
+        {% for day, entries in week[1:] %}
+          <li>
+            <span class="week-day">{{ day.strftime("%a %d.%m") }}</span>
+            {% for entry in entries %}
+              <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}">{{ entry.outfit.name }}</a>{{ ", " if not loop.last }}
+            {% else %}
+              <span class="muted">—</span>
+            {% endfor %}
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
     {% if total %}
       <p>You have {{ total }} item{{ "s" if total != 1 }} in your wardrobe.
         <a href="{{ url_for('wardrobe.index') }}">See them all</a>.</p>

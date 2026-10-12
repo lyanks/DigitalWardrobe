@@ -31,6 +31,10 @@ def create_app(config_class=Config):
             client_kwargs={"scope": "openid email profile"},
         )
 
+    # {{ some_date | date }} in any template prints it as 14.10.2026.
+    from app.dates import format_date
+    app.jinja_env.filters["date"] = format_date
+
     # Import models so SQLAlchemy and Flask-Migrate know about the tables.
     from app import models  # noqa: F401
 
@@ -39,10 +43,14 @@ def create_app(config_class=Config):
     from app.auth.routes import bp as auth_bp
     from app.wardrobe.routes import bp as wardrobe_bp
     from app.outfits.routes import bp as outfits_bp
+    from app.planner.routes import bp as planner_bp
+    from app.api.routes import bp as api_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(wardrobe_bp)
     app.register_blueprint(outfits_bp)
+    app.register_blueprint(planner_bp)
+    app.register_blueprint(api_bp)
 
     return app

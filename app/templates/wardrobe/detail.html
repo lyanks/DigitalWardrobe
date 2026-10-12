@@ -30,7 +30,7 @@
         {% if item.brand %}<dt>Brand</dt><dd>{{ item.brand }}</dd>{% endif %}
         {% if item.size %}<dt>Size</dt><dd>{{ item.size }}</dd>{% endif %}
         {% if item.purchase_date %}
-          <dt>Bought</dt><dd>{{ item.purchase_date.strftime("%d %B %Y") }}</dd>
+          <dt>Bought</dt><dd>{{ item.purchase_date | date }}</dd>
         {% endif %}
         <dt>Worn</dt><dd>{{ item.times_worn }} time{{ "s" if item.times_worn != 1 }}</dd>
       </dl>

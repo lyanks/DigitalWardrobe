@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
-from wtforms import BooleanField, DateField, SelectField, StringField, SubmitField, TextAreaField
+from wtforms import BooleanField, SelectField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, Optional
 
+from app.dates import DayMonthYearField
 from app.wardrobe.choices import COLORS, SEASONS, STYLES
 
 IMAGE_TYPES = ["jpg", "jpeg", "png", "webp", "gif"]
@@ -22,7 +23,7 @@ class ItemForm(FlaskForm):
     style = SelectField("Style", choices=[("", "—")] + [(s, _label(s)) for s in STYLES])
     brand = StringField("Brand", validators=[Optional(), Length(max=60)])
     size = StringField("Size", validators=[Optional(), Length(max=20)])
-    purchase_date = DateField("Bought on", validators=[Optional()])
+    purchase_date = DayMonthYearField("Bought on", validators=[Optional()])
     photo = FileField("Photo", validators=[
         FileAllowed(IMAGE_TYPES, "Images only (jpg, png, webp, gif)."),
     ])

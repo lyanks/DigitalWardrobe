@@ -59,6 +59,7 @@ a {
 
 .site-header {
     display: flex;
+    flex-wrap: wrap;  /* narrow screens: the nav goes under the logo */
     align-items: center;
     justify-content: space-between;
     gap: var(--space);
@@ -66,6 +67,7 @@ a {
 
 .nav {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: var(--space);
 }
@@ -600,4 +602,257 @@ a {
     max-height: 520px;
     margin-bottom: var(--space);
     border-radius: var(--radius);
+}
+
+/* ---------- Phase 4: planner ---------- */
+
+.month-nav {
+    display: flex;
+    gap: var(--space);
+}
+
+.planner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 260px;
+    gap: calc(var(--space) * 1.5);
+    align-items: start;
+}
+
+/* Phones: the side panel goes under the calendar. */
+@media (max-width: 800px) {
+    .planner {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* 7 equal columns; every .day is one cell, so the weeks wrap by themselves. */
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--color-border);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.calendar-weekday {
+    background: var(--color-surface);
+    padding: 0.4rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--color-muted);
+    text-align: center;
+}
+
+.day {
+    background: var(--color-surface);
+    min-height: 6.5rem;
+    padding: 0.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    transition: background 0.1s;
+}
+
+.day.other-month {
+    background: var(--color-bg);
+}
+
+.day.other-month .day-number,
+.day.past .day-number {
+    color: var(--color-muted);
+}
+
+.day.today .day-number {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    border-radius: 999px;
+    padding: 0 0.4rem;
+}
+
+.day.drop-target {
+    background: var(--color-info-bg);
+}
+
+.day-number {
+    align-self: flex-start;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.day-entries {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.entry {
+    background: var(--color-info-bg);
+    color: var(--color-info-text);
+    border-radius: 6px;
+    padding: 0.2rem 0.35rem;
+    font-size: 0.8rem;
+    overflow-wrap: anywhere;
+}
+
+.entry-worn {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+}
+
+.entry-name {
+    color: inherit;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.entry-note {
+    display: block;
+}
+
+.entry-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 0.25rem;
+}
+
+.entry-actions .link-button {
+    color: inherit;
+    font-size: 0.75rem;
+    padding: 0;
+    white-space: nowrap;
+}
+
+/* Only shown on phones, where the weekday header row is hidden. */
+.day-weekday {
+    display: none;
+}
+
+/* Phones: 7 columns are too narrow to read, so the month becomes a list
+   of days, one per row, and the grey days of other months disappear. */
+@media (max-width: 600px) {
+    .calendar {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .calendar-weekday,
+    .day.other-month {
+        display: none;
+    }
+
+    .day {
+        min-height: 0;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 0.75rem;
+        padding: 0.5rem;
+    }
+
+    .day-weekday {
+        display: inline;
+    }
+
+    .day-number {
+        min-width: 3.5rem;
+    }
+
+    .day-entries {
+        flex: 1;
+    }
+}
+
+.planner-side h2 {
+    font-size: 1.05rem;
+    margin-top: 0;
+}
+
+.outfit-chips {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+}
+
+.outfit-chip {
+    background: var(--color-info-bg);
+    color: var(--color-info-text);
+    border-radius: 999px;
+    padding: 0.3rem 0.75rem;
+    font-size: 0.9rem;
+    cursor: grab;
+}
+
+.planner-status:empty {
+    display: none;
+}
+
+.badge {
+    background: var(--color-success-bg);
+    color: var(--color-success-text);
+    border-radius: 999px;
+    padding: 0.05rem 0.5rem;
+    font-size: 0.8rem;
+}
+
+.date-list,
+.week-list {
+    padding-left: 1.2rem;
+}
+
+.week-list {
+    list-style: none;
+    padding: 0;
+}
+
+.week-list li {
+    padding: 0.2rem 0;
+}
+
+.week-day {
+    display: inline-block;
+    width: 4.5rem;
+    color: var(--color-muted);
+}
+
+/* The live preview in the outfit builder (outfit_builder.js).
+   sticky: it stays at the top of the screen while you scroll the picker. */
+.builder-preview {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.75rem;
+    margin-bottom: var(--space);
+}
+
+.preview-strip {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    min-height: 1rem;
+}
+
+.preview-tile {
+    width: 64px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.preview-tile .item-photo {
+    font-size: 0.65rem;
+}
+
+.preview-verdict {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+    color: var(--color-error-text);
+}
+
+.preview-verdict.ok {
+    color: var(--color-success-text);
 }

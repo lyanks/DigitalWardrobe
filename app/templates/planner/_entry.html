@@ -1,0 +1,20 @@
+{# One outfit in a calendar day. Used by the planner page and by the API
+   (which sends this same HTML back to calendar.js after a drop). #}
+<div class="entry{{ ' entry-worn' if entry.worn }}">
+  <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}" class="entry-name">{{ entry.outfit.name }}</a>
+  {% if entry.note %}<span class="entry-note">{{ entry.note }}</span>{% endif %}
+  <div class="entry-actions">
+    {% if entry.worn or entry.date <= today %}
+      <form action="{{ url_for('planner.toggle_worn', entry_id=entry.id) }}" method="post" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="link-button" title="{{ 'Not worn after all' if entry.worn else 'I wore this' }}">
+          {{ "✓ Worn" if entry.worn else "Mark worn" }}
+        </button>
+      </form>
+    {% endif %}
+    <form action="{{ url_for('planner.delete', entry_id=entry.id) }}" method="post" class="inline-form">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="link-button" title="Remove from this day" aria-label="Remove">×</button>
+    </form>
+  </div>
+</div>

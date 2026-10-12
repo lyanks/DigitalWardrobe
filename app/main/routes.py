@@ -3,18 +3,20 @@ from flask_login import current_user, login_required
 
 from app.extensions import db
 from app.models import Item
+from app.services.planner import coming_week
 
 bp = Blueprint("main", __name__)
 
 
 @bp.route("/")
 def index():
-    recent, total = [], 0
+    recent, total, week = [], 0, []
     if current_user.is_authenticated:
+        week = coming_week(current_user.id)
         mine = db.select(Item).filter_by(user_id=current_user.id)
         recent = db.session.scalars(mine.order_by(Item.created_at.desc()).limit(4)).all()
         total = db.session.scalar(db.select(db.func.count()).select_from(mine.subquery()))
-    return render_template("index.html", title="Home", recent=recent, total=total)
+    return render_template("index.html", title="Home", recent=recent, total=total, week=week)
 
 
 @bp.route("/uploads/<path:filename>")

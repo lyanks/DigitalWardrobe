@@ -22,7 +22,14 @@
       {# The item picker. Every checkbox has name="item_ids" and the item's
          id as its value, so the browser sends all ticked ids together and
          WTForms collects them into form.item_ids.data (a list). #}
-      <fieldset class="picker{% if form.item_ids.errors %} has-error{% endif %}">
+      {# Filled in by outfit_builder.js; stays hidden without JavaScript. #}
+      <div class="builder-preview" hidden>
+        <div class="preview-strip"></div>
+        <p class="preview-verdict" role="status" aria-live="polite"></p>
+      </div>
+
+      <fieldset class="picker{% if form.item_ids.errors %} has-error{% endif %}"
+                data-check-url="{{ url_for('api.check_outfit') }}">
         <legend>Pick the items</legend>
         <p class="field-hint">A top and a bottom, or a dress. Add shoes, a jacket and any accessories you like.</p>
         {% for error in form.item_ids.errors %}
@@ -68,4 +75,8 @@
     </form>
     {% endif %}
   </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/outfit_builder.js') }}" defer></script>
 {% endblock %}

@@ -35,4 +35,27 @@
   <div class="item-grid">
     {% for item in outfit.items %}{{ item_card(item) }}{% endfor %}
   </div>
+
+  {# One short line; the full list of days only opens when you click it.
+     <details>/<summary> is plain HTML: the browser does the open/close. #}
+  {% if outfit.schedule %}
+    <details class="planned">
+      <summary>
+        Planned {{ outfit.schedule | length }}×{% if worn_count %}, worn {{ worn_count }}×{% endif %}{% if next_entry %} · next {{ next_entry.date.strftime("%a") }} {{ next_entry.date.strftime("%d.%m") }}{% endif %}
+      </summary>
+      <ul class="date-chips">
+        {% for entry in outfit.schedule %}
+          <li>
+            <a href="{{ url_for('planner.index', month=entry.date.strftime('%Y-%m')) }}"
+               class="date-chip{{ ' worn' if entry.worn }}"
+               title="{{ entry.date | date }}{{ ' · ' ~ entry.note if entry.note }}{{ ' · worn' if entry.worn }}">
+              {{- entry.date.strftime("%d.%m") -}}
+            </a>
+          </li>
+        {% endfor %}
+      </ul>
+    </details>
+  {% else %}
+    <p class="muted"><a href="{{ url_for('planner.index') }}">Plan it</a></p>
+  {% endif %}
 {% endblock %}

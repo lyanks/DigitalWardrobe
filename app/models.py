@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -34,6 +34,9 @@ class User(UserMixin, db.Model):
     )
     outfits = db.relationship(
         "Outfit", back_populates="owner", cascade="all, delete-orphan",
+    )
+    schedule = db.relationship(
+        "ScheduledOutfit", back_populates="owner", cascade="all, delete-orphan",
     )
 
     def set_password(self, password):
@@ -138,6 +141,11 @@ class Outfit(db.Model):
         "OutfitItem", back_populates="outfit", cascade="all, delete-orphan",
         order_by="OutfitItem.position",
     )
+    # Every day this outfit is planned for. Deleting the outfit removes them.
+    schedule = db.relationship(
+        "ScheduledOutfit", back_populates="outfit", cascade="all, delete-orphan",
+        order_by="ScheduledOutfit.date",
+    )
 
     @property
     def items(self):
@@ -163,3 +171,48 @@ class OutfitItem(db.Model):
 
     outfit = db.relationship("Outfit", back_populates="item_links")
     item = db.relationship("Item", back_populates="outfit_links")
+
+
+class ScheduledOutfit(db.Model):
+    """One outfit planned for one day: an entry in the calendar.
+
+    A day can have several (day + evening), but the same outfit only once
+    per day: the UniqueConstraint below makes the database refuse a repeat.
+    """
+
+    __table_args__ = (
+        db.UniqueConstraint("outfit_id", "date", name="uq_scheduled_outfit_outfit_date"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    outfit_id = db.Column(db.Integer, db.ForeignKey("outfit.id"), nullable=False)
+    # db.Date stores only the day (2026-10-14), no time and no time zone.
+    date = db.Column(db.Date, nullable=False, index=True)
+    note = db.Column(db.String(200))
+    worn = db.Column(db.Boolean, nullable=False, default=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    owner = db.relationship("User", back_populates="schedule")
+    outfit = db.relationship("Outfit", back_populates="schedule")
+
+    @property
+    def can_be_worn(self):
+        """You can only say you wore something today or earlier."""
+        return self.date <= date.today()
+
+    def set_worn(self, worn):
+        """Mark worn (or not) and keep every item's times_worn in step.
+
+        This is the only place times_worn changes, so the counter can't
+        drift: +1 per item when ticked, -1 when unticked.
+        """
+        if worn == self.worn:
+            return
+        step = 1 if worn else -1
+        for item in self.outfit.items:
+            item.times_worn = max(0, item.times_worn + step)
+        self.worn = worn
+
+    def __repr__(self):
+        return f"<ScheduledOutfit {self.outfit_id} on {self.date}>"

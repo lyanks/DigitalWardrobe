@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ first_day.strftime("%B %Y") }}</h1>
+    {# Plain links: changing month is a normal page load. #}
+    <nav class="month-nav">
+      <a href="{{ url_for('planner.index', month=prev_month.strftime('%Y-%m')) }}">← {{ prev_month.strftime("%B") }}</a>
+      <a href="{{ url_for('planner.index') }}">Today</a>
+      <a href="{{ url_for('planner.index', month=next_month.strftime('%Y-%m')) }}">{{ next_month.strftime("%B") }} →</a>
+    </nav>
+  </div>
+
+  <div class="planner">
+    {# data-schedule-url tells calendar.js where to send drops. #}
+    <div class="calendar" data-schedule-url="{{ url_for('api.schedule') }}">
+      {% for name in weekday_names %}<div class="calendar-weekday">{{ name }}</div>{% endfor %}
+
+      {# weeks is a list of 7-day lists, so two loops draw the grid. #}
+      {% for week in weeks %}
+        {% for day in week %}
+          <div class="day
+                      {{- ' other-month' if day.month != first_day.month }}
+                      {{- ' today' if day == today }}
+                      {{- ' past' if day < today }}"
+               data-date="{{ day.isoformat() }}">
+            <span class="day-number"><span class="day-weekday">{{ day.strftime("%a") }} </span>{{ day.day }}</span>
+            <div class="day-entries">
+              {% for entry in entries.get(day, []) %}
+                {% include "planner/_entry.html" %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+
+    <aside class="planner-side">
+      {% if outfits %}
+        <div class="card">
+          <h2>Your outfits</h2>
+          <p class="field-hint">Drag one onto a day.</p>
+          <ul class="outfit-chips">
+            {% for outfit in outfits %}
+              <li class="outfit-chip" draggable="true" data-outfit-id="{{ outfit.id }}">{{ outfit.name }}</li>
+            {% endfor %}
+          </ul>
+          <p class="planner-status muted" role="status" aria-live="polite"></p>
+        </div>
+
+        {# The same thing without dragging: works on phones and without JS. #}
+        <div class="card">
+          <h2>Or pick a day</h2>
+          <form action="{{ url_for('planner.schedule') }}" method="post" novalidate>
+            {{ form.hidden_tag() }}
+            {{ render_field(form.outfit_id) }}
+            {{ render_field(form.date) }}
+            {{ render_field(form.note, placeholder="Job interview") }}
+            {{ form.submit(class="button") }}
+          </form>
+        </div>
+      {% else %}
+        <div class="card">
+          <p>Make an outfit first, then plan it here.</p>
+          <a href="{{ url_for('outfits.create') }}" class="button">New outfit</a>
+        </div>
+      {% endif %}
+    </aside>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/calendar.js') }}" defer></script>
+{% endblock %}
