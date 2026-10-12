@@ -31,17 +31,29 @@
         <option value="{{ name }}" {{ "selected" if filters.season == name }}>{{ name | capitalize }}</option>
       {% endfor %}
     </select>
-    <button type="submit" class="button button-small">Filter</button>
+    <select name="sort" aria-label="Sort by">
+      {% for value, label in sort_options.items() %}
+        <option value="{{ value }}" {{ "selected" if sort == value }}>{{ label }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit" class="button button-small">Apply</button>
     {% if filters.values() | select | list %}
-      <a href="{{ url_for('wardrobe.index') }}">Clear</a>
+      <a href="{{ url_for('wardrobe.index', sort=(sort if sort != 'custom' else None)) }}">Clear filters</a>
     {% endif %}
   </form>
 
   {% if items %}
-    <p class="muted">Showing {{ items | length }} of {{ total }}.</p>
-    <div class="item-grid">
-      {% for item in items %}{{ item_card(item) }}{% endfor %}
+    <p class="muted">
+      Showing {{ items | length }} of {{ total }}.
+      {% if sort == "custom" and items | length > 1 %}Drag the cards to put them in your own order.{% endif %}
+    </p>
+    {# In "My order", the grid gets data-reorder-url; reorder.js looks for
+       it and switches drag and drop on. Other sorts stay fixed. #}
+    <div class="item-grid{{ ' sortable' if sort == 'custom' }}"
+         {% if sort == "custom" %}data-reorder-url="{{ url_for('wardrobe.reorder') }}"{% endif %}>
+      {% for item in items %}{{ item_card(item, draggable=(sort == "custom")) }}{% endfor %}
     </div>
+    <p class="reorder-status muted" role="status" aria-live="polite"></p>
   {% elif total %}
     <p>No items match these filters.</p>
   {% else %}
@@ -50,4 +62,8 @@
       <a href="{{ url_for('wardrobe.create') }}" class="button">Add your first item</a>
     </div>
   {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/reorder.js') }}" defer></script>
 {% endblock %}

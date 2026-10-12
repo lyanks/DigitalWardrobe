@@ -30,14 +30,14 @@ def client(app):
     return app.test_client()
 
 
-def register(client, username="alice", email="alice@example.com", password="secret123"):
+def register(client, username="alice", email="alice@example.com", password="Secret123!"):
     return client.post("/register", data={
         "username": username, "email": email,
         "password": password, "confirm": password,
     }, follow_redirects=True)
 
 
-def login(client, login="alice", password="secret123"):
+def login(client, login="alice", password="Secret123!"):
     return client.post("/login", data={"login": login, "password": password},
                        follow_redirects=True)
 

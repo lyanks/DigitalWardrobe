@@ -20,7 +20,10 @@ class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), unique=True, nullable=False, index=True)
     email = db.Column(db.String(120), unique=True, nullable=False, index=True)
-    password_hash = db.Column(db.String(255), nullable=False)
+    # Empty for accounts created with "Sign in with Google".
+    password_hash = db.Column(db.String(255))
+    # Google's permanent id for this person ("sub"); empty if never linked.
+    google_id = db.Column(db.String(255), unique=True)
     display_name = db.Column(db.String(80))
     avatar_path = db.Column(db.String(255))
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
@@ -35,7 +38,13 @@ class User(UserMixin, db.Model):
         self.password_hash = generate_password_hash(password)
 
     def check_password(self, password):
+        if not self.password_hash:
+            return False  # Google-only account: no password can match
         return check_password_hash(self.password_hash, password)
+
+    @property
+    def has_password(self):
+        return self.password_hash is not None
 
     @property
     def shown_name(self):
@@ -85,6 +94,8 @@ class Item(db.Model):
     image_path = db.Column(db.String(255))
     notes = db.Column(db.Text)
     times_worn = db.Column(db.Integer, nullable=False, default=0)
+    # Your own order in the grid (drag and drop). Smaller = earlier.
+    position = db.Column(db.Integer, nullable=False, default=0)
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
     # relationship() doesn't add a column. It lets you write item.owner

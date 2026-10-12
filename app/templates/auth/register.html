@@ -15,6 +15,7 @@
       {{ render_field(form.confirm, autocomplete="new-password") }}
       {{ form.submit(class="button") }}
     </form>
+    {% include "auth/_google_button.html" %}
     <p class="muted">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>.</p>
   </div>
 {% endblock %}

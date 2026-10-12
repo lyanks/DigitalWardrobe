@@ -1,4 +1,4 @@
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
 
 from app.extensions import db
@@ -36,7 +36,42 @@ def _category_choices():
     return [(c.id, c.name) for c in categories]
 
 
-# ---------- Read: list with filters ----------
+# ---------- Read: list with filters and sorting ----------
+
+# value in the URL -> label in the dropdown. "custom" (your own
+# drag-and-drop order) is the default.
+SORT_OPTIONS = {
+    "custom": "My order",
+    "newest": "Newest first",
+    "oldest": "Oldest first",
+    "name": "Name A–Z",
+    "name_desc": "Name Z–A",
+    "color": "Color",
+    "category": "Category",
+}
+
+
+def _order_by(sort):
+    """Translate a sort choice into ORDER BY columns."""
+    if sort == "newest":
+        return [Item.created_at.desc(), Item.id.desc()]
+    if sort == "oldest":
+        return [Item.created_at, Item.id]
+    if sort == "name":
+        return [db.func.lower(Item.name), Item.id]
+    if sort == "name_desc":
+        return [db.func.lower(Item.name).desc(), Item.id]
+    if sort == "color":
+        # Follow the order of the COLORS palette (black, white, grey, ...),
+        # not the alphabet. CASE turns each color name into its index.
+        palette_index = db.case(
+            {name: index for index, name in enumerate(COLORS)},
+            value=Item.color, else_=len(COLORS),
+        )
+        return [palette_index, db.func.lower(Item.name)]
+    if sort == "category":
+        return [Item.category_id, db.func.lower(Item.name)]
+    return [Item.position, Item.id]  # "custom"
 
 @bp.route("")
 def index():
@@ -46,6 +81,9 @@ def index():
     color = request.args.get("color", "")
     season = request.args.get("season", "")
     text = request.args.get("q", "").strip()
+    sort = request.args.get("sort", "custom")
+    if sort not in SORT_OPTIONS:
+        sort = "custom"
 
     # Start with "all my items" and narrow it down one filter at a time.
     # Nothing is sent to the database until we ask for the results.
@@ -62,7 +100,7 @@ def index():
         query = query.where(
             Item.name.ilike(pattern) | Item.brand.ilike(pattern) | Item.notes.ilike(pattern)
         )
-    items = db.session.scalars(query.order_by(Item.created_at.desc())).all()
+    items = db.session.scalars(query.order_by(*_order_by(sort))).all()
 
     total = db.session.scalar(
         db.select(db.func.count(Item.id)).filter_by(user_id=current_user.id)
@@ -71,7 +109,53 @@ def index():
         "wardrobe/index.html", title="Wardrobe", items=items, total=total,
         categories=_category_choices(), colors=COLORS, seasons=SEASONS,
         filters={"category": category_id, "color": color, "season": season, "q": text},
+        sort=sort, sort_options=SORT_OPTIONS,
     )
+
+
+# ---------- Reorder (called by JavaScript, answers JSON) ----------
+
+@bp.route("/reorder", methods=["POST"])
+def reorder():
+    """Save a new drag-and-drop order.
+
+    The browser sends {"ids": [7, 3, 9]}: the cards it shows, in their new
+    order. With filters on, that's only some of your items, so we reuse the
+    position numbers those items already had and hand them out in the new
+    order. Items you can't see keep their place.
+    """
+    data = request.get_json(silent=True) or {}
+    ids = data.get("ids")
+    if not isinstance(ids, list) or not all(isinstance(i, int) for i in ids) \
+            or len(ids) != len(set(ids)):
+        return jsonify(error="Send a list of distinct item ids."), 400
+
+    items = db.session.scalars(
+        db.select(Item).where(Item.id.in_(ids), Item.user_id == current_user.id)
+    ).all()
+    if len(items) != len(ids):
+        # Some id isn't yours (or doesn't exist): change nothing.
+        return jsonify(error="Unknown item."), 404
+
+    slots = sorted(item.position for item in items)
+    if len(set(slots)) != len(slots):
+        # Two items share a number: renumber everything 0, 1, 2... first.
+        _renumber_positions()
+        slots = sorted(item.position for item in items)
+
+    by_id = {item.id: item for item in items}
+    for item_id, slot in zip(ids, slots):
+        by_id[item_id].position = slot
+    db.session.commit()
+    return jsonify(ok=True)
+
+
+def _renumber_positions():
+    mine = db.session.scalars(
+        db.select(Item).filter_by(user_id=current_user.id).order_by(Item.position, Item.id)
+    )
+    for number, item in enumerate(mine):
+        item.position = number
 
 
 # ---------- Create ----------
@@ -83,7 +167,11 @@ def create():
     del form.remove_photo  # nothing to remove on a new item
 
     if form.validate_on_submit():
-        item = Item(user_id=current_user.id)
+        # New items go first in "My order": one place before the current first.
+        first = db.session.scalar(
+            db.select(db.func.min(Item.position)).filter_by(user_id=current_user.id)
+        )
+        item = Item(user_id=current_user.id, position=(first - 1) if first is not None else 0)
         if _fill_item_from_form(item, form):
             db.session.add(item)
             db.session.commit()

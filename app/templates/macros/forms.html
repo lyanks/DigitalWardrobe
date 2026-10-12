@@ -4,6 +4,7 @@
   <div class="field{% if field.errors %} has-error{% endif %}">
     {{ field.label }}
     {{ field(**kwargs) }}
+    {% if field.description %}<p class="field-hint">{{ field.description }}</p>{% endif %}
     {% for error in field.errors %}
       <p class="field-error">{{ error }}</p>
     {% endfor %}

@@ -1,10 +1,12 @@
+import re
 from urllib.parse import urlsplit
 
-from flask import Blueprint, flash, redirect, render_template, request, url_for
+from authlib.integrations.base_client import OAuthError
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app.auth.forms import ChangePasswordForm, LoginForm, ProfileForm, RegistrationForm
-from app.extensions import db
+from app.extensions import db, oauth
 from app.models import User
 from app.services.images import InvalidImageError, delete_image, save_image
 
@@ -84,6 +86,7 @@ def profile():
         except InvalidImageError as error:
             profile_form.avatar.errors.append(str(error))
         else:
+            current_user.username = profile_form.username.data
             current_user.display_name = profile_form.display_name.data or None
             if new_avatar:
                 delete_image(current_user.avatar_path)
@@ -93,7 +96,9 @@ def profile():
             return redirect(url_for("auth.profile"))
 
     if password_form.submit.data and password_form.validate_on_submit():
-        if not current_user.check_password(password_form.current_password.data):
+        if current_user.has_password and not current_user.check_password(
+            password_form.current_password.data or ""
+        ):
             password_form.current_password.errors.append("That is not your current password.")
         else:
             current_user.set_password(password_form.new_password.data)
@@ -103,12 +108,88 @@ def profile():
 
     if request.method == "GET":
         # Pre-fill the form with what is already saved.
+        profile_form.username.data = current_user.username
         profile_form.display_name.data = current_user.display_name
 
     return render_template(
         "auth/profile.html", title="Profile",
         profile_form=profile_form, password_form=password_form,
     )
+
+
+# ---------- Sign in with Google ----------
+
+@bp.route("/login/google")
+def google_login():
+    if not current_app.config["GOOGLE_CLIENT_ID"]:
+        abort(404)  # not set up on this computer
+    # Step 1: send the browser to Google's sign-in page. Google will send
+    # it back to the callback URL below with a one-time code.
+    callback = url_for("auth.google_callback", _external=True)
+    return oauth.google.authorize_redirect(callback)
+
+
+@bp.route("/login/google/callback")
+def google_callback():
+    if not current_app.config["GOOGLE_CLIENT_ID"]:
+        abort(404)
+    try:
+        # Step 2: our server swaps the one-time code for a token, directly
+        # with Google. The token contains who the person is ("userinfo").
+        token = oauth.google.authorize_access_token()
+    except OAuthError:
+        flash("Google sign-in was cancelled or failed. Please try again.", "error")
+        return redirect(url_for("auth.login"))
+
+    info = token.get("userinfo") or {}
+    if not info.get("email_verified"):
+        flash("Your Google account's email isn't verified, so we can't use it.", "error")
+        return redirect(url_for("auth.login"))
+
+    user = _find_or_create_google_user(info)
+    login_user(user)
+    flash(f"Hi, {user.shown_name}!", "success")
+    return redirect(url_for("main.index"))
+
+
+def _find_or_create_google_user(info):
+    """Step 3: match the Google account to one of our users."""
+    google_id = info["sub"]  # Google's permanent id for this person
+    email = info["email"].lower()
+
+    # Signed in with Google before?
+    user = db.session.scalar(db.select(User).filter_by(google_id=google_id))
+    if user:
+        return user
+
+    # Already registered with the same (Google-verified) email? Link them.
+    user = db.session.scalar(db.select(User).filter_by(email=email))
+    if user:
+        user.google_id = google_id
+        db.session.commit()
+        return user
+
+    # Brand new: create an account without a password.
+    user = User(
+        username=_free_username(email.split("@")[0]),
+        email=email,
+        google_id=google_id,
+        display_name=(info.get("name") or "")[:80] or None,
+    )
+    db.session.add(user)
+    db.session.commit()
+    return user
+
+
+def _free_username(wanted):
+    """Turn an email name into a valid username nobody has yet: anna.k -> anna.k2."""
+    base = re.sub(r"[^A-Za-z0-9_.]", "", wanted)[:45] or "user"
+    base = base.ljust(3, "_")  # usernames need at least 3 characters
+    candidate, number = base, 1
+    while db.session.scalar(db.select(User).filter_by(username=candidate)):
+        number += 1
+        candidate = f"{base}{number}"
+    return candidate
 
 
 def _safe_next_url():

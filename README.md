@@ -13,6 +13,12 @@ python seed.py                       # adds the clothing categories (safe to re-
 python run.py                        # http://127.0.0.1:5000
 ```
 
+## Optional: Sign in with Google
+
+Copy `.env.example` to `.env` and fill in `GOOGLE_CLIENT_ID` and
+`GOOGLE_CLIENT_SECRET` from Google Cloud Console. Without them the app works
+normally and simply hides the Google button.
+
 ## Test it
 
 ```bash

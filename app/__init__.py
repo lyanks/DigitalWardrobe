@@ -3,7 +3,7 @@ import os
 from flask import Flask
 
 from config import Config
-from app.extensions import csrf, db, login_manager, migrate
+from app.extensions import csrf, db, login_manager, migrate, oauth
 
 
 def create_app(config_class=Config):
@@ -20,6 +20,16 @@ def create_app(config_class=Config):
     migrate.init_app(app, db, render_as_batch=True)
     login_manager.init_app(app)
     csrf.init_app(app)
+    oauth.init_app(app)
+    if app.config["GOOGLE_CLIENT_ID"]:
+        oauth.register(
+            "google",
+            client_id=app.config["GOOGLE_CLIENT_ID"],
+            client_secret=app.config["GOOGLE_CLIENT_SECRET"],
+            # Google publishes all its login URLs at this address.
+            server_metadata_url="https://accounts.google.com/.well-known/openid-configuration",
+            client_kwargs={"scope": "openid email profile"},
+        )
 
     # Import models so SQLAlchemy and Flask-Migrate know about the tables.
     from app import models  # noqa: F401

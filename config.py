@@ -20,6 +20,11 @@ class Config:
     # Phone photos are often 3-8 MB; they are shrunk when saved.
     MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
+    # "Sign in with Google". Get both values from Google Cloud Console and
+    # put them in .env (never in this file). Empty = the button is hidden.
+    GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
+    GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
+
 
 class TestConfig(Config):
     TESTING = True
@@ -28,3 +33,5 @@ class TestConfig(Config):
     # Tests post forms directly, without first loading the page that holds
     # the CSRF token, so switch the check off here (and only here).
     WTF_CSRF_ENABLED = False
+    GOOGLE_CLIENT_ID = "test-client-id"
+    GOOGLE_CLIENT_SECRET = "test-client-secret"

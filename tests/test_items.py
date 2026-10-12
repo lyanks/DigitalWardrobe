@@ -195,3 +195,91 @@ def test_users_only_see_their_own_items(client):
 def test_missing_item_is_404(client):
     register(client)
     assert client.get("/items/12345").status_code == 404
+
+
+# ---------- sorting and your own order ----------
+
+def grid_order(client, query=""):
+    page = client.get("/items" + query).data.decode()
+    names = ["Blue jeans", "Wool coat", "Shorts", "Black tee"]
+    return sorted((n for n in names if n in page), key=page.index)
+
+
+def add_four(client):
+    add_item(client, name="Blue jeans", color="blue")
+    add_item(client, name="Wool coat", category_id=category_id("Outerwear"), color="grey")
+    add_item(client, name="Shorts", color="beige")
+    add_item(client, name="Black tee", category_id=category_id("Tops"), color="black")
+
+
+def test_default_order_is_newest_first_and_draggable(client):
+    register(client)
+    add_four(client)
+    assert grid_order(client) == ["Black tee", "Shorts", "Wool coat", "Blue jeans"]
+    assert b"data-reorder-url" in client.get("/items").data
+    assert b"data-reorder-url" not in client.get("/items?sort=name").data
+
+
+def test_sort_options(client):
+    register(client)
+    add_four(client)
+    assert grid_order(client, "?sort=name") == ["Black tee", "Blue jeans", "Shorts", "Wool coat"]
+    assert grid_order(client, "?sort=name_desc") == ["Wool coat", "Shorts", "Blue jeans", "Black tee"]
+    assert grid_order(client, "?sort=oldest") == ["Blue jeans", "Wool coat", "Shorts", "Black tee"]
+    # Palette order: black, ..., grey, beige, ..., blue
+    assert grid_order(client, "?sort=color") == ["Black tee", "Wool coat", "Shorts", "Blue jeans"]
+    # Category order: Tops, Bottoms, ..., Outerwear
+    assert grid_order(client, "?sort=category") == ["Black tee", "Blue jeans", "Shorts", "Wool coat"]
+    assert grid_order(client, "?sort=nonsense") == grid_order(client)
+
+
+def ids_of(*names):
+    return [get_item(n).id for n in names]
+
+
+def test_reorder_saves_my_order(client):
+    register(client)
+    add_four(client)
+    new_order = ["Wool coat", "Black tee", "Blue jeans", "Shorts"]
+    response = client.post("/items/reorder", json={"ids": ids_of(*new_order)})
+
+    assert response.status_code == 200 and response.json == {"ok": True}
+    assert grid_order(client) == new_order
+
+
+def test_reorder_with_a_filter_keeps_hidden_items_in_place(client):
+    register(client)
+    add_four(client)  # my order: Black tee, Shorts, Wool coat, Blue jeans
+    bottoms = f"?category={category_id('Bottoms')}"
+    assert grid_order(client, bottoms) == ["Shorts", "Blue jeans"]
+
+    client.post("/items/reorder", json={"ids": ids_of("Blue jeans", "Shorts")})
+    assert grid_order(client) == ["Black tee", "Blue jeans", "Wool coat", "Shorts"]
+
+
+def test_new_item_goes_first_in_my_order(client):
+    register(client)
+    add_four(client)
+    client.post("/items/reorder", json={"ids": ids_of("Wool coat", "Black tee", "Blue jeans", "Shorts")})
+    add_item(client, name="Red scarf", category_id=category_id("Accessories"), color="red")
+    page = client.get("/items").data.decode()
+    assert page.index("Red scarf") < page.index("Wool coat")
+
+
+def test_reorder_rejects_bad_requests(client):
+    register(client)
+    add_four(client)
+    mine = ids_of("Blue jeans", "Shorts")
+    assert client.post("/items/reorder", json={"ids": "nope"}).status_code == 400
+    assert client.post("/items/reorder", json={"ids": [mine[0], mine[0]]}).status_code == 400
+    assert client.post("/items/reorder", data="not json").status_code == 400
+    logout(client)
+
+    register(client, "bob", "bob@example.com")
+    add_item(client, name="Bob's hat", category_id=category_id("Accessories"))
+    response = client.post("/items/reorder", json={"ids": mine + ids_of("Bob's hat")})
+    assert response.status_code == 404  # Alice's items aren't Bob's to move
+
+
+def test_reorder_needs_login(client):
+    assert client.post("/items/reorder", json={"ids": []}).status_code == 302
