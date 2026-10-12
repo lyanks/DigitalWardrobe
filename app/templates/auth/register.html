@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="card narrow">
+    <h1>Create an account</h1>
+    {# novalidate: let the server do the checking, so you see Flask-WTF's errors. #}
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}  {# hidden CSRF token #}
+      {{ render_field(form.username, autocomplete="username") }}
+      {{ render_field(form.email, type="email", autocomplete="email") }}
+      {{ render_field(form.password, autocomplete="new-password") }}
+      {{ render_field(form.confirm, autocomplete="new-password") }}
+      {{ form.submit(class="button") }}
+    </form>
+    <p class="muted">Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>.</p>
+  </div>
+{% endblock %}

@@ -1,0 +1,11 @@
+{# A macro is a Jinja function. One place decides how every form field
+   looks: label, input, and the error messages under it. #}
+{% macro render_field(field) %}
+  <div class="field{% if field.errors %} has-error{% endif %}">
+    {{ field.label }}
+    {{ field(**kwargs) }}
+    {% for error in field.errors %}
+      <p class="field-error">{{ error }}</p>
+    {% endfor %}
+  </div>
+{% endmacro %}
