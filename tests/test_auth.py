@@ -2,7 +2,7 @@ import io
 
 from app.extensions import db
 from app.models import User
-from tests.conftest import login, logout, register
+from tests.conftest import login, logout, make_image, register
 
 
 def test_register_creates_user_and_logs_in(client):
@@ -96,16 +96,19 @@ def test_edit_display_name_and_upload_avatar(client, app):
     register(client)
     response = client.post("/profile", data={
         "profile-display_name": "Alice A.",
-        "profile-avatar": (io.BytesIO(b"fake image bytes"), "me.png"),
+        "profile-avatar": make_image("me.png"),
         "profile-submit": "Save profile",
     }, content_type="multipart/form-data", follow_redirects=True)
 
     assert b"Profile saved." in response.data
     user = db.session.scalar(db.select(User).filter_by(username="alice"))
     assert user.display_name == "Alice A."
-    assert user.avatar_path.startswith("avatars/") and user.avatar_path.endswith(".png")
-    assert "me" not in user.avatar_path  # the original name is not reused
-    assert client.get(f"/uploads/{user.avatar_path}").data == b"fake image bytes"
+    # Saved as JPEG under a random name; the original name is not reused.
+    assert user.avatar_path.startswith("avatars/") and user.avatar_path.endswith(".jpg")
+    assert "me" not in user.avatar_path
+    response = client.get(f"/uploads/{user.avatar_path}")
+    assert response.status_code == 200
+    assert response.mimetype == "image/jpeg"
 
 
 def test_avatar_rejects_non_images(client):
@@ -116,6 +119,20 @@ def test_avatar_rejects_non_images(client):
     }, content_type="multipart/form-data")
 
     assert b"Images only" in response.data
+
+
+def test_avatar_rejects_fake_image_with_image_name(client):
+    register(client)
+    response = client.post("/profile", data={
+        "profile-display_name": "Should not be saved",
+        "profile-avatar": (io.BytesIO(b"not really a png"), "sneaky.png"),
+        "profile-submit": "Save profile",
+    }, content_type="multipart/form-data")
+
+    assert b"not a readable image" in response.data
+    user = db.session.scalar(db.select(User).filter_by(username="alice"))
+    assert user.avatar_path is None
+    assert user.display_name is None
 
 
 def test_change_password(client):

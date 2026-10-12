@@ -1,17 +1,21 @@
 :root {
-    --color-bg: #faf8f5;
+    /* Palette: Lavender, mint and cocoa. */
+    --color-bg: #f8f9f5;
     --color-surface: #ffffff;
-    --color-text: #2b2b2b;
-    --color-muted: #6b6b6b;
-    --color-primary: #7a5c99;
-    --color-border: #e4e0da;
+    --color-text: #413225;          /* cocoa brown */
+    --color-muted: #7a6a5c;
+    --color-primary: #6157ae;       /* purple: buttons, links, logo */
+    --color-border: #e6e2dc;
     --color-on-primary: #ffffff;
-    --color-success-bg: #e6f4ea;
+    --color-success-bg: #d4f2d2;    /* mint */
     --color-success-text: #1e5b32;
     --color-error-bg: #fbe9e7;
     --color-error-text: #8a2a1c;
-    --color-info-bg: #ece6f3;
-    --color-info-text: #4a3463;
+    --color-info-bg: #e7e7fb;       /* light lavender */
+    --color-info-text: #3f3787;
+    --color-danger: #b3261e;
+    --color-placeholder: #eef6ec;
+    --shadow: 0 4px 12px rgb(65 50 37 / 0.12);
 
     --radius: 8px;
     --space: 1rem;
@@ -162,7 +166,12 @@ a {
 
 .field input[type="text"],
 .field input[type="email"],
-.field input[type="password"] {
+.field input[type="password"],
+.field input[type="date"],
+.field select,
+.field textarea,
+.filters input,
+.filters select {
     width: 100%;
     padding: 0.55rem 0.7rem;
     border: 1px solid var(--color-border);
@@ -232,4 +241,193 @@ a {
     color: var(--color-on-primary);
     font-size: 2.5rem;
     font-weight: 700;
+}
+
+/* ---------- Phase 2: wardrobe ---------- */
+
+.page-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space);
+}
+
+.filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: var(--space);
+}
+
+.filters input,
+.filters select {
+    width: auto;
+    flex: 1 1 140px;
+}
+
+.filters input[type="search"] {
+    flex: 2 1 220px;
+}
+
+.item-grid {
+    display: grid;
+    /* As many 150px-wide columns as fit; they stretch to fill the row. */
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space);
+    margin-bottom: calc(var(--space) * 1.5);
+}
+
+.item-card {
+    display: block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    color: var(--color-text);
+    text-decoration: none;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.item-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+}
+
+.item-photo {
+    display: block;
+    width: 100%;
+    aspect-ratio: 1;  /* square, whatever the photo's shape */
+    object-fit: cover;
+}
+
+.item-photo-empty {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--color-placeholder);
+    color: var(--color-muted);
+}
+
+.item-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    padding: 0.6rem 0.75rem 0.75rem;
+}
+
+.item-name {
+    font-weight: 600;
+}
+
+.item-meta {
+    font-size: 0.85rem;
+}
+
+.empty-state {
+    text-align: center;
+}
+
+/* item detail */
+
+.item-detail {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: calc(var(--space) * 2);
+    align-items: start;
+}
+
+@media (max-width: 640px) {
+    .item-detail {
+        grid-template-columns: 1fr;
+    }
+}
+
+.item-detail h1 {
+    margin-top: 0;
+}
+
+.item-detail-photo {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: var(--radius);
+}
+
+.facts {
+    display: grid;
+    grid-template-columns: max-content 1fr;
+    gap: 0.4rem 1.2rem;
+}
+
+.facts dt {
+    color: var(--color-muted);
+}
+
+.facts dd {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.swatch {
+    display: inline-block;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: var(--swatch);
+}
+
+.notes {
+    white-space: pre-line;  /* keep the line breaks the user typed */
+}
+
+/* form + buttons */
+
+.narrow-wide {
+    max-width: 640px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.field-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space);
+}
+
+.checkbox {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.checkbox label {
+    display: inline;
+    font-weight: normal;
+    margin: 0;
+}
+
+.photo-preview {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius);
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: var(--space);
+    margin-top: var(--space);
+}
+
+.danger-link {
+    color: var(--color-danger);
+}
+
+.button-danger {
+    background: var(--color-danger);
 }

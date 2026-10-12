@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}{{ item.name }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <p><a href="{{ url_for('wardrobe.index') }}">← Wardrobe</a></p>
+
+  <div class="item-detail">
+    {% if item.image_path %}
+      <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
+           alt="{{ item.name }}" class="item-detail-photo">
+    {% else %}
+      <div class="item-detail-photo item-photo-empty">No photo</div>
+    {% endif %}
+
+    <div>
+      <h1>{{ item.name }}</h1>
+      {# A definition list: label/value pairs, made for exactly this. #}
+      <dl class="facts">
+        <dt>Category</dt><dd>{{ item.category.name }}</dd>
+        <dt>Color</dt>
+        <dd>
+          {# The hex lives in a CSS variable on this element only, so the
+             stylesheet still never contains a raw color for it. #}
+          <span class="swatch" style="--swatch: {{ colors[item.color] }}"></span>
+          {{ item.color | capitalize }}
+        </dd>
+        <dt>Season</dt><dd>{{ item.season | capitalize }}</dd>
+        {% if item.style %}<dt>Style</dt><dd>{{ item.style | capitalize }}</dd>{% endif %}
+        {% if item.brand %}<dt>Brand</dt><dd>{{ item.brand }}</dd>{% endif %}
+        {% if item.size %}<dt>Size</dt><dd>{{ item.size }}</dd>{% endif %}
+        {% if item.purchase_date %}
+          <dt>Bought</dt><dd>{{ item.purchase_date.strftime("%d %B %Y") }}</dd>
+        {% endif %}
+        <dt>Worn</dt><dd>{{ item.times_worn }} time{{ "s" if item.times_worn != 1 }}</dd>
+      </dl>
+      {% if item.notes %}<p class="notes">{{ item.notes }}</p>{% endif %}
+
+      <div class="actions">
+        <a href="{{ url_for('wardrobe.edit', item_id=item.id) }}" class="button">Edit</a>
+        {# A link is fine here: it only opens the "Are you sure?" page. #}
+        <a href="{{ url_for('wardrobe.delete', item_id=item.id) }}" class="danger-link">Delete</a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

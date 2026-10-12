@@ -1,11 +1,22 @@
 {% extends "base.html" %}
+{% from "wardrobe/_card.html" import item_card %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
 {% block content %}
   {% if current_user.is_authenticated %}
     <h1>Hello, {{ current_user.shown_name }} 👕</h1>
-    <p>Your wardrobe is empty for now. Adding clothes arrives in Phase 2.</p>
+    {% if total %}
+      <p>You have {{ total }} item{{ "s" if total != 1 }} in your wardrobe.
+        <a href="{{ url_for('wardrobe.index') }}">See them all</a>.</p>
+      <h2>Recently added</h2>
+      <div class="item-grid">
+        {% for item in recent %}{{ item_card(item) }}{% endfor %}
+      </div>
+    {% else %}
+      <p>Your wardrobe is empty. Start with the clothes you wear most.</p>
+    {% endif %}
+    <p><a href="{{ url_for('wardrobe.create') }}" class="button">Add an item</a></p>
   {% else %}
     <h1>Hello wardrobe 👕</h1>
     <p>Keep track of your clothes, build outfits and plan what to wear.</p>

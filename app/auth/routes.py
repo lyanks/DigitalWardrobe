@@ -1,15 +1,12 @@
-import os
-import uuid
 from urllib.parse import urlsplit
 
-from flask import (
-    Blueprint, current_app, flash, redirect, render_template, request, url_for,
-)
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app.auth.forms import ChangePasswordForm, LoginForm, ProfileForm, RegistrationForm
 from app.extensions import db
 from app.models import User
+from app.services.images import InvalidImageError, delete_image, save_image
 
 bp = Blueprint("auth", __name__)
 
@@ -79,12 +76,21 @@ def profile():
     password_form = ChangePasswordForm(prefix="pw")
 
     if profile_form.submit.data and profile_form.validate_on_submit():
-        current_user.display_name = profile_form.display_name.data or None
-        if profile_form.avatar.data:
-            _replace_avatar(profile_form.avatar.data)
-        db.session.commit()
-        flash("Profile saved.", "success")
-        return redirect(url_for("auth.profile"))
+        try:
+            # Check the photo first: if it's broken, nothing is changed.
+            new_avatar = None
+            if profile_form.avatar.data:
+                new_avatar = save_image(profile_form.avatar.data, "avatars", max_size=400)
+        except InvalidImageError as error:
+            profile_form.avatar.errors.append(str(error))
+        else:
+            current_user.display_name = profile_form.display_name.data or None
+            if new_avatar:
+                delete_image(current_user.avatar_path)
+                current_user.avatar_path = new_avatar
+            db.session.commit()
+            flash("Profile saved.", "success")
+            return redirect(url_for("auth.profile"))
 
     if password_form.submit.data and password_form.validate_on_submit():
         if not current_user.check_password(password_form.current_password.data):
@@ -103,22 +109,6 @@ def profile():
         "auth/profile.html", title="Profile",
         profile_form=profile_form, password_form=password_form,
     )
-
-
-def _replace_avatar(file_storage):
-    """Save the uploaded image under a random name and delete the old one."""
-    ext = file_storage.filename.rsplit(".", 1)[-1].lower()
-    # Never trust the uploaded file name: it could be "../../run.py" or
-    # clash with someone else's. A random name avoids both problems.
-    filename = f"avatars/{uuid.uuid4().hex}.{ext}"
-    upload_folder = current_app.config["UPLOAD_FOLDER"]
-    file_storage.save(os.path.join(upload_folder, filename))
-
-    if current_user.avatar_path:
-        old = os.path.join(upload_folder, current_user.avatar_path)
-        if os.path.exists(old):
-            os.remove(old)
-    current_user.avatar_path = filename
 
 
 def _safe_next_url():

@@ -1,0 +1,16 @@
+{# One item card, used by the wardrobe grid and the home page.
+   The leading underscore in the file name means "a piece, not a page". #}
+{% macro item_card(item) %}
+  <a href="{{ url_for('wardrobe.detail', item_id=item.id) }}" class="item-card">
+    {% if item.image_path %}
+      <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
+           alt="{{ item.name }}" class="item-photo" loading="lazy">
+    {% else %}
+      <div class="item-photo item-photo-empty">{{ item.category.name }}</div>
+    {% endif %}
+    <div class="item-card-body">
+      <span class="item-name">{{ item.name }}</span>
+      <span class="muted item-meta">{{ item.category.name }} · {{ item.color }}</span>
+    </div>
+  </a>
+{% endmacro %}

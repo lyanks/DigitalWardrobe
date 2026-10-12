@@ -1,9 +1,13 @@
 """Shared test setup. pytest finds fixtures in this file automatically."""
+import io
+
 import pytest
+from PIL import Image
 
 from app import create_app
 from app.extensions import db
 from config import TestConfig
+from seed import seed_categories
 
 
 @pytest.fixture
@@ -14,6 +18,7 @@ def app(tmp_path):
     app = create_app(Cfg)
     with app.app_context():
         db.create_all()  # fresh tables in the in-memory database
+        seed_categories()
         yield app
         db.session.remove()
         db.drop_all()
@@ -39,3 +44,11 @@ def login(client, login="alice", password="secret123"):
 
 def logout(client):
     return client.post("/logout", follow_redirects=True)
+
+
+def make_image(name="photo.png", size=(60, 40), color="red"):
+    """A real (tiny) image file in memory, ready to upload in a test."""
+    buffer = io.BytesIO()
+    Image.new("RGB", size, color).save(buffer, "PNG")
+    buffer.seek(0)
+    return buffer, name

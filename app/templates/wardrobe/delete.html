@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="card narrow">
+    <h1>Delete “{{ item.name }}”?</h1>
+    <p>This removes the item and its photo for good.</p>
+    <form method="post" class="actions">
+      {{ form.hidden_tag() }}
+      {{ form.submit(class="button button-danger") }}
+      <a href="{{ url_for('wardrobe.detail', item_id=item.id) }}">Cancel</a>
+    </form>
+  </div>
+{% endblock %}

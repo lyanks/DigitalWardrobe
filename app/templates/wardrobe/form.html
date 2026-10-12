@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="card narrow-wide">
+    <h1>{{ title }}</h1>
+    {# One template for both "add" and "edit": item is None when adding. #}
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {{ form.hidden_tag() }}
+      {{ render_field(form.name, placeholder="Blue denim jacket") }}
+      <div class="field-row">
+        {{ render_field(form.category_id) }}
+        {{ render_field(form.color) }}
+      </div>
+      <div class="field-row">
+        {{ render_field(form.season) }}
+        {{ render_field(form.style) }}
+      </div>
+      <div class="field-row">
+        {{ render_field(form.brand) }}
+        {{ render_field(form.size, placeholder="M, 38, 10…") }}
+      </div>
+      {{ render_field(form.purchase_date) }}
+
+      {% if item and item.image_path %}
+        <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
+             alt="Current photo" class="photo-preview">
+      {% endif %}
+      {{ render_field(form.photo, accept="image/*") }}
+      {% if form.remove_photo %}
+        <div class="field checkbox">{{ form.remove_photo() }} {{ form.remove_photo.label }}</div>
+      {% endif %}
+      {{ render_field(form.notes, rows=3) }}
+
+      <div class="actions">
+        {{ form.submit(class="button") }}
+        <a href="{{ url_for('wardrobe.detail', item_id=item.id) if item else url_for('wardrobe.index') }}">Cancel</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

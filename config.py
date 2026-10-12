@@ -16,9 +16,9 @@ class Config:
 
     # User photos go to uploads/ (ignored by Git).
     UPLOAD_FOLDER = os.path.join(BASE_DIR, "uploads")
-    # Reject any request bigger than 4 MB (Flask answers 413 by itself).
-    MAX_CONTENT_LENGTH = 4 * 1024 * 1024
-    ALLOWED_IMAGE_EXTENSIONS = {"jpg", "jpeg", "png", "webp", "gif"}
+    # Reject any request bigger than 10 MB (Flask answers 413 by itself).
+    # Phone photos are often 3-8 MB; they are shrunk when saved.
+    MAX_CONTENT_LENGTH = 10 * 1024 * 1024
 
 
 class TestConfig(Config):
