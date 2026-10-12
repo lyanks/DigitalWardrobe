@@ -36,6 +36,15 @@
       </dl>
       {% if item.notes %}<p class="notes">{{ item.notes }}</p>{% endif %}
 
+      {# item.outfits goes through the join table: every outfit with this item. #}
+      {% set outfits = item.outfits %}
+      <p class="muted">
+        Appears in {{ outfits | length }} outfit{{ "s" if outfits | length != 1 }}{{ ":" if outfits }}
+        {% for outfit in outfits %}
+          <a href="{{ url_for('outfits.detail', outfit_id=outfit.id) }}">{{ outfit.name }}</a>{{ ", " if not loop.last }}
+        {% endfor %}
+      </p>
+
       <div class="actions">
         <a href="{{ url_for('wardrobe.edit', item_id=item.id) }}" class="button">Edit</a>
         {# A link is fine here: it only opens the "Are you sure?" page. #}

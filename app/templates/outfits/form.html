@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="card">
+    <h1>{{ title }}</h1>
+
+    {% if not groups %}
+      <p>You need some clothes before you can build an outfit.</p>
+      <a href="{{ url_for('wardrobe.create') }}" class="button">Add an item</a>
+    {% else %}
+    {# multipart/form-data: needed whenever a form uploads a file. #}
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {{ form.hidden_tag() }}
+      <div class="field-row">
+        {{ render_field(form.name, placeholder="Monday office") }}
+        {{ render_field(form.occasion) }}
+      </div>
+
+      {# The item picker. Every checkbox has name="item_ids" and the item's
+         id as its value, so the browser sends all ticked ids together and
+         WTForms collects them into form.item_ids.data (a list). #}
+      <fieldset class="picker{% if form.item_ids.errors %} has-error{% endif %}">
+        <legend>Pick the items</legend>
+        <p class="field-hint">A top and a bottom, or a dress. Add shoes, a jacket and any accessories you like.</p>
+        {% for error in form.item_ids.errors %}
+          <p class="field-error">{{ error }}</p>
+        {% endfor %}
+
+        {% for category, items in groups %}
+          <h2 class="picker-heading">{{ category.name }}</h2>
+          <div class="pick-grid">
+            {% for item in items %}
+              {# The <label> wraps the whole card, so clicking anywhere on it
+                 ticks the box. CSS highlights the card when it's ticked. #}
+              <label class="pick-card">
+                <input type="checkbox" name="item_ids" value="{{ item.id }}"
+                       {{ "checked" if form.item_ids.data and item.id in form.item_ids.data }}>
+                {% if item.image_path %}
+                  <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
+                       alt="" class="item-photo" loading="lazy">
+                {% else %}
+                  <span class="item-photo item-photo-empty">{{ category.name }}</span>
+                {% endif %}
+                <span class="pick-name">{{ item.name }}</span>
+              </label>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </fieldset>
+
+      {% if outfit and outfit.image_path %}
+        <img src="{{ url_for('main.uploaded_file', filename=outfit.image_path) }}"
+             alt="Current photo" class="photo-preview">
+      {% endif %}
+      {{ render_field(form.photo, accept="image/*") }}
+      {% if form.remove_photo %}
+        <div class="field checkbox">{{ form.remove_photo() }} {{ form.remove_photo.label }}</div>
+      {% endif %}
+      {{ render_field(form.notes, rows=3) }}
+
+      <div class="actions">
+        {{ form.submit(class="button") }}
+        <a href="{{ url_for('outfits.detail', outfit_id=outfit.id) if outfit else url_for('outfits.index') }}">Cancel</a>
+      </div>
+    </form>
+    {% endif %}
+  </div>
+{% endblock %}

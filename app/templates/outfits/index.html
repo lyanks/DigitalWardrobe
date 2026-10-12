@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Your outfits</h1>
+    <a href="{{ url_for('outfits.create') }}" class="button">New outfit</a>
+  </div>
+
+  {% if outfits %}
+    <div class="outfit-grid">
+      {% for outfit in outfits %}
+        <a href="{{ url_for('outfits.detail', outfit_id=outfit.id) }}" class="outfit-card">
+          {# Your own photo of the outfit if there is one; otherwise a
+             small collage of the first 4 items, in head-to-toe order. #}
+          {% if outfit.image_path %}
+            <img src="{{ url_for('main.uploaded_file', filename=outfit.image_path) }}"
+                 alt="{{ outfit.name }}" class="item-photo" loading="lazy">
+          {% else %}
+          <div class="outfit-thumbs count-{{ [outfit.items | length, 4] | min }}">
+            {% for item in outfit.items[:4] %}
+              {% if item.image_path %}
+                <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
+                     alt="{{ item.name }}" loading="lazy">
+              {% else %}
+                <span class="item-photo-empty">{{ item.category.name }}</span>
+              {% endif %}
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="item-card-body">
+            <span class="item-name">{{ outfit.name }}</span>
+            <span class="muted item-meta">
+              {{ outfit.items | length }} item{{ "s" if outfit.items | length != 1 }}
+              {% if outfit.occasion %} · {{ outfit.occasion | capitalize }}{% endif %}
+            </span>
+          </div>
+        </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card empty-state">
+      <p>No outfits yet. Put a few of your clothes together and give the combination a name.</p>
+      <a href="{{ url_for('outfits.create') }}" class="button">Create your first outfit</a>
+    </div>
+  {% endif %}
+{% endblock %}

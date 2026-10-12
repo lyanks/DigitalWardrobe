@@ -6,6 +6,9 @@
   <div class="card narrow">
     <h1>Delete “{{ item.name }}”?</h1>
     <p>This removes the item and its photo for good.</p>
+    {% if item.outfit_links %}
+      <p>It will also be taken out of {{ item.outfit_links | length }} outfit{{ "s" if item.outfit_links | length != 1 }}. The outfits themselves stay.</p>
+    {% endif %}
     <form method="post" class="actions">
       {{ form.hidden_tag() }}
       {{ form.submit(class="button button-danger") }}

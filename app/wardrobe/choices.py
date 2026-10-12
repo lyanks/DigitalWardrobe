@@ -41,3 +41,6 @@ COLORS = {
 SEASONS = ["all", "spring", "summer", "autumn", "winter"]
 
 STYLES = ["casual", "formal", "business", "sporty", "streetwear", "classic", "party", "home"]
+
+# What an outfit is for. Optional on the outfit form.
+OCCASIONS = ["casual", "work", "formal", "party", "date", "sport", "travel", "home"]

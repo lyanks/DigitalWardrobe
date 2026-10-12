@@ -32,6 +32,9 @@ class User(UserMixin, db.Model):
     items = db.relationship(
         "Item", back_populates="owner", cascade="all, delete-orphan",
     )
+    outfits = db.relationship(
+        "Outfit", back_populates="owner", cascade="all, delete-orphan",
+    )
 
     def set_password(self, password):
         # Store a salted one-way hash, never the password itself.
@@ -102,6 +105,61 @@ class Item(db.Model):
     # and item.category and get objects instead of bare ids.
     owner = db.relationship("User", back_populates="items")
     category = db.relationship("Category", back_populates="items")
+    # The rows of the join table that mention this item. Deleting the item
+    # deletes those rows, so it simply drops out of its outfits.
+    outfit_links = db.relationship(
+        "OutfitItem", back_populates="item", cascade="all, delete-orphan",
+    )
+
+    @property
+    def outfits(self):
+        return [link.outfit for link in self.outfit_links]
 
     def __repr__(self):
         return f"<Item {self.name!r} of user {self.user_id}>"
+
+
+class Outfit(db.Model):
+    """A named combination of items, e.g. "Monday office"."""
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    name = db.Column(db.String(100), nullable=False)
+    occasion = db.Column(db.String(50))
+    notes = db.Column(db.Text)
+    # Optional photo of you wearing the whole outfit.
+    image_path = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    owner = db.relationship("User", back_populates="outfits")
+    # order_by: outfit.item_links always comes back in display order.
+    # Deleting the outfit deletes its links, never the items themselves.
+    item_links = db.relationship(
+        "OutfitItem", back_populates="outfit", cascade="all, delete-orphan",
+        order_by="OutfitItem.position",
+    )
+
+    @property
+    def items(self):
+        return [link.item for link in self.item_links]
+
+    def __repr__(self):
+        return f"<Outfit {self.name!r} of user {self.user_id}>"
+
+
+class OutfitItem(db.Model):
+    """The join table between Outfit and Item (many-to-many).
+
+    One row = "this item is in this outfit". An outfit has many items and an
+    item can be in many outfits; neither table could hold that on its own.
+    The two ids together are the primary key, so the same item can't be
+    added to the same outfit twice.
+    """
+
+    outfit_id = db.Column(db.Integer, db.ForeignKey("outfit.id"), primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey("item.id"), primary_key=True, index=True)
+    # Where the item is shown in the outfit (top to bottom). Smaller = earlier.
+    position = db.Column(db.Integer, nullable=False, default=0)
+
+    outfit = db.relationship("Outfit", back_populates="item_links")
+    item = db.relationship("Item", back_populates="outfit_links")

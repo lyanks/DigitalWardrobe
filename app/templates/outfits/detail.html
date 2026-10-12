@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% from "wardrobe/_card.html" import item_card %}
+
+{% block title %}{{ outfit.name }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <p><a href="{{ url_for('outfits.index') }}">← Outfits</a></p>
+
+  <div class="page-head">
+    <div>
+      <h1>{{ outfit.name }}</h1>
+      {% if outfit.occasion %}<p class="muted">{{ outfit.occasion | capitalize }}</p>{% endif %}
+    </div>
+    <div class="actions">
+      <a href="{{ url_for('outfits.edit', outfit_id=outfit.id) }}" class="button">Edit</a>
+      <a href="{{ url_for('outfits.delete', outfit_id=outfit.id) }}" class="danger-link">Delete</a>
+    </div>
+  </div>
+
+  {# Shown when deleting clothes left this outfit incomplete. #}
+  {% if problems %}
+    <div class="flash flash-info">
+      Since some of its clothes were deleted, this outfit is incomplete: {{ problems | join(" ") }}
+      <a href="{{ url_for('outfits.edit', outfit_id=outfit.id) }}">Fix it</a>
+    </div>
+  {% endif %}
+
+  {% if outfit.notes %}<p class="notes">{{ outfit.notes }}</p>{% endif %}
+
+  {% if outfit.image_path %}
+    <img src="{{ url_for('main.uploaded_file', filename=outfit.image_path) }}"
+         alt="{{ outfit.name }}" class="outfit-photo">
+  {% endif %}
+
+  <div class="item-grid">
+    {% for item in outfit.items %}{{ item_card(item) }}{% endfor %}
+  </div>
+{% endblock %}

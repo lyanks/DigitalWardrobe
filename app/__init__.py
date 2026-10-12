@@ -38,9 +38,11 @@ def create_app(config_class=Config):
     from app.main.routes import bp as main_bp
     from app.auth.routes import bp as auth_bp
     from app.wardrobe.routes import bp as wardrobe_bp
+    from app.outfits.routes import bp as outfits_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
     app.register_blueprint(wardrobe_bp)
+    app.register_blueprint(outfits_bp)
 
     return app

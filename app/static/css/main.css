@@ -489,3 +489,115 @@ a {
     width: 18px;
     height: 18px;
 }
+
+/* ---------- Phase 3: outfits ---------- */
+
+.outfit-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space);
+}
+
+/* Same look as an item card. */
+.outfit-card {
+    display: block;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    color: var(--color-text);
+    text-decoration: none;
+}
+
+.outfit-card:hover {
+    box-shadow: var(--shadow);
+}
+
+/* Collage of the outfit's first items: 2 x 2, or fewer tiles if the
+   outfit is smaller (the count-N class says how many there are). */
+.outfit-thumbs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+    gap: 2px;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--color-border);
+}
+
+.outfit-thumbs.count-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+.outfit-thumbs.count-2 { grid-template-rows: 1fr; }
+.outfit-thumbs.count-3 > :first-child { grid-row: span 2; }
+
+.outfit-thumbs img,
+.outfit-thumbs span {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    object-fit: cover;
+    font-size: 0.8rem;
+}
+
+/* The item picker in the outfit builder. */
+.picker {
+    border: 0;
+    padding: 0;
+    margin: 0 0 var(--space);
+}
+
+.picker legend {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+}
+
+.picker-heading {
+    font-size: 1rem;
+    margin: var(--space) 0 0.5rem;
+}
+
+.pick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 0.75rem;
+}
+
+.pick-card {
+    position: relative;
+    display: block;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    background: var(--color-surface);
+}
+
+/* The checkbox sits in the corner of the photo. */
+.pick-card input {
+    position: absolute;
+    top: 0.4rem;
+    left: 0.4rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    accent-color: var(--color-primary);
+}
+
+/* :has() = "a card that contains a ticked checkbox". No JavaScript needed. */
+.pick-card:has(input:checked) {
+    border-color: var(--color-primary);
+    box-shadow: var(--shadow);
+}
+
+.pick-name {
+    display: block;
+    padding: 0.35rem 0.5rem;
+    font-size: 0.85rem;
+}
+
+/* Your own photo of an outfit, shown whole (not cropped) above its items. */
+.outfit-photo {
+    display: block;
+    max-width: 100%;
+    max-height: 520px;
+    margin-bottom: var(--space);
+    border-radius: var(--radius);
+}
