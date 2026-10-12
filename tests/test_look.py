@@ -4,7 +4,7 @@ from tests.conftest import register
 
 def test_landing_page_for_visitors(client):
     page = client.get("/").get_data(as_text=True)
-    assert 'class="public"' in page
+    assert 'class="public landing"' in page
     assert "thoughtfully" in page
     assert "Get started free" in page
 
@@ -28,5 +28,13 @@ def test_login_and_signup_are_dark_with_password_eye(client):
 def test_logged_in_home_is_not_dark(client):
     register(client)
     page = client.get("/").get_data(as_text=True)
-    assert 'class="public"' not in page
+    assert 'class="public' not in page
     assert "Get started free" not in page
+
+
+def test_messages_can_fade_away(client):
+    register(client)
+    page = client.post("/logout", follow_redirects=True).get_data(as_text=True)
+    assert "data-flash" in page        # flash.js finds the message by this
+    assert "flash-close" in page       # the × button
+    assert "flash.js" in page

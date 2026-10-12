@@ -3,7 +3,7 @@
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
-{% block body_class %}{{ "" if current_user.is_authenticated else "public" }}{% endblock %}
+{% block body_class %}{{ "" if current_user.is_authenticated else "public landing" }}{% endblock %}
 
 {% block content %}
   {% if current_user.is_authenticated %}

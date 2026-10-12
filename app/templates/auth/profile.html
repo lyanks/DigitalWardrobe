@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros/forms.html" import render_field %}
+{% from "macros/forms.html" import render_field, password_field %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
@@ -44,11 +44,15 @@
     <form method="post" novalidate>
       {{ password_form.hidden_tag() }}
       {% if current_user.has_password %}
-        {{ render_field(password_form.current_password, autocomplete="current-password") }}
+        {{ password_field(password_form.current_password, autocomplete="current-password") }}
       {% endif %}
-      {{ render_field(password_form.new_password, autocomplete="new-password") }}
-      {{ render_field(password_form.confirm, autocomplete="new-password") }}
+      {{ password_field(password_form.new_password, autocomplete="new-password") }}
+      {{ password_field(password_form.confirm, autocomplete="new-password") }}
       {{ password_form.submit(class="button") }}
     </form>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/password_toggle.js') }}"></script>
 {% endblock %}

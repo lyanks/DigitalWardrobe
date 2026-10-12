@@ -44,7 +44,11 @@
     {# Messages saved with flash() in a route appear here once, then vanish. #}
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
-        <div class="flash flash-{{ category }}">{{ message }}</div>
+        {# data-flash: static/js/flash.js fades these out after a few seconds. #}
+        <div class="flash flash-{{ category }}" data-flash role="status">
+          <span>{{ message }}</span>
+          <button type="button" class="flash-close" aria-label="Close">×</button>
+        </div>
       {% endfor %}
     {% endwith %}
 
@@ -53,6 +57,7 @@
 
   {% block footer %}{% endblock %}
 
+  <script src="{{ url_for('static', filename='js/flash.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

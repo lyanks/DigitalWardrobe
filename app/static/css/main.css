@@ -1,22 +1,25 @@
 :root {
-    /* Palette: Lavender, mint and cocoa. */
-    --color-bg: #f8f9f5;
-    --color-surface: #ffffff;
-    --color-text: #413225;          /* cocoa brown */
-    --color-muted: #7a6a5c;
-    --color-primary: #6157ae;       /* purple: buttons, links, logo */
-    --color-border: #e6e2dc;
-    --color-on-primary: #ffffff;
-    --color-success-bg: #d4f2d2;    /* mint */
-    --color-success-text: #1e5b32;
-    --color-error-bg: #fbe9e7;
-    --color-error-text: #8a2a1c;
-    --color-info-bg: #e7e7fb;       /* light lavender */
-    --color-info-text: #3f3787;
-    --color-danger: #b3261e;
-    --color-placeholder: #eef6ec;
-    --color-photo-bg: #f3f1f8;      /* behind photos that don't fill their box */
-    --shadow: 0 4px 12px rgb(65 50 37 / 0.12);
+    /* Palette: night purple and lavender, the look of the landing page. */
+    --color-bg: #0f0420;            /* night purple */
+    --color-surface: #1a0e33;       /* cards: a step lighter than the page */
+    --color-text: #ffffff;
+    --color-muted: #a59cba;
+    --color-primary: #c4a8ff;       /* lavender: buttons, links */
+    --color-border: #3a2d52;
+    --color-on-primary: #1d0b3a;    /* text on lavender buttons */
+    --color-field: #ede6ff;         /* light lavender input boxes */
+    --color-field-text: #3a2a63;
+    --color-success-bg: #46317a;    /* glowing lavender: done, worn, saved */
+    --color-success-text: #e2d5ff;
+    --color-error-bg: #3d1622;
+    --color-error-text: #ffb4a8;
+    --color-info-bg: #251b44;       /* deep purple: planned, notes */
+    --color-info-text: #c9bcec;
+    --color-danger: #ff8a80;
+    --color-placeholder: #241a3d;   /* item card without a photo */
+    --color-photo-bg: #ede9f6;      /* behind photos that don't fill their box */
+    --color-glow: rgb(123 92 196 / 0.35);
+    --shadow: 0 4px 16px rgb(0 0 0 / 0.45);
 
     --radius: 8px;
     --space: 1rem;
@@ -29,19 +32,51 @@
 
 body {
     margin: 0;
+    min-height: 100vh;
     font-family: var(--font);
-    background: var(--color-bg);
     color: var(--color-text);
+    background: var(--color-bg);
+}
+
+/* Two soft lavender glows in the corners, like the landing page.
+   ::before adds a layer behind the page; position: fixed keeps it still
+   while the page scrolls, and z-index: -1 puts it under everything. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 100% 0%, var(--color-glow), transparent 40%),
+        radial-gradient(circle at 0% 70%, var(--color-glow), transparent 35%);
+}
+/* The landing page has its own bigger glows (.glows). */
+body.public::before {
+    display: none;
+}
+
+/* The "Choose File" button of a file input. */
+input[type="file"] {
+    color: var(--color-muted);
+}
+input[type="file"]::file-selector-button {
+    margin-right: 0.75rem;
+    padding: 0.4rem 0.9rem;
+    border: 1px solid var(--color-primary);
+    border-radius: var(--radius);
+    background: transparent;
+    color: var(--color-primary);
+    font: inherit;
+    cursor: pointer;
 }
 
 .site-header {
-    background: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
     padding: var(--space);
 }
 
 .logo {
-    color: var(--color-primary);
+    color: var(--color-text);
     font-weight: 700;
     text-decoration: none;
 }
@@ -132,9 +167,26 @@ a {
 /* ---------- flash messages ---------- */
 
 .flash {
+    display: flex;
+    align-items: center;
+    gap: var(--space);
     border-radius: var(--radius);
     padding: 0.75rem var(--space);
     margin-bottom: var(--space);
+    transition: opacity 0.4s;
+}
+.flash-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: inherit;
+    font-size: 1.2rem;
+    line-height: 1;
+    cursor: pointer;
+    opacity: 0.7;
+}
+.flash.fading {
+    opacity: 0;   /* flash.js adds this class, waits for the fade, then removes the box */
 }
 
 .flash-success { background: var(--color-success-bg); color: var(--color-success-text); }
@@ -177,11 +229,16 @@ a {
 .filters select {
     width: 100%;
     padding: 0.55rem 0.7rem;
-    border: 1px solid var(--color-border);
+    border: none;
     border-radius: var(--radius);
     font: inherit;
-    background: var(--color-surface);
-    color: var(--color-text);
+    background: var(--color-field);
+    color: var(--color-field-text);
+}
+.field input::placeholder,
+.field textarea::placeholder,
+.filters input::placeholder {
+    color: #8b7ab8;
 }
 
 .field input:focus {
@@ -534,6 +591,9 @@ a {
     background: var(--color-photo-bg);
     font-size: 0.8rem;
 }
+.outfit-thumbs span {
+    background: var(--color-placeholder);  /* an item without a photo */
+}
 
 /* The item picker in the outfit builder. */
 .picker {
@@ -603,6 +663,7 @@ a {
 
 .month-nav {
     display: flex;
+    flex-wrap: wrap;
     gap: var(--space);
 }
 
@@ -972,44 +1033,36 @@ a {
 
 /* ===== Public pages: landing, log in, sign up (dark look) ===== */
 
-/* Same variable names, new values: everything that uses var(--color-...)
-   turns dark at once, only on pages whose <body> has class="public". */
+/* The colours are the same as everywhere else (see :root). The landing
+   page has its own big glows (.glows), so it drops the corner glows, and
+   the column layout pushes the footer to the bottom. */
 body.public {
-    --color-bg: #0f0420;            /* night purple */
-    --color-surface: #0f0420;
-    --color-text: #ffffff;
-    --color-muted: #a59cba;
-    --color-primary: #c4a8ff;       /* lavender */
-    --color-on-primary: #1d0b3a;
-    --color-border: #3a2d52;
-    --color-field: #ede6ff;         /* light lavender inputs */
-    --color-field-text: #3a2a63;
-    min-height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow-x: hidden;  /* 100vw in .glows counts the scrollbar too; hide that sliver */
 }
 
-.public .site-header {
-    border-bottom: none;
+/* The landing page is exactly one screen tall: header, hero, footer, no
+   scrolling. dvh = "dynamic viewport height", which on a phone leaves out
+   the browser's address bar (vh is the fallback for older browsers).
+   If the content is taller (a small phone), the page can still scroll. */
+body.landing {
+    height: 100vh;
+    height: 100dvh;
 }
-.public .logo {
-    color: var(--color-text);
+.landing .container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;        /* hero in the middle of the free space */
+    padding-top: 0;
+    padding-bottom: 0;
 }
+
 .public .container {
     flex: 1;                        /* pushes the footer to the bottom */
     width: 100%;
 }
-.public a {
-    color: var(--color-primary);
-}
-.public .button {
-    color: var(--color-on-primary);
-}
-
 .button-outline,
-.nav a.button-outline,
-.public .button-outline {
+.nav a.button-outline {
     background: transparent;
     color: var(--color-text);
     border: 1px solid currentColor;
@@ -1017,11 +1070,7 @@ body.public {
 
 /* --- Landing --- */
 .hero {
-    position: relative;
-    padding: calc(var(--space) * 5) 0 calc(var(--space) * 6);
-}
-.hero > :not(.glows) {
-    position: relative;             /* sits above the glows */
+    padding: calc(var(--space) * 2) 0;
 }
 .hero-tagline {
     color: var(--color-muted);
@@ -1043,14 +1092,13 @@ body.public {
     gap: 0.75rem;
 }
 
-/* The glows live in a layer as wide as the screen. overflow: hidden cuts
-   off whatever sticks out, so the page never scrolls sideways. */
+/* The glows live in a layer fixed to the screen, behind everything
+   (z-index: -1). overflow: hidden cuts off whatever sticks out, and a
+   fixed layer never makes the page bigger, so nothing can scroll. */
 .glows {
-    position: absolute;
-    top: -6rem;
-    bottom: -20rem;  /* room for the blur to fade out before the layer ends */
-    left: calc(50% - 50vw);
-    right: calc(50% - 50vw);
+    position: fixed;
+    inset: 0;
+    z-index: -1;
     overflow: hidden;
     pointer-events: none;
 }
@@ -1121,22 +1169,8 @@ body.public {
     overflow: hidden;
     clip-path: inset(50%);
 }
-.public .field input[type="text"],
-.public .field input[type="email"],
-.public .field input[type="password"] {
-    background: var(--color-field);
-    color: var(--color-field-text);
-    border: none;
+.auth-form .field input {
     padding: 0.8rem 1rem;
-}
-.public .field input::placeholder {
-    color: #8b7ab8;
-}
-.public .field-hint {
-    color: var(--color-muted);
-}
-.public .field-error {
-    color: #ffb4a8;
 }
 
 /* The eye button sits inside the right end of the password box. */
@@ -1192,6 +1226,9 @@ body.public {
 }
 
 @media (max-width: 700px) {
+    .page-head:has(.month-nav) {
+        flex-wrap: wrap;  /* month links go under the heading on a phone */
+    }
     .auth-split {
         grid-template-columns: 1fr;
         gap: var(--space);
@@ -1200,7 +1237,6 @@ body.public {
     }
     .auth-greeting h1 { font-size: 1.8rem; }
     .auth-sub { font-size: 1.2rem; margin-bottom: 0.5rem; }
-    .hero { padding: calc(var(--space) * 2) 0 calc(var(--space) * 3); }
     .hero-actions .button { flex: 1 1 100%; text-align: center; }
     .glow { width: 220px; height: 220px; }
     .glow-left { top: 25%; }
