@@ -10,3 +10,22 @@
     {% endfor %}
   </div>
 {% endmacro %}
+
+{# A password input with an eye button that shows or hides what you typed.
+   The button does nothing without static/js/password_toggle.js. #}
+{% macro password_field(field) %}
+  <div class="field{% if field.errors %} has-error{% endif %}">
+    {{ field.label }}
+    <div class="password-wrap">
+      {{ field(**kwargs) }}
+      <button type="button" class="password-eye" data-toggle-password
+              aria-label="Show password" aria-pressed="false">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+    </div>
+    {% if field.description %}<p class="field-hint">{{ field.description }}</p>{% endif %}
+    {% for error in field.errors %}
+      <p class="field-error">{{ error }}</p>
+    {% endfor %}
+  </div>
+{% endmacro %}

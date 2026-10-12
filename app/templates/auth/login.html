@@ -1,18 +1,32 @@
 {% extends "base.html" %}
-{% from "macros/forms.html" import render_field %}
+{% from "macros/forms.html" import render_field, password_field %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+{% block body_class %}public{% endblock %}
 
 {% block content %}
-  <div class="card narrow">
-    <h1>Log in</h1>
-    <form method="post" novalidate>
-      {{ form.hidden_tag() }}
-      {{ render_field(form.login, autocomplete="username") }}
-      {{ render_field(form.password, autocomplete="current-password") }}
-      {{ form.submit(class="button") }}
-    </form>
-    {% include "auth/_google_button.html" %}
-    <p class="muted">New here? <a href="{{ url_for('auth.register') }}">Create an account</a>.</p>
+  {# Two columns: a greeting on the left, the form on the right.
+     On a phone they stack (see .auth-split in main.css). #}
+  <div class="auth-split">
+    <div class="auth-greeting">
+      <h1>Sign in to</h1>
+      <p class="auth-sub">your wardrobe</p>
+      <p class="auth-switch">Don't have an account yet?<br>You can <a href="{{ url_for('auth.register') }}">register here!</a></p>
+    </div>
+    <div class="auth-form">
+      <h2>Sign in</h2>
+      {# novalidate: let the server do the checking, so you see Flask-WTF's errors. #}
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}  {# hidden CSRF token #}
+        {{ render_field(form.login, autocomplete="username", placeholder="Email or username") }}
+        {{ password_field(form.password, autocomplete="current-password", placeholder="Password") }}
+        {{ form.submit(class="button button-glow") }}
+      </form>
+      {% include "auth/_google_button.html" %}
+    </div>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/password_toggle.js') }}"></script>
 {% endblock %}

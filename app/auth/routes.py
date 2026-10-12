@@ -34,7 +34,7 @@ def register():
         return redirect(url_for("main.index"))
 
     # Either a GET, or a POST with errors: show the form (errors included).
-    return render_template("auth/register.html", title="Register", form=form)
+    return render_template("auth/register.html", title="Sign up", form=form)
 
 
 @bp.route("/login", methods=["GET", "POST"])

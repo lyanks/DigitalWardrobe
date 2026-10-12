@@ -15,6 +15,7 @@
     --color-info-text: #3f3787;
     --color-danger: #b3261e;
     --color-placeholder: #eef6ec;
+    --color-photo-bg: #f3f1f8;      /* behind photos that don't fill their box */
     --shadow: 0 4px 12px rgb(65 50 37 / 0.12);
 
     --radius: 8px;
@@ -317,8 +318,9 @@ a {
 .item-photo {
     display: block;
     width: 100%;
-    aspect-ratio: 1;  /* square, whatever the photo's shape */
-    object-fit: cover;
+    aspect-ratio: 1;  /* the card stays square so the grid lines up... */
+    object-fit: contain;  /* ...but the whole photo fits inside, nothing cut off */
+    background: var(--color-photo-bg);
 }
 
 .item-photo-empty {
@@ -368,9 +370,11 @@ a {
 }
 
 .item-detail-photo {
+    display: block;
     width: 100%;
-    aspect-ratio: 1;
-    object-fit: cover;
+    max-height: 75vh;  /* a very tall photo still fits on the screen */
+    object-fit: contain;
+    background: var(--color-photo-bg);
     border-radius: var(--radius);
 }
 
@@ -433,7 +437,8 @@ a {
 .photo-preview {
     width: 120px;
     height: 120px;
-    object-fit: cover;
+    object-fit: contain;
+    background: var(--color-photo-bg);
     border-radius: var(--radius);
 }
 
@@ -474,17 +479,6 @@ a {
     content: "";
     flex: 1;
     border-top: 1px solid var(--color-border);
-}
-
-.button-google {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.6rem;
-    width: 100%;
-    background: var(--color-surface);
-    color: var(--color-text);
-    border: 1px solid var(--color-border);
 }
 
 .google-logo {
@@ -536,7 +530,8 @@ a {
     width: 100%;
     height: 100%;
     min-height: 0;
-    object-fit: cover;
+    object-fit: contain;
+    background: var(--color-photo-bg);
     font-size: 0.8rem;
 }
 
@@ -972,4 +967,241 @@ a {
     display: flex;
     justify-content: space-between;
     padding: 0.2rem 0;
+}
+
+
+/* ===== Public pages: landing, log in, sign up (dark look) ===== */
+
+/* Same variable names, new values: everything that uses var(--color-...)
+   turns dark at once, only on pages whose <body> has class="public". */
+body.public {
+    --color-bg: #0f0420;            /* night purple */
+    --color-surface: #0f0420;
+    --color-text: #ffffff;
+    --color-muted: #a59cba;
+    --color-primary: #c4a8ff;       /* lavender */
+    --color-on-primary: #1d0b3a;
+    --color-border: #3a2d52;
+    --color-field: #ede6ff;         /* light lavender inputs */
+    --color-field-text: #3a2a63;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow-x: hidden;  /* 100vw in .glows counts the scrollbar too; hide that sliver */
+}
+
+.public .site-header {
+    border-bottom: none;
+}
+.public .logo {
+    color: var(--color-text);
+}
+.public .container {
+    flex: 1;                        /* pushes the footer to the bottom */
+    width: 100%;
+}
+.public a {
+    color: var(--color-primary);
+}
+.public .button {
+    color: var(--color-on-primary);
+}
+
+.button-outline,
+.nav a.button-outline,
+.public .button-outline {
+    background: transparent;
+    color: var(--color-text);
+    border: 1px solid currentColor;
+}
+
+/* --- Landing --- */
+.hero {
+    position: relative;
+    padding: calc(var(--space) * 5) 0 calc(var(--space) * 6);
+}
+.hero > :not(.glows) {
+    position: relative;             /* sits above the glows */
+}
+.hero-tagline {
+    color: var(--color-muted);
+    margin: 0 0 0.75rem;
+}
+.hero-title {
+    font-size: clamp(2.2rem, 6vw, 3.5rem);
+    line-height: 1.1;
+    margin: 0 0 calc(var(--space) * 2);
+    max-width: 14em;
+}
+.hero-title em {
+    font-style: normal;
+    color: var(--color-primary);
+}
+.hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+}
+
+/* The glows live in a layer as wide as the screen. overflow: hidden cuts
+   off whatever sticks out, so the page never scrolls sideways. */
+.glows {
+    position: absolute;
+    top: -6rem;
+    bottom: -20rem;  /* room for the blur to fade out before the layer ends */
+    left: calc(50% - 50vw);
+    right: calc(50% - 50vw);
+    overflow: hidden;
+    pointer-events: none;
+}
+
+/* A soft blurred circle of light behind the text. */
+.glow {
+    position: absolute;
+    width: 320px;
+    height: 320px;
+    border-radius: 50%;
+    background: #7b5cc4;
+    filter: blur(90px);
+    opacity: 0.6;
+    pointer-events: none;
+}
+.glow-left  { left: -160px; top: 30%; }
+.glow-right { right: 4%; top: 0; }
+
+.site-footer {
+    max-width: 1100px;
+    width: calc(100% - 2 * var(--space));
+    margin: 0 auto;
+    padding: calc(var(--space) * 2) 0;
+    border-top: 1px solid var(--color-border);
+    color: var(--color-text);
+}
+.site-footer p {
+    color: var(--color-muted);
+    margin: 0.3rem 0 0;
+    font-size: 0.9rem;
+}
+
+/* --- Log in / sign up --- */
+.auth-split {
+    display: grid;
+    grid-template-columns: 1fr minmax(0, 380px);
+    gap: calc(var(--space) * 3);
+    align-items: center;
+    min-height: 70vh;
+    max-width: 900px;
+    margin: 0 auto;
+}
+.auth-greeting h1 {
+    font-size: 2.4rem;
+    font-weight: 500;
+    margin: 0;
+}
+.auth-sub {
+    font-size: 1.6rem;
+    margin: 0.2rem 0 calc(var(--space) * 2);
+}
+.auth-switch {
+    line-height: 1.7;
+}
+.auth-switch a {
+    font-weight: 700;
+}
+.auth-form h2 {
+    font-weight: 500;
+}
+
+/* The labels are still there for screen readers, just hidden on screen:
+   the placeholder inside each box says what goes in it. */
+.auth-form .field label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.public .field input[type="text"],
+.public .field input[type="email"],
+.public .field input[type="password"] {
+    background: var(--color-field);
+    color: var(--color-field-text);
+    border: none;
+    padding: 0.8rem 1rem;
+}
+.public .field input::placeholder {
+    color: #8b7ab8;
+}
+.public .field-hint {
+    color: var(--color-muted);
+}
+.public .field-error {
+    color: #ffb4a8;
+}
+
+/* The eye button sits inside the right end of the password box. */
+.password-wrap {
+    position: relative;
+}
+.password-wrap input {
+    padding-right: 2.8rem !important;
+}
+.password-eye {
+    position: absolute;
+    right: 0.4rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    padding: 0.35rem;
+    cursor: pointer;
+    color: #8b7ab8;
+    display: flex;
+}
+.password-eye svg {
+    width: 1.2rem;
+    height: 1.2rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+}
+.password-eye[aria-pressed="true"] {
+    color: var(--color-field-text);
+}
+
+.button-glow {
+    width: 100%;
+    padding: 0.8rem;
+    margin-top: 0.5rem;
+    box-shadow: 0 0 24px rgb(196 168 255 / 0.45);
+}
+
+.google-round {
+    display: flex;
+    width: 2.6rem;
+    height: 2.6rem;
+    margin: 0 auto;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #ffffff;
+}
+.google-round .google-logo {
+    width: 1.3rem;
+    height: 1.3rem;
+}
+
+@media (max-width: 700px) {
+    .auth-split {
+        grid-template-columns: 1fr;
+        gap: var(--space);
+        min-height: 0;
+        padding-top: var(--space);
+    }
+    .auth-greeting h1 { font-size: 1.8rem; }
+    .auth-sub { font-size: 1.2rem; margin-bottom: 0.5rem; }
+    .hero { padding: calc(var(--space) * 2) 0 calc(var(--space) * 3); }
+    .hero-actions .button { flex: 1 1 100%; text-align: center; }
+    .glow { width: 220px; height: 220px; }
+    .glow-left { top: 25%; }
 }

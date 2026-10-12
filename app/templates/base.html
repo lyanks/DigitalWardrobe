@@ -8,7 +8,9 @@
   <title>{% block title %}Digital Wardrobe{% endblock %}</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
-<body>
+{# Pages can set a body class. "public" switches to the dark look used on the
+   landing, log in and sign up pages (see "Public pages" in main.css). #}
+<body class="{% block body_class %}{% endblock %}">
   <header class="site-header">
     <a href="{{ url_for('main.index') }}" class="logo">Digital Wardrobe</a>
 
@@ -32,8 +34,8 @@
           <button type="submit" class="link-button">Log out</button>
         </form>
       {% else %}
-        <a href="{{ url_for('auth.login') }}">Log in</a>
-        <a href="{{ url_for('auth.register') }}" class="button button-small">Register</a>
+        <a href="{{ url_for('auth.login') }}" class="button button-small button-outline">Log in</a>
+        <a href="{{ url_for('auth.register') }}" class="button button-small">Sign up</a>
       {% endif %}
     </nav>
   </header>
@@ -48,6 +50,8 @@
 
     {% block content %}{% endblock %}
   </main>
+
+  {% block footer %}{% endblock %}
 
   {% block scripts %}{% endblock %}
 </body>

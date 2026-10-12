@@ -3,6 +3,8 @@
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
+{% block body_class %}{{ "" if current_user.is_authenticated else "public" }}{% endblock %}
+
 {% block content %}
   {% if current_user.is_authenticated %}
     <h1>Hello, {{ current_user.shown_name }} 👕</h1>
@@ -58,11 +60,29 @@
     {% endif %}
     <p><a href="{{ url_for('wardrobe.create') }}" class="button">Add an item</a></p>
   {% else %}
-    <h1>Hello wardrobe 👕</h1>
-    <p>Keep track of your clothes, build outfits and plan what to wear.</p>
-    <p>
-      <a href="{{ url_for('auth.register') }}" class="button">Create an account</a>
-      or <a href="{{ url_for('auth.login') }}">log in</a>.
-    </p>
+    {# The landing page. The two blurred circles are only decoration. #}
+    <section class="hero">
+      <div class="glows" aria-hidden="true">
+        <div class="glow glow-left"></div>
+        <div class="glow glow-right"></div>
+      </div>
+      <p class="hero-tagline">Track every piece, plan outfits, and find new ideas.</p>
+      <h1 class="hero-title">Your wardrobe, <em>thoughtfully</em> organised.</h1>
+      <div class="hero-actions">
+        <a href="{{ url_for('auth.register') }}" class="button">Get started free</a>
+        {% if config.GOOGLE_CLIENT_ID %}
+          <a href="{{ url_for('auth.google_login') }}" class="button button-outline">Continue with Google</a>
+        {% endif %}
+      </div>
+    </section>
+  {% endif %}
+{% endblock %}
+
+{% block footer %}
+  {% if not current_user.is_authenticated %}
+    <footer class="site-footer">
+      <strong>Digital Wardrobe</strong>
+      <p>Made by someone who forgets what they own.</p>
+    </footer>
   {% endif %}
 {% endblock %}
