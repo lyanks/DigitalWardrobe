@@ -75,7 +75,16 @@
           <li>
             <span class="week-day">{{ day.strftime("%a") }} <b>{{ day.strftime("%d.%m") }}</b></span>
             {% for entry in entries %}
-              <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}">{{ entry.outfit.name }}</a>
+              {# The outfit's own photo if it has one, else just its name. #}
+              {% if entry.outfit.image_path %}
+                <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}" class="week-photo"
+                   title="{{ entry.outfit.name }}">
+                  <img src="{{ url_for('main.uploaded_file', filename=entry.outfit.image_path) }}"
+                       alt="{{ entry.outfit.name }}" loading="lazy">
+                </a>
+              {% else %}
+                <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}">{{ entry.outfit.name }}</a>
+              {% endif %}
             {% else %}
               <span class="muted">Free</span>
             {% endfor %}

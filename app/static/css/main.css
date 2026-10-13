@@ -220,6 +220,11 @@ a:hover {
 
 /* sticky: the header stays at the top while you scroll. The blur makes
    whatever scrolls under it soft, like frosted glass. */
+/* The bar is as wide as the window; the padding keeps its content in
+   the same 1100px column as the page. max() picks the bigger of the two:
+   the normal padding on small screens, the side gap on wide ones.
+   (An earlier version used 100vw here, but vw counts the scrollbar too,
+   so the page became a scrollbar-width too wide and scrolled sideways.) */
 .site-header {
     position: sticky;
     top: 0;
@@ -227,16 +232,7 @@ a:hover {
     display: flex;
     align-items: center;
     gap: var(--space);
-    width: 100%;
-    max-width: 1100px;
-    margin: 0 auto;
-    padding: 0.9rem var(--space);
-}
-.site-header::before {
-    content: "";
-    position: absolute;
-    inset: 0 calc(50% - 50vw);   /* full screen width behind a centred header */
-    z-index: -1;
+    padding: 0.9rem max(var(--space), (100% - 1100px) / 2 + var(--space));
     background: color-mix(in srgb, var(--color-bg) 70%, transparent);
     backdrop-filter: blur(14px);
     border-bottom: 1px solid var(--color-glass-border);
@@ -1566,6 +1562,22 @@ a.today-name:hover {
 }
 .week-strip .week-day b {
     color: var(--color-text);
+}
+.week-photo {
+    display: block;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--color-photo-bg);
+}
+.week-photo img {
+    display: block;
+    width: 100%;
+    aspect-ratio: 3 / 4;
+    object-fit: cover;
+    transition: transform 0.2s;
+}
+.week-photo:hover img {
+    transform: scale(1.04);
 }
 .week-strip a {
     overflow: hidden;
