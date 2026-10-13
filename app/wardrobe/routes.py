@@ -1,12 +1,18 @@
+import io
+from datetime import date
+from itertools import groupby
+
 from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, url_for
 from flask_login import current_user, login_required
+from werkzeug.datastructures import FileStorage
 
 from app.extensions import db
-from app.models import Category, Item
+from app.models import OWNED, WISHLIST, Category, Item
 from app.services.images import InvalidImageError, delete_image, save_image
+from app.services.product_page import FetchError, download_image
 from app.services.stats import last_worn_date
-from app.wardrobe.choices import COLORS, SEASONS
-from app.wardrobe.forms import DeleteForm, ItemForm
+from app.wardrobe.choices import COLORS, PRIORITIES, SEASONS
+from app.wardrobe.forms import WISH_FIELDS, BoughtForm, DeleteForm, ItemForm
 
 # url_prefix: every route below starts with /items.
 bp = Blueprint("wardrobe", __name__, url_prefix="/items")
@@ -88,7 +94,7 @@ def index():
 
     # Start with "all my items" and narrow it down one filter at a time.
     # Nothing is sent to the database until we ask for the results.
-    query = db.select(Item).filter_by(user_id=current_user.id)
+    query = Item.owned_by(current_user.id)
     if category_id:
         query = query.filter_by(category_id=category_id)
     if color in COLORS:
@@ -104,7 +110,7 @@ def index():
     items = db.session.scalars(query.order_by(*_order_by(sort))).all()
 
     total = db.session.scalar(
-        db.select(db.func.count(Item.id)).filter_by(user_id=current_user.id)
+        db.select(db.func.count()).select_from(Item.owned_by(current_user.id).subquery())
     )
     return render_template(
         "wardrobe/index.html", title="Wardrobe", items=items, total=total,
@@ -132,7 +138,7 @@ def reorder():
         return jsonify(error="Send a list of distinct item ids."), 400
 
     items = db.session.scalars(
-        db.select(Item).where(Item.id.in_(ids), Item.user_id == current_user.id)
+        Item.owned_by(current_user.id).where(Item.id.in_(ids))
     ).all()
     if len(items) != len(ids):
         # Some id isn't yours (or doesn't exist): change nothing.
@@ -153,7 +159,7 @@ def reorder():
 
 def _renumber_positions():
     mine = db.session.scalars(
-        db.select(Item).filter_by(user_id=current_user.id).order_by(Item.position, Item.id)
+        Item.owned_by(current_user.id).order_by(Item.position, Item.id)
     )
     for number, item in enumerate(mine):
         item.position = number
@@ -166,13 +172,10 @@ def create():
     form = ItemForm()
     form.category_id.choices = _category_choices()
     del form.remove_photo  # nothing to remove on a new item
+    _drop_fields(form, WISH_FIELDS)
 
     if form.validate_on_submit():
-        # New items go first in "My order": one place before the current first.
-        first = db.session.scalar(
-            db.select(db.func.min(Item.position)).filter_by(user_id=current_user.id)
-        )
-        item = Item(user_id=current_user.id, position=(first - 1) if first is not None else 0)
+        item = Item(user_id=current_user.id, position=_first_position())
         if _fill_item_from_form(item, form):
             db.session.add(item)
             db.session.commit()
@@ -182,6 +185,75 @@ def create():
     return render_template("wardrobe/form.html", title="Add item", form=form, item=None)
 
 
+def _first_position():
+    """New clothes go first in "My order": one place before the current first."""
+    first = db.session.scalar(
+        db.select(db.func.min(Item.position)).filter_by(user_id=current_user.id)
+    )
+    return first - 1 if first is not None else 0
+
+
+def _drop_fields(form, names):
+    """Remove fields that don't apply, so they're neither shown nor validated."""
+    for name in names:
+        delattr(form, name)
+
+
+# ---------- Wishlist ----------
+
+@bp.route("/wishlist")
+def wishlist():
+    # Must-haves first. "priority IS NULL" is False (0) for wishes with a
+    # priority and True (1) without, so wishes with no priority go last.
+    wishes = db.session.scalars(
+        Item.wished_by(current_user.id)
+        .order_by(Item.priority.is_(None), Item.priority, Item.created_at.desc())
+    ).all()
+    # [("Must have", [wish, wish]), ("Someday", [wish]), ...]. groupby only
+    # joins neighbours, which works because the list is already sorted.
+    groups = [
+        (PRIORITIES.get(priority, "No priority"), list(wishes_in_group))
+        for priority, wishes_in_group in groupby(wishes, key=lambda wish: wish.priority)
+    ]
+    return render_template("wardrobe/wishlist.html", title="Wishlist", groups=groups)
+
+
+@bp.route("/wishlist/new", methods=["GET", "POST"])
+def create_wish():
+    form = ItemForm()
+    form.category_id.choices = _category_choices()
+    _drop_fields(form, ("remove_photo", "purchase_date"))
+
+    if form.validate_on_submit():
+        item = Item(user_id=current_user.id, status=WISHLIST)
+        if _fill_item_from_form(item, form):
+            db.session.add(item)
+            db.session.commit()
+            flash(f"Added “{item.name}” to your wishlist.", "success")
+            return redirect(url_for("wardrobe.detail", item_id=item.id))
+
+    return render_template("wardrobe/form.html", title="Add a wish", form=form, item=None)
+
+
+@bp.route("/<int:item_id>/bought", methods=["POST"])
+def bought(item_id):
+    """"I bought it": the wish becomes a piece of your wardrobe.
+
+    Same row, only the status changes, so the photo, link and price stay.
+    """
+    item = get_own_item_or_404(item_id)
+    if not item.is_wish:
+        abort(400)
+    if BoughtForm().validate_on_submit():
+        item.status = OWNED
+        item.purchase_date = date.today()
+        item.priority = None
+        item.position = _first_position()
+        db.session.commit()
+        flash(f"“{item.name}” is in your wardrobe now. Enjoy it!", "success")
+    return redirect(url_for("wardrobe.detail", item_id=item.id))
+
+
 # ---------- Read: one item ----------
 
 @bp.route("/<int:item_id>")
@@ -189,7 +261,8 @@ def detail(item_id):
     item = get_own_item_or_404(item_id)
     return render_template(
         "wardrobe/detail.html", title=item.name, item=item, colors=COLORS,
-        last_worn=last_worn_date(item),
+        last_worn=None if item.is_wish else last_worn_date(item),
+        priorities=PRIORITIES, bought_form=BoughtForm(),
     )
 
 
@@ -203,6 +276,8 @@ def edit(item_id):
     form.category_id.choices = _category_choices()
     if not item.image_path:
         del form.remove_photo
+    # A wish has a shop link and price but no "bought on" date yet.
+    _drop_fields(form, ("purchase_date",) if item.is_wish else WISH_FIELDS)
 
     if form.validate_on_submit():
         if _fill_item_from_form(item, form):
@@ -226,16 +301,27 @@ def delete(item_id):
         db.session.delete(item)
         db.session.commit()
         flash(f"Deleted “{item.name}”.", "info")
-        return redirect(url_for("wardrobe.index"))
+        return redirect(url_for("wardrobe.wishlist" if item.is_wish else "wardrobe.index"))
 
     return render_template("wardrobe/delete.html", title="Delete item", item=item, form=form)
 
 
 def _fill_item_from_form(item, form):
     """Copy the form into the item. Return False if the photo was invalid."""
-    if form.photo.data:
+    photo = form.photo.data
+    if not photo and "image_url" in form and form.image_url.data:
+        # Autofill found a photo on the shop's page: download it now and
+        # treat it exactly like an upload (Pillow checks and shrinks it).
         try:
-            new_path = save_image(form.photo.data, "items")
+            # A filename is needed: an upload without one counts as "no file".
+            photo = FileStorage(stream=io.BytesIO(download_image(form.image_url.data)),
+                                filename="shop-photo")
+        except FetchError as error:
+            form.photo.errors.append(f"Couldn't get the shop's photo: {error}")
+            return False
+    if photo:
+        try:
+            new_path = save_image(photo, "items")
         except InvalidImageError as error:
             form.photo.errors.append(str(error))
             return False
@@ -252,6 +338,13 @@ def _fill_item_from_form(item, form):
     item.style = form.style.data or None
     item.brand = (form.brand.data or "").strip() or None
     item.size = (form.size.data or "").strip() or None
-    item.purchase_date = form.purchase_date.data
     item.notes = (form.notes.data or "").strip() or None
+    # `"name" in form` is True only for fields the route didn't drop.
+    if "purchase_date" in form:
+        item.purchase_date = form.purchase_date.data
+    if "shop_url" in form:
+        item.shop_url = (form.shop_url.data or "").strip() or None
+        item.price = form.price.data
+        item.currency = form.currency.data
+        item.priority = form.priority.data or None  # 0 ("—") means no priority
     return True

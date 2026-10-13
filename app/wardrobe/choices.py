@@ -44,3 +44,14 @@ STYLES = ["casual", "formal", "business", "sporty", "streetwear", "classic", "pa
 
 # What an outfit is for. Optional on the outfit form.
 OCCASIONS = ["casual", "work", "formal", "party", "date", "sport", "travel", "home"]
+
+# Wishlist. The first currency is the default in the form.
+CURRENCIES = ["UAH", "EUR", "USD", "PLN", "GBP"]
+
+# priority number -> label. Smaller = more important, so ORDER BY priority
+# puts must-haves first.
+PRIORITIES = {
+    1: "Must have",
+    2: "Would be nice",
+    3: "Someday",
+}

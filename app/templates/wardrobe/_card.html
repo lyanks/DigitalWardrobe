@@ -12,6 +12,9 @@
     <div class="item-card-body">
       <span class="item-name">{{ item.name }}</span>
       <span class="muted item-meta">{{ item.category.name }} · {{ item.color }}</span>
+      {% if item.is_wish and item.price is not none %}
+        <span class="item-price">{{ item.price | price(item.currency) }}</span>
+      {% endif %}
     </div>
   </a>
 {% endmacro %}

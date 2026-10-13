@@ -8,7 +8,17 @@
     <h1>{{ title }}</h1>
     {# One template for both "add" and "edit": item is None when adding. #}
     <form method="post" enctype="multipart/form-data" novalidate>
-      {{ form.hidden_tag() }}
+      {{ form.hidden_tag() }}  {# CSRF token, and image_url on wishes #}
+      {% if form.shop_url %}
+        {# Autofill: paste a link, press the button, autofill.js asks
+           /api/fetch-product and fills in what the shop's page says. #}
+        <div class="autofill" data-fetch-url="{{ url_for('api.fetch_product_info') }}">
+          {{ render_field(form.shop_url, placeholder="https://…") }}
+          <button type="button" class="button button-outline" data-autofill>Fill in from link</button>
+          <p class="autofill-status muted" role="status" aria-live="polite"></p>
+          <img class="autofill-photo photo-preview" alt="Photo from the shop" hidden>
+        </div>
+      {% endif %}
       {{ render_field(form.name, placeholder="Blue denim jacket") }}
       <div class="field-row">
         {{ render_field(form.category_id) }}
@@ -22,7 +32,15 @@
         {{ render_field(form.brand) }}
         {{ render_field(form.size, placeholder="M, 38, 10…") }}
       </div>
-      {{ render_field(form.purchase_date) }}
+      {# Each block shows only if the route kept that field (see _drop_fields). #}
+      {% if form.purchase_date %}{{ render_field(form.purchase_date) }}{% endif %}
+      {% if form.shop_url %}
+        <div class="field-row">
+          {{ render_field(form.price, placeholder="0.00", inputmode="decimal") }}
+          {{ render_field(form.currency) }}
+        </div>
+        {{ render_field(form.priority) }}
+      {% endif %}
 
       {% if item and item.image_path %}
         <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
@@ -36,8 +54,18 @@
 
       <div class="actions">
         {{ form.submit(class="button") }}
-        <a href="{{ url_for('wardrobe.detail', item_id=item.id) if item else url_for('wardrobe.index') }}">Cancel</a>
+        {% if item %}
+          <a href="{{ url_for('wardrobe.detail', item_id=item.id) }}">Cancel</a>
+        {% else %}
+          <a href="{{ url_for('wardrobe.wishlist' if form.shop_url else 'wardrobe.index') }}">Cancel</a>
+        {% endif %}
       </div>
     </form>
   </div>
+{% endblock %}
+
+{% block scripts %}
+  {% if form.shop_url %}
+    <script src="{{ url_for('static', filename='js/autofill.js') }}"></script>
+  {% endif %}
 {% endblock %}

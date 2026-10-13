@@ -12,6 +12,8 @@
       <a href="{{ url_for('planner.index') }}">Today</a>
       <a href="{{ url_for('planner.index', month=next_month.strftime('%Y-%m')) }}">{{ next_month.strftime("%B") }} →</a>
     </nav>
+    {# Idea #1: what you wore without a saved outfit. #}
+    <a href="{{ url_for('planner.log_look') }}" class="button button-outline">Log a look</a>
   </div>
 
   <div class="planner">

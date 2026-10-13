@@ -30,11 +30,17 @@ def client(app):
     return app.test_client()
 
 
-def register(client, username="alice", email="alice@example.com", password="Secret123!"):
-    return client.post("/register", data={
+def register(client, username="alice", email="alice@example.com", password="Secret123!",
+             skip_setup=True):
+    response = client.post("/register", data={
         "username": username, "email": email,
         "password": password, "confirm": password,
     }, follow_redirects=True)
+    if skip_setup:
+        # Most tests aren't about the setup wizard (idea #7): finish it the
+        # quick way, like pressing "Skip the setup".
+        client.post("/welcome/skip")
+    return response
 
 
 def login(client, login="alice", password="Secret123!"):

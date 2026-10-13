@@ -61,6 +61,8 @@ if (calendar) {
       // 4. Update the page: add the entry Flask rendered for us.
       day.querySelector(".day-entries").insertAdjacentHTML("beforeend", data.html);
       status.textContent = `Planned “${data.outfit.name}” for ${data.date_text}.`;
+      // Idea #1: the server noticed you wore the same combo that week.
+      if (data.notice) status.textContent += " " + data.notice;
     } catch (error) {
       status.textContent = "Couldn't reach the server. Try again.";
     }

@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "macros/forms.html" import render_field, password_field %}
+{% from "macros/look.html" import look_fields %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
@@ -34,6 +35,26 @@
   </div>
 
   <div class="card">
+    <h2>Why you use the app</h2>
+    <form method="post" novalidate>
+      {{ goals_form.hidden_tag() }}
+      {{ goals_form.goals(class="goal-list") }}
+      {{ goals_form.submit(class="button", value="Save") }}
+    </form>
+  </div>
+
+  <div class="card">
+    <h2>Look</h2>
+    {# Clicking a theme or colour shows it at once (theme_preview.js);
+       "Save look" keeps it. #}
+    <form method="post" novalidate class="look-form">
+      {{ look_form.hidden_tag() }}
+      {{ look_fields(look_form, themes) }}
+      {{ look_form.submit(class="button") }}
+    </form>
+  </div>
+
+  <div class="card">
     {% if current_user.has_password %}
       <h2>Change password</h2>
     {% else %}
@@ -55,4 +76,5 @@
 
 {% block scripts %}
   <script src="{{ url_for('static', filename='js/password_toggle.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/theme_preview.js') }}"></script>
 {% endblock %}

@@ -28,10 +28,10 @@ def get_own_outfit_or_404(outfit_id):
     return outfit
 
 
-def _my_items_by_category():
+def my_items_by_category():
     """[(category, [items...]), ...] for the builder, empty categories left out."""
     items = db.session.scalars(
-        db.select(Item).filter_by(user_id=current_user.id)
+        Item.owned_by(current_user.id)
         .join(Item.category).order_by(Category.id, Item.position, Item.id)
     ).all()
     groups = {}
@@ -42,7 +42,7 @@ def _my_items_by_category():
 
 def _prepare_form(form):
     """Fill the item choices with the user's items; return the groups for the page."""
-    groups = _my_items_by_category()
+    groups = my_items_by_category()
     form.item_ids.choices = [(item.id, item.name) for _, items in groups for item in items]
     return groups
 
@@ -55,7 +55,7 @@ def _save_if_valid(form, outfit):
     # Only the user's items were allowed as choices, so this can't
     # load anyone else's clothes.
     items = db.session.scalars(
-        db.select(Item).where(Item.id.in_(form.item_ids.data), Item.user_id == current_user.id)
+        Item.owned_by(current_user.id).where(Item.id.in_(form.item_ids.data))
     ).all()
     problems = outfit_problems(items)
     if problems:

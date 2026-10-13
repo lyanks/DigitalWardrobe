@@ -6,7 +6,7 @@ Every function takes a user id and asks the database to do the counting
 from datetime import date, timedelta
 
 from app.extensions import db
-from app.models import Category, Item, OutfitItem, ScheduledOutfit
+from app.models import OWNED, Category, Item, WearLog, WearLogItem
 from app.wardrobe.choices import COLORS
 
 # "Not worn lately" means: last worn more than this many days ago.
@@ -16,19 +16,19 @@ STALE_AFTER_DAYS = 30
 def last_worn_dates(user_id):
     """{item_id: date it was last worn} for items worn at least once.
 
-    An item is "worn" on a day when an outfit containing it is marked worn
-    in the planner. In SQL:
+    Every wear is in the wear log (planned outfits marked worn and looks
+    logged from loose items). In SQL:
 
-        SELECT outfit_item.item_id, MAX(scheduled_outfit.date)
-        FROM scheduled_outfit JOIN outfit_item ON same outfit
-        WHERE worn AND user_id = ?
-        GROUP BY outfit_item.item_id
+        SELECT wear_log_item.item_id, MAX(wear_log.date)
+        FROM wear_log JOIN wear_log_item ON same log
+        WHERE user_id = ?
+        GROUP BY wear_log_item.item_id
     """
     rows = db.session.execute(
-        db.select(OutfitItem.item_id, db.func.max(ScheduledOutfit.date))
-        .join(ScheduledOutfit, ScheduledOutfit.outfit_id == OutfitItem.outfit_id)
-        .where(ScheduledOutfit.user_id == user_id, ScheduledOutfit.worn)
-        .group_by(OutfitItem.item_id)
+        db.select(WearLogItem.item_id, db.func.max(WearLog.date))
+        .join(WearLog, WearLog.id == WearLogItem.wear_log_id)
+        .where(WearLog.user_id == user_id)
+        .group_by(WearLogItem.item_id)
     )
     return dict(rows.all())
 
@@ -36,9 +36,9 @@ def last_worn_dates(user_id):
 def last_worn_date(item):
     """The last day this one item was worn, or None."""
     return db.session.scalar(
-        db.select(db.func.max(ScheduledOutfit.date))
-        .join(OutfitItem, OutfitItem.outfit_id == ScheduledOutfit.outfit_id)
-        .where(OutfitItem.item_id == item.id, ScheduledOutfit.worn)
+        db.select(db.func.max(WearLog.date))
+        .join(WearLogItem, WearLogItem.wear_log_id == WearLog.id)
+        .where(WearLogItem.item_id == item.id)
     )
 
 
@@ -75,11 +75,13 @@ def breakdown(rows):
 
 def wardrobe_stats(user_id, today=None):
     """Everything the stats page shows, in one dict."""
-    mine = db.select(Item).filter_by(user_id=user_id)
+    # Only clothes you own: wishlist items don't count.
+    mine = Item.owned_by(user_id)
 
     item_count = db.session.scalar(db.select(db.func.count()).select_from(mine.subquery()))
     total_wears = db.session.scalar(
-        db.select(db.func.coalesce(db.func.sum(Item.times_worn), 0)).where(Item.user_id == user_id)
+        db.select(db.func.coalesce(db.func.sum(Item.times_worn), 0))
+        .where(Item.user_id == user_id, Item.status == OWNED)
     )
     most_worn = db.session.scalars(
         mine.where(Item.times_worn > 0).order_by(Item.times_worn.desc(), Item.name).limit(5)
@@ -95,11 +97,12 @@ def wardrobe_stats(user_id, today=None):
 
     # GROUP BY: one row per color with how many items have it.
     by_color = db.session.execute(
-        db.select(Item.color, db.func.count(Item.id)).where(Item.user_id == user_id).group_by(Item.color)
+        db.select(Item.color, db.func.count(Item.id))
+        .where(Item.user_id == user_id, Item.status == OWNED).group_by(Item.color)
     ).all()
     by_category = db.session.execute(
         db.select(Category.name, db.func.count(Item.id))
-        .join(Item.category).where(Item.user_id == user_id).group_by(Category.name)
+        .join(Item.category).where(Item.user_id == user_id, Item.status == OWNED).group_by(Category.name)
     ).all()
 
     colors = breakdown(by_color)

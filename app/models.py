@@ -26,6 +26,12 @@ class User(UserMixin, db.Model):
     google_id = db.Column(db.String(255), unique=True)
     display_name = db.Column(db.String(80))
     avatar_path = db.Column(db.String(255))
+    # Idea #5: how the app looks for this user (see app/themes.py).
+    theme = db.Column(db.String(20), nullable=False, default="midnight",
+                      server_default="midnight")
+    accent_color = db.Column(db.String(7))  # "#c4a8ff", or None = the theme's own
+    # Idea #7: when the setup wizard was finished (or skipped). Empty = not yet.
+    onboarded_at = db.Column(db.DateTime(timezone=True))
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
     # One user -> many items. Deleting a user deletes their items too.
@@ -38,6 +44,14 @@ class User(UserMixin, db.Model):
     schedule = db.relationship(
         "ScheduledOutfit", back_populates="owner", cascade="all, delete-orphan",
     )
+    # Idea #7: why they use the app. A list of UserGoal rows.
+    goals = db.relationship("UserGoal", cascade="all, delete-orphan")
+    # Idea #1: what they actually wore, day by day.
+    wear_logs = db.relationship("WearLog", back_populates="owner", cascade="all, delete-orphan")
+
+    @property
+    def goal_keys(self):
+        return [goal.goal for goal in self.goals]
 
     def set_password(self, password):
         # Store a salted one-way hash, never the password itself.
@@ -82,6 +96,10 @@ class Category(db.Model):
         return f"<Category {self.name}>"
 
 
+OWNED = "owned"
+WISHLIST = "wishlist"
+
+
 class Item(db.Model):
     """One piece of clothing, owned by one user."""
 
@@ -100,6 +118,17 @@ class Item(db.Model):
     image_path = db.Column(db.String(255))
     notes = db.Column(db.Text)
     times_worn = db.Column(db.Integer, nullable=False, default=0)
+    # "owned" = in your wardrobe, "wishlist" = you want it but don't have it
+    # yet. server_default fills "owned" into rows that existed before.
+    status = db.Column(db.String(10), nullable=False, default="owned",
+                       server_default="owned", index=True)
+    # Wishlist extras, all optional (a vague wish has none of them).
+    shop_url = db.Column(db.String(500))
+    # Numeric(10, 2): an exact decimal with 2 digits after the point.
+    # Never use Float for money: 0.1 + 0.2 is 0.30000000000000004 there.
+    price = db.Column(db.Numeric(10, 2))
+    currency = db.Column(db.String(3))
+    priority = db.Column(db.Integer)  # 1 = must have, 2 = would be nice, 3 = someday
     # Your own order in the grid (drag and drop). Smaller = earlier.
     position = db.Column(db.Integer, nullable=False, default=0)
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
@@ -113,10 +142,32 @@ class Item(db.Model):
     outfit_links = db.relationship(
         "OutfitItem", back_populates="item", cascade="all, delete-orphan",
     )
+    # Same idea for the wear log: a deleted item leaves the days it was worn.
+    wear_links = db.relationship(
+        "WearLogItem", back_populates="item", cascade="all, delete-orphan",
+    )
 
     @property
     def outfits(self):
         return [link.outfit for link in self.outfit_links]
+
+    @property
+    def is_wish(self):
+        return self.status == WISHLIST
+
+    @classmethod
+    def owned_by(cls, user_id):
+        """SELECT the clothes a user actually owns (not their wishlist).
+
+        The wardrobe grid, the outfit builder, the home page and the stats
+        all start from here, so a wish can never sneak into an outfit.
+        """
+        return db.select(cls).where(cls.user_id == user_id, cls.status == OWNED)
+
+    @classmethod
+    def wished_by(cls, user_id):
+        """SELECT a user's wishlist."""
+        return db.select(cls).where(cls.user_id == user_id, cls.status == WISHLIST)
 
     def __repr__(self):
         return f"<Item {self.name!r} of user {self.user_id}>"
@@ -146,6 +197,10 @@ class Outfit(db.Model):
         "ScheduledOutfit", back_populates="outfit", cascade="all, delete-orphan",
         order_by="ScheduledOutfit.date",
     )
+    # Days this outfit was worn. No cascade: deleting the outfit keeps those
+    # days in the log (you did wear the clothes), SQLAlchemy just empties
+    # their outfit_id.
+    wear_logs = db.relationship("WearLog", back_populates="outfit")
 
     @property
     def items(self):
@@ -202,17 +257,90 @@ class ScheduledOutfit(db.Model):
         return self.date <= date.today()
 
     def set_worn(self, worn):
-        """Mark worn (or not) and keep every item's times_worn in step.
+        """Mark worn (or not), and add (or remove) the day in the wear log.
 
-        This is the only place times_worn changes, so the counter can't
-        drift: +1 per item when ticked, -1 when unticked.
+        The wear log keeps every item's times_worn in step (see WearLog), so
+        ticking adds one wear per item and unticking takes it back.
         """
         if worn == self.worn:
             return
-        step = 1 if worn else -1
-        for item in self.outfit.items:
-            item.times_worn = max(0, item.times_worn + step)
+        if worn:
+            WearLog.record(self.user_id, self.date, self.outfit.items, outfit=self.outfit)
+        else:
+            log = db.session.scalar(db.select(WearLog).filter_by(
+                user_id=self.user_id, outfit_id=self.outfit_id, date=self.date))
+            if log is not None:
+                log.undo()
         self.worn = worn
 
     def __repr__(self):
         return f"<ScheduledOutfit {self.outfit_id} on {self.date}>"
+
+
+class UserGoal(db.Model):
+    """One reason a user picked in the setup wizard, e.g. "buy_less".
+
+    A user can pick several, so they get their own small table (one user ->
+    many rows) instead of one column. That also makes them easy to count:
+    "how many people use the app to buy less?" is one GROUP BY.
+    """
+
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    goal = db.Column(db.String(20), primary_key=True)  # a key of app/goals.py GOALS
+
+
+class WearLog(db.Model):
+    """Idea #1: one day's look, the clothes you actually wore.
+
+    Two ways in: ticking "Mark worn" on a planned outfit (outfit_id is
+    filled), or "Log a look" with loose items (outfit_id stays empty).
+    Either way the items end up in the same place, so "what did I wear on
+    Wednesday?" is one query.
+    """
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    date = db.Column(db.Date, nullable=False, index=True)
+    outfit_id = db.Column(db.Integer, db.ForeignKey("outfit.id"))
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    owner = db.relationship("User", back_populates="wear_logs")
+    outfit = db.relationship("Outfit", back_populates="wear_logs")
+    item_links = db.relationship("WearLogItem", back_populates="log", cascade="all, delete-orphan")
+
+    @property
+    def items(self):
+        return [link.item for link in self.item_links]
+
+    @classmethod
+    def record(cls, user_id, day, items, outfit=None):
+        """Log that these items were worn on `day`. Each counts one more wear.
+
+        Together with undo() this is the only place times_worn changes, so
+        the counter can't drift from the log.
+        """
+        log = cls(user_id=user_id, date=day, outfit=outfit,
+                  item_links=[WearLogItem(item=item) for item in items])
+        for item in items:
+            item.times_worn = (item.times_worn or 0) + 1
+        db.session.add(log)
+        return log
+
+    def undo(self):
+        """Take the day back out of the log, and its wears off the items."""
+        for item in self.items:
+            item.times_worn = max(0, item.times_worn - 1)
+        db.session.delete(self)
+
+    def __repr__(self):
+        return f"<WearLog of user {self.user_id} on {self.date}>"
+
+
+class WearLogItem(db.Model):
+    """The join table between WearLog and Item, like OutfitItem."""
+
+    wear_log_id = db.Column(db.Integer, db.ForeignKey("wear_log.id"), primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey("item.id"), primary_key=True, index=True)
+
+    log = db.relationship("WearLog", back_populates="item_links")
+    item = db.relationship("Item", back_populates="wear_links")

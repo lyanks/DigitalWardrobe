@@ -1,0 +1,26 @@
+{# The photo checkboxes, grouped by category. Used by the outfit builder
+   and by "Log a look". Every checkbox has name="item_ids" and the item's
+   id as its value, so the browser sends all ticked ids together and
+   WTForms collects them into form.item_ids.data (a list). #}
+{% macro item_picker(groups, selected) %}
+  {% for category, items in groups %}
+    <h2 class="picker-heading">{{ category.name }}</h2>
+    <div class="pick-grid">
+      {% for item in items %}
+        {# The <label> wraps the whole card, so clicking anywhere on it
+           ticks the box. CSS highlights the card when it's ticked. #}
+        <label class="pick-card">
+          <input type="checkbox" name="item_ids" value="{{ item.id }}"
+                 {{ "checked" if selected and item.id in selected }}>
+          {% if item.image_path %}
+            <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
+                 alt="" class="item-photo" loading="lazy">
+          {% else %}
+            <span class="item-photo item-photo-empty">{{ category.name }}</span>
+          {% endif %}
+          <span class="pick-name">{{ item.name }}</span>
+        </label>
+      {% endfor %}
+    </div>
+  {% endfor %}
+{% endmacro %}

@@ -33,7 +33,12 @@ def create_app(config_class=Config):
 
     # {{ some_date | date }} in any template prints it as 14.10.2026.
     from app.dates import format_date
+    from app.filters import format_price, shop_name
+    from app.themes import text_on
     app.jinja_env.filters["date"] = format_date
+    app.jinja_env.filters["price"] = format_price
+    app.jinja_env.filters["shop_name"] = shop_name
+    app.jinja_env.filters["text_on"] = text_on
 
     # Import models so SQLAlchemy and Flask-Migrate know about the tables.
     from app import models  # noqa: F401
@@ -45,6 +50,7 @@ def create_app(config_class=Config):
     from app.outfits.routes import bp as outfits_bp
     from app.planner.routes import bp as planner_bp
     from app.api.routes import bp as api_bp
+    from app.welcome.routes import bp as welcome_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -52,5 +58,6 @@ def create_app(config_class=Config):
     app.register_blueprint(outfits_bp)
     app.register_blueprint(planner_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(welcome_bp)
 
     return app

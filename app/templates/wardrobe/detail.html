@@ -3,7 +3,11 @@
 {% block title %}{{ item.name }} · Digital Wardrobe{% endblock %}
 
 {% block content %}
-  <p><a href="{{ url_for('wardrobe.index') }}">← Wardrobe</a></p>
+  {% if item.is_wish %}
+    <p><a href="{{ url_for('wardrobe.wishlist') }}">← Wishlist</a></p>
+  {% else %}
+    <p><a href="{{ url_for('wardrobe.index') }}">← Wardrobe</a></p>
+  {% endif %}
 
   <div class="item-detail">
     {% if item.image_path %}
@@ -29,28 +33,50 @@
         {% if item.style %}<dt>Style</dt><dd>{{ item.style | capitalize }}</dd>{% endif %}
         {% if item.brand %}<dt>Brand</dt><dd>{{ item.brand }}</dd>{% endif %}
         {% if item.size %}<dt>Size</dt><dd>{{ item.size }}</dd>{% endif %}
-        {% if item.purchase_date %}
-          <dt>Bought</dt><dd>{{ item.purchase_date | date }}</dd>
+        {% if item.price is not none %}
+          <dt>Price</dt><dd>{{ item.price | price(item.currency) }}</dd>
         {% endif %}
-        <dt>Worn</dt>
-        <dd>
-          {{ item.times_worn }} time{{ "s" if item.times_worn != 1 }}
-          {% if last_worn %}<span class="muted">· last {{ last_worn | date }}</span>{% endif %}
-        </dd>
+        {% if item.shop_url %}
+          {# rel="noopener": the shop's page can't reach back into this tab. #}
+          <dt>Shop</dt><dd><a href="{{ item.shop_url }}" target="_blank" rel="noopener">{{ item.shop_url | shop_name }} ↗</a></dd>
+        {% endif %}
+        {% if item.is_wish %}
+          {% if item.priority %}<dt>Priority</dt><dd>{{ priorities[item.priority] }}</dd>{% endif %}
+        {% else %}
+          {% if item.purchase_date %}
+            <dt>Bought</dt><dd>{{ item.purchase_date | date }}</dd>
+          {% endif %}
+          <dt>Worn</dt>
+          <dd>
+            {{ item.times_worn }} time{{ "s" if item.times_worn != 1 }}
+            {% if last_worn %}<span class="muted">· last {{ last_worn | date }}</span>{% endif %}
+          </dd>
+        {% endif %}
       </dl>
       {% if item.notes %}<p class="notes">{{ item.notes }}</p>{% endif %}
 
+      {% if item.is_wish %}
+        {# A form, not a link: it changes data, so it's a POST with a CSRF token. #}
+        <form method="post" action="{{ url_for('wardrobe.bought', item_id=item.id) }}" class="bought-form">
+          {{ bought_form.hidden_tag() }}
+          {{ bought_form.submit(class="button") }}
+          <span class="muted">moves it to your wardrobe</span>
+        </form>
+      {% endif %}
+
       {# item.outfits goes through the join table: every outfit with this item. #}
       {% set outfits = item.outfits %}
+      {% if not item.is_wish %}
       <p class="muted">
         Appears in {{ outfits | length }} outfit{{ "s" if outfits | length != 1 }}{{ ":" if outfits }}
         {% for outfit in outfits %}
           <a href="{{ url_for('outfits.detail', outfit_id=outfit.id) }}">{{ outfit.name }}</a>{{ ", " if not loop.last }}
         {% endfor %}
       </p>
+      {% endif %}
 
       <div class="actions">
-        <a href="{{ url_for('wardrobe.edit', item_id=item.id) }}" class="button">Edit</a>
+        <a href="{{ url_for('wardrobe.edit', item_id=item.id) }}" class="{{ 'button button-outline' if item.is_wish else 'button' }}">Edit</a>
         {# A link is fine here: it only opens the "Are you sure?" page. #}
         <a href="{{ url_for('wardrobe.delete', item_id=item.id) }}" class="danger-link">Delete</a>
       </div>

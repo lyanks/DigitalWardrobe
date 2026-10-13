@@ -5,15 +5,33 @@ format later is a one-line change. Machines keep the ISO format
 (2026-10-14): URLs, the JSON API and data-date attributes, because it
 sorts correctly and every library understands it.
 """
+from datetime import date, datetime
+
 from wtforms import DateField
 from wtforms.widgets import TextInput
 
 DATE_FORMAT = "%d.%m.%Y"
+# What people may type: dots, slashes or dashes between day, month, year.
+INPUT_FORMATS = [DATE_FORMAT, "%d/%m/%Y", "%d-%m-%Y"]
 
 
 def format_date(value):
     """date(2026, 10, 14) -> "14.10.2026". None -> ""."""
     return value.strftime(DATE_FORMAT) if value else ""
+
+
+def parse_date(text):
+    """"14.10.2026" (or ISO "2026-10-14") -> a date. Anything else -> None."""
+    text = (text or "").strip()
+    for fmt in INPUT_FORMATS:
+        try:
+            return datetime.strptime(text, fmt).date()
+        except ValueError:
+            pass
+    try:
+        return date.fromisoformat(text)
+    except ValueError:
+        return None
 
 
 class DayMonthYearField(DateField):
@@ -28,7 +46,7 @@ class DayMonthYearField(DateField):
     widget = TextInput()
 
     def __init__(self, label=None, validators=None, **kwargs):
-        kwargs.setdefault("format", [DATE_FORMAT, "%d/%m/%Y", "%d-%m-%Y"])
+        kwargs.setdefault("format", INPUT_FORMATS)
         kwargs.setdefault("render_kw", {"placeholder": "dd.mm.yyyy", "inputmode": "numeric"})
         super().__init__(label, validators, **kwargs)
 

@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+{% from "macros/picker.html" import item_picker %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ title }}</h1>
+    <a href="{{ url_for('planner.index') }}">← Planner</a>
+  </div>
+
+  <div class="log-layout">
+    <div class="card">
+      {% if not groups %}
+        <p>Add some clothes first.</p>
+        <a href="{{ url_for('wardrobe.create') }}" class="button">Add an item</a>
+      {% else %}
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        {# data-combo-day: outfit_builder.js sends this day with the check. #}
+        {{ render_field(form.date, data_combo_day=True) }}
+
+        <div class="builder-preview" hidden>
+          <div class="preview-strip"></div>
+          <p class="preview-verdict" role="status" aria-live="polite"></p>
+          <p class="preview-combo" hidden></p>
+        </div>
+
+        <fieldset class="picker{% if form.item_ids.errors %} has-error{% endif %}"
+                  data-check-url="{{ url_for('api.check_outfit') }}">
+          <legend>What did you wear?</legend>
+          {% for error in form.item_ids.errors %}
+            <p class="field-error">{{ error }}</p>
+          {% endfor %}
+          {{ item_picker(groups, form.item_ids.data) }}
+        </fieldset>
+
+        {{ form.submit(class="button") }}
+      </form>
+      {% endif %}
+    </div>
+
+    <aside class="card">
+      <h2>Last 7 days</h2>
+      {% for log in recent %}
+        <div class="log-entry">
+          <span class="week-day">{{ log.date.strftime("%a") }} {{ log.date | date }}</span>
+          <span class="log-items">
+            {% if log.outfit %}<a href="{{ url_for('outfits.detail', outfit_id=log.outfit.id) }}">{{ log.outfit.name }}</a>{% endif %}
+            <span class="muted">{{ log.items | map(attribute="name") | join(", ") }}</span>
+          </span>
+          {% if not log.outfit_id %}
+            <form action="{{ url_for('planner.delete_log', log_id=log.id) }}" method="post" class="inline-form">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="link-button" title="Remove this look" aria-label="Remove">×</button>
+            </form>
+          {% endif %}
+        </div>
+      {% else %}
+        <p class="muted">Nothing yet.</p>
+      {% endfor %}
+    </aside>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/outfit_builder.js') }}" defer></script>
+{% endblock %}

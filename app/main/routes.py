@@ -15,7 +15,7 @@ def index():
     if current_user.is_authenticated:
         week = coming_week(current_user.id)
         forgotten = not_worn_lately(current_user.id, limit=4)
-        mine = db.select(Item).filter_by(user_id=current_user.id)
+        mine = Item.owned_by(current_user.id)
         recent = db.session.scalars(mine.order_by(Item.created_at.desc()).limit(4)).all()
         total = db.session.scalar(db.select(db.func.count()).select_from(mine.subquery()))
     return render_template("index.html", title="Home", recent=recent, total=total, week=week,

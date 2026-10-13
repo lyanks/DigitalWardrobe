@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% from "wardrobe/_card.html" import item_card %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>Wishlist</h1>
+    <a href="{{ url_for('wardrobe.create_wish') }}" class="button">Add a wish</a>
+  </div>
+
+  {% if groups %}
+    {# One heading per priority, must-haves first (grouped in the route). #}
+    {% for label, wishes in groups %}
+      <h2 class="wish-group">{{ label }}</h2>
+      <div class="item-grid">
+        {% for item in wishes %}{{ item_card(item) }}{% endfor %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="card empty-state">
+      <p>Clothes you'd like to have. A shop link, or just "grey sport shorts".</p>
+      <a href="{{ url_for('wardrobe.create_wish') }}" class="button">Add your first wish</a>
+    </div>
+  {% endif %}
+{% endblock %}

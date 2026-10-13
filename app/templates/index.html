@@ -22,7 +22,8 @@
           </p>
         {% endfor %}
       {% else %}
-        <p class="muted">Nothing planned for today. <a href="{{ url_for('planner.index') }}">Plan something</a></p>
+        <p class="muted">Nothing planned for today. <a href="{{ url_for('planner.index') }}">Plan something</a>
+          or <a href="{{ url_for('planner.log_look') }}">log what you wore</a></p>
       {% endif %}
 
       <h3>This week</h3>

@@ -1,7 +1,7 @@
 from flask_login import current_user
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
-from wtforms import PasswordField, StringField, SubmitField
+from wtforms import BooleanField, PasswordField, RadioField, StringField, SubmitField
 from wtforms.validators import (
     DataRequired, Email, EqualTo, Length, Optional, Regexp, ValidationError,
 )
@@ -9,6 +9,7 @@ from wtforms.validators import (
 from app.auth.validators import StrongPassword
 from app.extensions import db
 from app.models import User
+from app.themes import DEFAULT_THEME, HEX_COLOR, THEMES
 
 IMAGE_TYPES = ["jpg", "jpeg", "png", "webp", "gif"]
 PASSWORD_HINT = "At least 8 characters, with upper and lowercase letters, a number and a special character."
@@ -74,3 +75,16 @@ class ChangePasswordForm(FlaskForm):
         DataRequired(), EqualTo("new_password", message="Passwords must match."),
     ])
     submit = SubmitField("Change password")
+
+
+class LookForm(FlaskForm):
+    """Idea #5: pick a theme and, if you like, your own accent colour."""
+    theme = RadioField("Theme", choices=[(key, label) for key, (label, _) in THEMES.items()],
+                       default=DEFAULT_THEME)
+    # Rendered as <input type="color">, which always sends a colour like
+    # "#c4a8ff". The checkbox says whether to use it or the theme's own.
+    accent_color = StringField("Accent colour", default="#c4a8ff", validators=[
+        Regexp(HEX_COLOR, message="Pick a colour like #c4a8ff."),
+    ])
+    use_theme_accent = BooleanField("Use the theme's own colour", default=True)
+    submit = SubmitField("Save look")

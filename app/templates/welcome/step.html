@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+{% from "macros/look.html" import look_fields %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="card narrow-wide wizard">
+    {# Step dots: done steps filled, the current one wide. #}
+    <ol class="wizard-steps" aria-label="Step {{ number }} of {{ total }}">
+      {% for n in range(1, total + 1) %}
+        <li class="{{ 'done' if n < number }}{{ 'current' if n == number }}"></li>
+      {% endfor %}
+    </ol>
+    <p class="muted wizard-count">Step {{ number }} of {{ total }}</p>
+    <h1>{{ heading }}</h1>
+
+    <form method="post" novalidate class="{{ 'look-form' if number == 3 }}">
+      {{ form.hidden_tag() }}
+      {% if number == 1 %}
+        {{ render_field(form.username, autocomplete="username") }}
+        {{ render_field(form.display_name, placeholder="How your name is shown") }}
+      {% elif number == 2 %}
+        <p class="muted">Pick as many as you like.</p>
+        {{ form.goals(class="goal-list") }}
+      {% else %}
+        {{ look_fields(form, themes) }}
+      {% endif %}
+
+      <div class="actions">
+        {{ form.submit(class="button") }}
+        {# formnovalidate: skipping never complains about the fields. #}
+        <button type="submit" name="skip" value="1" class="link-button" formnovalidate>Skip</button>
+      </div>
+    </form>
+
+    <form method="post" action="{{ url_for('welcome.skip_all') }}" class="wizard-skip-all">
+      {{ skip_form.hidden_tag() }}
+      <button type="submit" class="link-button">Skip the setup</button>
+    </form>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  {% if number == 3 %}
+    <script src="{{ url_for('static', filename='js/theme_preview.js') }}"></script>
+  {% endif %}
+{% endblock %}

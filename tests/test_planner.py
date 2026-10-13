@@ -222,7 +222,7 @@ def test_api_schedule_other_users_outfit_is_404(client):
 def test_api_check_outfit(client):
     setup_outfits(client)
     ok = client.post("/api/outfits/check", json={"item_ids": ids("White tee", "Blue jeans")})
-    assert ok.status_code == 200 and ok.get_json() == {"problems": []}
+    assert ok.status_code == 200 and ok.get_json() == {"problems": [], "combo": None}
 
     missing = client.post("/api/outfits/check", json={"item_ids": ids("White tee")})
     assert "a top and a bottom" in missing.get_json()["problems"][0]

@@ -5,10 +5,13 @@ from authlib.integrations.base_client import OAuthError
 from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
 from flask_login import current_user, login_required, login_user, logout_user
 
-from app.auth.forms import ChangePasswordForm, LoginForm, ProfileForm, RegistrationForm
+from app.auth.forms import ChangePasswordForm, LoginForm, LookForm, ProfileForm, RegistrationForm
 from app.extensions import db, oauth
 from app.models import User
 from app.services.images import InvalidImageError, delete_image, save_image
+from app.themes import THEMES
+from app.welcome.forms import GoalsForm
+from app.welcome.routes import needs_setup, save_goals
 
 bp = Blueprint("auth", __name__)
 
@@ -31,7 +34,8 @@ def register():
         flash("Welcome! Your account is ready.", "success")
         # Post/Redirect/Get: after a successful POST, always redirect,
         # so refreshing the page doesn't submit the form twice.
-        return redirect(url_for("main.index"))
+        # A new account goes through the setup wizard first (idea #7).
+        return redirect(url_for("welcome.start"))
 
     # Either a GET, or a POST with errors: show the form (errors included).
     return render_template("auth/register.html", title="Sign up", form=form)
@@ -56,7 +60,7 @@ def login():
 
         login_user(user)
         flash(f"Hi, {user.shown_name}!", "success")
-        return redirect(_safe_next_url() or url_for("main.index"))
+        return redirect(_after_login(user))
 
     return render_template("auth/login.html", title="Log in", form=form)
 
@@ -76,6 +80,23 @@ def profile():
     # and each submit button tells us which one was sent.
     profile_form = ProfileForm(prefix="profile")
     password_form = ChangePasswordForm(prefix="pw")
+    look_form = LookForm(prefix="look")
+    goals_form = GoalsForm(prefix="goals")
+
+    if goals_form.submit.data and goals_form.validate_on_submit():
+        save_goals(current_user, goals_form.goals.data)
+        db.session.commit()
+        flash("Saved.", "success")
+        return redirect(url_for("auth.profile"))
+
+    if look_form.submit.data and look_form.validate_on_submit():
+        current_user.theme = look_form.theme.data
+        current_user.accent_color = (
+            None if look_form.use_theme_accent.data else look_form.accent_color.data.lower()
+        )
+        db.session.commit()
+        flash("Your new look is saved.", "success")
+        return redirect(url_for("auth.profile"))
 
     if profile_form.submit.data and profile_form.validate_on_submit():
         try:
@@ -110,10 +131,16 @@ def profile():
         # Pre-fill the form with what is already saved.
         profile_form.username.data = current_user.username
         profile_form.display_name.data = current_user.display_name
+        goals_form.goals.data = current_user.goal_keys
+        look_form.theme.data = current_user.theme
+        look_form.use_theme_accent.data = current_user.accent_color is None
+        look_form.accent_color.data = current_user.accent_color or "#c4a8ff"
 
     return render_template(
         "auth/profile.html", title="Profile",
-        profile_form=profile_form, password_form=password_form,
+        profile_form=profile_form, password_form=password_form, look_form=look_form,
+        goals_form=goals_form,
+        themes=THEMES,
     )
 
 
@@ -149,7 +176,15 @@ def google_callback():
     user = _find_or_create_google_user(info)
     login_user(user)
     flash(f"Hi, {user.shown_name}!", "success")
-    return redirect(url_for("main.index"))
+    return redirect(_after_login(user))
+
+
+def _after_login(user):
+    """Where to go after logging in: the setup wizard if it isn't done yet,
+    otherwise the page you came for (?next=...) or the home page."""
+    if needs_setup(user):
+        return url_for("welcome.start")
+    return _safe_next_url() or url_for("main.index")
 
 
 def _find_or_create_google_user(info):

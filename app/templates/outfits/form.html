@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "macros/forms.html" import render_field %}
+{% from "macros/picker.html" import item_picker %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
@@ -19,15 +20,14 @@
         {{ render_field(form.occasion) }}
       </div>
 
-      {# The item picker. Every checkbox has name="item_ids" and the item's
-         id as its value, so the browser sends all ticked ids together and
-         WTForms collects them into form.item_ids.data (a list). #}
       {# Filled in by outfit_builder.js; stays hidden without JavaScript. #}
       <div class="builder-preview" hidden>
         <div class="preview-strip"></div>
         <p class="preview-verdict" role="status" aria-live="polite"></p>
+        <p class="preview-combo" hidden></p>
       </div>
 
+      {# The item picker: macros/picker.html. #}
       <fieldset class="picker{% if form.item_ids.errors %} has-error{% endif %}"
                 data-check-url="{{ url_for('api.check_outfit') }}">
         <legend>Pick the items</legend>
@@ -36,26 +36,7 @@
           <p class="field-error">{{ error }}</p>
         {% endfor %}
 
-        {% for category, items in groups %}
-          <h2 class="picker-heading">{{ category.name }}</h2>
-          <div class="pick-grid">
-            {% for item in items %}
-              {# The <label> wraps the whole card, so clicking anywhere on it
-                 ticks the box. CSS highlights the card when it's ticked. #}
-              <label class="pick-card">
-                <input type="checkbox" name="item_ids" value="{{ item.id }}"
-                       {{ "checked" if form.item_ids.data and item.id in form.item_ids.data }}>
-                {% if item.image_path %}
-                  <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
-                       alt="" class="item-photo" loading="lazy">
-                {% else %}
-                  <span class="item-photo item-photo-empty">{{ category.name }}</span>
-                {% endif %}
-                <span class="pick-name">{{ item.name }}</span>
-              </label>
-            {% endfor %}
-          </div>
-        {% endfor %}
+        {{ item_picker(groups, form.item_ids.data) }}
       </fieldset>
 
       {% if outfit and outfit.image_path %}

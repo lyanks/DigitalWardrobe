@@ -18,12 +18,87 @@
     --color-danger: #ff8a80;
     --color-placeholder: #241a3d;   /* item card without a photo */
     --color-photo-bg: #ede9f6;      /* behind photos that don't fill their box */
-    --color-glow: rgb(123 92 196 / 0.35);
+    --color-field-hint: #8b7ab8;    /* placeholder text and the password eye */
+    /* The glows take the accent colour, so a custom accent glows too.
+       color-mix() blends two colours; here: the accent, mostly see-through. */
+    --glow-strength: 30%;
+    --color-glow: color-mix(in srgb, var(--color-primary) var(--glow-strength), transparent);
     --shadow: 0 4px 16px rgb(0 0 0 / 0.45);
 
     --radius: 8px;
     --space: 1rem;
     --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ===== Themes (idea #5) =====
+   <html data-theme="..."> picks one of these blocks. Each one gives the same
+   variables new values; :root above is Midnight, the default. */
+
+[data-theme="graphite"] {
+    --color-bg: #121214;
+    --color-surface: #1c1c20;
+    --color-text: #ececf1;
+    --color-muted: #9b9ba8;
+    --color-primary: #c4a8ff;
+    --color-border: #2f2f36;
+    --color-on-primary: #1d0b3a;
+    --color-field: #2a2a31;
+    --color-field-text: #ececf1;
+    --color-field-hint: #8a8a96;
+    --color-success-bg: #34295a;
+    --color-success-text: #ddd0ff;
+    --color-info-bg: #24242b;
+    --color-info-text: #c6c6d2;
+    --color-placeholder: #24242a;
+    --glow-strength: 14%;
+}
+
+[data-theme="lavender"] {
+    --color-bg: #f8f7fc;
+    --color-surface: #ffffff;
+    --color-text: #2e2541;
+    --color-muted: #6f6787;
+    --color-primary: #6157ae;
+    --color-border: #e4e0ef;
+    --color-on-primary: #ffffff;
+    --color-field: #f1eefa;
+    --color-field-text: #2e2541;
+    --color-field-hint: #8f88a8;
+    --color-success-bg: #e6defc;
+    --color-success-text: #45348f;
+    --color-error-bg: #fbe9e7;
+    --color-error-text: #8a2a1c;
+    --color-info-bg: #efedf7;
+    --color-info-text: #4d4570;
+    --color-danger: #b3261e;
+    --color-placeholder: #eeebf6;
+    --color-photo-bg: #f3f1f8;
+    --shadow: 0 4px 12px rgb(46 37 65 / 0.10);
+    --glow-strength: 12%;
+}
+
+[data-theme="linen"] {
+    --color-bg: #f5efe6;
+    --color-surface: #fffaf3;
+    --color-text: #3d3026;
+    --color-muted: #7d6b5c;
+    --color-primary: #9a5b3a;       /* terracotta */
+    --color-border: #e7dccd;
+    --color-on-primary: #ffffff;
+    --color-field: #f3eadf;
+    --color-field-text: #3d3026;
+    --color-field-hint: #9c8a7a;
+    --color-success-bg: #f2e2d3;
+    --color-success-text: #6e3b1f;
+    --color-error-bg: #f9e1dc;
+    --color-error-text: #8a2a1c;
+    --color-info-bg: #efe7dc;
+    --color-info-text: #5b4a3b;
+    --color-danger: #b3261e;
+    --color-placeholder: #efe6da;
+    --color-photo-bg: #f6f0e8;
+    --shadow: 0 4px 12px rgb(61 48 38 / 0.10);
+    --glow-strength: 12%;
 }
 
 * {
@@ -223,6 +298,8 @@ a {
 .field input[type="email"],
 .field input[type="password"],
 .field input[type="date"],
+.field input[type="url"],
+.field input[type="number"],
 .field select,
 .field textarea,
 .filters input,
@@ -238,7 +315,7 @@ a {
 .field input::placeholder,
 .field textarea::placeholder,
 .filters input::placeholder {
-    color: #8b7ab8;
+    color: var(--color-field-hint);
 }
 
 .field input:focus {
@@ -940,6 +1017,58 @@ a {
     color: var(--color-success-text);
 }
 
+/* Idea #1: "You wore this combo on ...". A gentle note, not an error. */
+.preview-combo {
+    margin: 0.35rem 0 0;
+    font-size: 0.9rem;
+    color: var(--color-info-text);
+}
+.preview-combo::before {
+    content: "↻ ";
+}
+
+/* ---------- Idea #1: Log a look ---------- */
+
+.log-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    gap: calc(var(--space) * 1.5);
+    align-items: start;
+}
+
+@media (max-width: 800px) {
+    .log-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Date on the first line, clothes under it, the × on the right. */
+.log-entry {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.15rem 0.5rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.log-entry .week-day,
+.log-items {
+    grid-column: 1;
+}
+
+.log-entry .inline-form {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+}
+
+.log-items {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9rem;
+}
+
 /* ---------- Phase 5: stats ---------- */
 
 .stat-tiles {
@@ -1189,7 +1318,7 @@ body.landing {
     border: none;
     padding: 0.35rem;
     cursor: pointer;
-    color: #8b7ab8;
+    color: var(--color-field-hint);
     display: flex;
 }
 .password-eye svg {
@@ -1240,4 +1369,191 @@ body.landing {
     .hero-actions .button { flex: 1 1 100%; text-align: center; }
     .glow { width: 220px; height: 220px; }
     .glow-left { top: 25%; }
+}
+
+/* ===== Wishlist ===== */
+
+.wish-group {
+    font-size: 1.05rem;
+    color: var(--color-muted);
+    margin: calc(var(--space) * 1.5) 0 0.75rem;
+}
+.item-price {
+    display: block;
+    margin-top: 0.2rem;
+    font-weight: 600;
+    color: var(--color-primary);
+}
+.bought-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin: var(--space) 0;
+}
+
+/* Autofill: link box and button side by side, message and photo below. */
+.autofill {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    column-gap: 0.5rem;
+    align-items: end;
+}
+.autofill .field {
+    margin-bottom: 0;
+}
+.autofill > :not(.field):not([data-autofill]) {
+    grid-column: 1 / -1;            /* message and photo take the full width */
+}
+.autofill-status {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+}
+.autofill-status:empty {
+    display: none;
+}
+.autofill-photo {
+    margin-top: 0.5rem;
+}
+.autofill + .field {
+    margin-top: var(--space);
+}
+
+
+/* ===== Look picker on the profile page (idea #5) ===== */
+
+.sr-only {                          /* there for screen readers, hidden on screen */
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+}
+.theme-picker {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.75rem;
+    border: none;
+    padding: 0;
+    margin: 0 0 var(--space);
+}
+.theme-option {
+    position: relative;             /* keeps the hidden radio inside the card */
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.5rem;
+    border: 2px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-weight: 600;
+}
+.theme-option input {
+    position: absolute;
+    opacity: 0;                     /* the whole card is the button */
+}
+.theme-option:has(input:checked) {
+    border-color: var(--color-primary);
+}
+.theme-option:has(input:focus-visible) {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+/* A mini page: background, a card on it, and an accent dot. */
+.theme-swatch {
+    height: 56px;
+    border-radius: calc(var(--radius) - 2px);
+    background:
+        radial-gradient(circle at 80% 30%, var(--accent) 0 9px, transparent 10px),
+        linear-gradient(var(--card), var(--card)) 12px 14px / 55% 28px no-repeat,
+        var(--bg);
+    border: 1px solid rgb(128 128 128 / 0.25);
+}
+.accent-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: var(--space);
+}
+.accent-input {
+    width: 3rem;
+    height: 2.2rem;
+    padding: 0.15rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    cursor: pointer;
+}
+
+/* Checkboxes and radio buttons in the accent colour instead of browser blue. */
+input[type="checkbox"],
+input[type="radio"] {
+    accent-color: var(--color-primary);
+}
+
+/* ===== Setup wizard (idea #7) ===== */
+
+.wizard h1 {
+    margin-top: 0.25rem;
+}
+.wizard-steps {
+    display: flex;
+    gap: 0.4rem;
+    list-style: none;
+    padding: 0;
+    margin: 0 0 0.75rem;
+}
+.wizard-steps li {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 999px;
+    background: var(--color-border);
+    transition: width 0.2s;
+}
+.wizard-steps li.done {
+    background: var(--color-primary);
+}
+.wizard-steps li.current {
+    width: 1.8rem;                  /* the current step is a little bar */
+    background: var(--color-primary);
+}
+.wizard-count {
+    margin: 0;
+    font-size: 0.85rem;
+}
+.wizard-skip-all {
+    margin-top: var(--space);
+    text-align: center;
+}
+
+/* The goal checkboxes: one clickable row each. */
+.goal-list {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 var(--space);
+    display: grid;
+    gap: 0.5rem;
+}
+.goal-list li {
+    position: relative;
+}
+.goal-list label {
+    display: block;
+    padding: 0.7rem 0.9rem 0.7rem 2.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+.goal-list input {
+    position: absolute;
+    left: 0.9rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.1rem;
+    height: 1.1rem;
+}
+.goal-list li:has(input:checked) label {
+    border-color: var(--color-primary);
+    background: var(--color-info-bg);
 }
