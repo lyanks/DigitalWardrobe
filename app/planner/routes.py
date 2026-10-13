@@ -9,11 +9,13 @@ from app.models import Item, Outfit, ScheduledOutfit, WearLog
 from app.outfits.routes import get_own_outfit_or_404, my_items_by_category
 from app.planner.forms import LogLookForm, ScheduleForm
 from app.services.combo_check import WINDOW_DAYS, check_combo
+from app.services.laundry import wash_notice
 from app.services.outfit_rules import outfit_problems, sort_by_slot
 from app.services.planner import (
     WEEKDAY_NAMES, ScheduleError, entries_between, month_weeks, parse_month,
     schedule_outfit, shift_month,
 )
+from app.services.trips import trip_for_each_day, trips_between
 
 bp = Blueprint("planner", __name__, url_prefix="/planner")
 
@@ -54,6 +56,11 @@ def index():
     # One query for the whole visible grid, including the grey days of
     # the neighbouring months at the start and the end.
     entries = entries_between(current_user.id, weeks[0][0], weeks[-1][-1])
+    # Trips show as a bar across their days.
+    trips = trip_for_each_day(
+        trips_between(current_user.id, weeks[0][0], weeks[-1][-1]),
+        [day for week in weeks for day in week],
+    )
 
     outfits = _my_outfits()
     form = ScheduleForm()
@@ -65,7 +72,7 @@ def index():
 
     return render_template(
         "planner/index.html", title="Planner", first_day=first_day, weeks=weeks,
-        entries=entries, weekday_names=WEEKDAY_NAMES, today=date.today(),
+        entries=entries, trips=trips, weekday_names=WEEKDAY_NAMES, today=date.today(),
         prev_month=shift_month(first_day, -1), next_month=shift_month(first_day, 1),
         outfits=outfits, form=form,
     )
@@ -90,9 +97,10 @@ def schedule():
         flash(str(error), "error")
     else:
         flash(f"Planned “{outfit.name}” for {form.date.data.strftime('%A')} {format_date(form.date.data)}.", "success")
-        notice = check_combo(current_user.id, outfit.items, form.date.data)
-        if notice:
-            flash(notice, "info")
+        for notice in (check_combo(current_user.id, outfit.items, form.date.data),
+                       wash_notice(outfit.items)):
+            if notice:
+                flash(notice, "info")
     return _back_to_month(form.date.data)
 
 

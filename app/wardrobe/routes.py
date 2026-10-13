@@ -91,6 +91,7 @@ def index():
     sort = request.args.get("sort", "custom")
     if sort not in SORT_OPTIONS:
         sort = "custom"
+    wash = request.args.get("wash", "")  # "" = any, "in" = in the wash, "clean"
 
     # Start with "all my items" and narrow it down one filter at a time.
     # Nothing is sent to the database until we ask for the results.
@@ -102,6 +103,10 @@ def index():
     if season in SEASONS and season != "all":
         # An "all seasons" item also fits a winter search.
         query = query.where(Item.season.in_([season, "all"]))
+    if wash == "in":
+        query = query.where(Item.washing_since.is_not(None))
+    elif wash == "clean":
+        query = query.where(Item.washing_since.is_(None))
     if text:
         pattern = f"%{text}%"  # % = "any characters" in SQL LIKE
         query = query.where(
@@ -115,7 +120,8 @@ def index():
     return render_template(
         "wardrobe/index.html", title="Wardrobe", items=items, total=total,
         categories=_category_choices(), colors=COLORS, seasons=SEASONS,
-        filters={"category": category_id, "color": color, "season": season, "q": text},
+        filters={"category": category_id, "color": color, "season": season, "q": text,
+                 "wash": wash if wash in ("in", "clean") else ""},
         sort=sort, sort_options=SORT_OPTIONS,
     )
 
@@ -252,6 +258,29 @@ def bought(item_id):
         db.session.commit()
         flash(f"“{item.name}” is in your wardrobe now. Enjoy it!", "success")
     return redirect(url_for("wardrobe.detail", item_id=item.id))
+
+
+# ---------- Laundry ----------
+
+@bp.route("/<int:item_id>/laundry", methods=["POST"])
+def laundry(item_id):
+    """Put an item in the wash, or take it out again (a toggle)."""
+    item = get_own_item_or_404(item_id)
+    if item.is_wish:
+        abort(400)
+    if BoughtForm().validate_on_submit():  # any FlaskForm checks the CSRF token
+        if item.in_wash:
+            item.washing_since = None
+            flash(f"“{item.name}” is clean again.", "success")
+        else:
+            item.washing_since = date.today()
+            flash(f"“{item.name}” is in the wash.", "info")
+        db.session.commit()
+    # Go back to the page the button was on (a safe, local address only).
+    back = request.form.get("next", "")
+    if not back.startswith("/") or back.startswith("//"):
+        back = url_for("wardrobe.detail", item_id=item.id)
+    return redirect(back)
 
 
 # ---------- Read: one item ----------

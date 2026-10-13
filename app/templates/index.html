@@ -74,6 +74,9 @@
         {% for day, entries in week[1:] %}
           <li>
             <span class="week-day">{{ day.strftime("%a") }} <b>{{ day.strftime("%d.%m") }}</b></span>
+            {% if trips.get(day) %}
+              <a href="{{ url_for('trips.pack', trip_id=trips[day].id) }}" class="week-trip">{{ trips[day].name }}</a>
+            {% endif %}
             {% for entry in entries %}
               {# The outfit's own photo if it has one, else just its name. #}
               {% if entry.outfit.image_path %}
@@ -86,7 +89,7 @@
                 <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}">{{ entry.outfit.name }}</a>
               {% endif %}
             {% else %}
-              <span class="muted">Free</span>
+              {% if not trips.get(day) %}<span class="muted">Free</span>{% endif %}
             {% endfor %}
           </li>
         {% endfor %}

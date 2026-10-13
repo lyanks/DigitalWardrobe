@@ -1,0 +1,29 @@
+{# One item inside the suitcase. Used by pack.html and sent back by the
+   routes as JSON "html" after a drop, so both look exactly the same. #}
+{% set item = link.item %}
+<li class="suitcase-item{{ ' is-packed' if link.packed }}" data-item-id="{{ item.id }}" draggable="true">
+  {% if item.image_path %}
+    <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}" alt="" class="suitcase-photo">
+  {% else %}
+    <span class="suitcase-photo"><span class="item-dot" style="--swatch: {{ item.color | swatch }}"></span></span>
+  {% endif %}
+  <span class="suitcase-name">
+    {{ item.name }}
+    <small class="muted">{{ item.category.name }}</small>
+    {% if item.in_wash %}<small class="wash-badge">wash it first</small>{% endif %}
+  </span>
+  <form method="post" action="{{ url_for('trips.toggle_packed', trip_id=trip.id, item_id=item.id) }}"
+        class="inline-form" data-suitcase-action="packed">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="pack-check" aria-pressed="{{ 'true' if link.packed else 'false' }}"
+            title="{{ 'Packed' if link.packed else 'Mark as packed' }}">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      <span class="sr-only">Packed</span>
+    </button>
+  </form>
+  <form method="post" action="{{ url_for('trips.remove_item', trip_id=trip.id, item_id=item.id) }}"
+        class="inline-form" data-suitcase-action="remove">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="link-button" aria-label="Take out of the suitcase" title="Take out">×</button>
+  </form>
+</li>

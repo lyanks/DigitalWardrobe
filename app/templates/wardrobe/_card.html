@@ -1,7 +1,7 @@
 {# One item card, used by the wardrobe grid and the home page.
    The leading underscore in the file name means "a piece, not a page". #}
 {% macro item_card(item, draggable=False) %}
-  <a href="{{ url_for('wardrobe.detail', item_id=item.id) }}" class="item-card"
+  <a href="{{ url_for('wardrobe.detail', item_id=item.id) }}" class="item-card{{ ' washing' if item.in_wash }}"
      {% if draggable %}draggable="true" data-id="{{ item.id }}"{% endif %}>
     {% if item.image_path %}
       <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
@@ -13,6 +13,7 @@
         {{ item.category.name }}
       </div>
     {% endif %}
+    {% if item.in_wash %}<span class="wash-badge wash-badge-corner">In the wash</span>{% endif %}
     <div class="item-card-body">
       <span class="item-name">{{ item.name }}</span>
       <span class="muted item-meta">{{ item.category.name }} · {{ item.color }}</span>

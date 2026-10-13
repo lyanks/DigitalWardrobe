@@ -48,6 +48,7 @@ class User(UserMixin, db.Model):
     goals = db.relationship("UserGoal", cascade="all, delete-orphan")
     # Idea #1: what they actually wore, day by day.
     wear_logs = db.relationship("WearLog", back_populates="owner", cascade="all, delete-orphan")
+    trips = db.relationship("Trip", back_populates="owner", cascade="all, delete-orphan")
 
     @property
     def goal_keys(self):
@@ -129,6 +130,9 @@ class Item(db.Model):
     price = db.Column(db.Numeric(10, 2))
     currency = db.Column(db.String(3))
     priority = db.Column(db.Integer)  # 1 = must have, 2 = would be nice, 3 = someday
+    # Laundry: the day it went in the wash, or None when it's clean.
+    # A date instead of True/False, so the page can say "since Monday".
+    washing_since = db.Column(db.Date)
     # Your own order in the grid (drag and drop). Smaller = earlier.
     position = db.Column(db.Integer, nullable=False, default=0)
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
@@ -146,6 +150,10 @@ class Item(db.Model):
     wear_links = db.relationship(
         "WearLogItem", back_populates="item", cascade="all, delete-orphan",
     )
+    # ...and for suitcases: a deleted item is taken out of every trip.
+    trip_links = db.relationship(
+        "TripItem", back_populates="item", cascade="all, delete-orphan",
+    )
 
     @property
     def outfits(self):
@@ -154,6 +162,10 @@ class Item(db.Model):
     @property
     def is_wish(self):
         return self.status == WISHLIST
+
+    @property
+    def in_wash(self):
+        return self.washing_since is not None
 
     @classmethod
     def owned_by(cls, user_id):
@@ -344,3 +356,45 @@ class WearLogItem(db.Model):
 
     log = db.relationship("WearLog", back_populates="item_links")
     item = db.relationship("Item", back_populates="wear_links")
+
+
+class Trip(db.Model):
+    """A trip with a suitcase: from start_date to end_date (both included)."""
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    name = db.Column(db.String(80), nullable=False)
+    start_date = db.Column(db.Date, nullable=False, index=True)
+    end_date = db.Column(db.Date, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    owner = db.relationship("User", back_populates="trips")
+    item_links = db.relationship("TripItem", back_populates="trip", cascade="all, delete-orphan",
+                                 order_by="TripItem.added_at")
+
+    @property
+    def days(self):
+        """How many days, counting both ends: 14.10 to 16.10 is 3 days."""
+        return (self.end_date - self.start_date).days + 1
+
+    @property
+    def packed_count(self):
+        return sum(1 for link in self.item_links if link.packed)
+
+    def covers(self, day):
+        return self.start_date <= day <= self.end_date
+
+    def __repr__(self):
+        return f"<Trip {self.name!r} {self.start_date}..{self.end_date}>"
+
+
+class TripItem(db.Model):
+    """One item in a trip's suitcase. `packed` = actually in the bag yet."""
+
+    trip_id = db.Column(db.Integer, db.ForeignKey("trip.id"), primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey("item.id"), primary_key=True, index=True)
+    packed = db.Column(db.Boolean, nullable=False, default=False)
+    added_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    trip = db.relationship("Trip", back_populates="item_links")
+    item = db.relationship("Item", back_populates="trip_links")

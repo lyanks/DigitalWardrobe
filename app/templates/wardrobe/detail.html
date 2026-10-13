@@ -64,6 +64,19 @@
         </form>
       {% endif %}
 
+      {% if not item.is_wish %}
+        {# Laundry: one button that switches between the two states. #}
+        <form method="post" action="{{ url_for('wardrobe.laundry', item_id=item.id) }}" class="laundry-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          {% if item.in_wash %}
+            <span class="wash-badge">In the wash since {{ item.washing_since.strftime("%a") }} {{ item.washing_since | date }}</span>
+            <button type="submit" class="button button-small">It's clean</button>
+          {% else %}
+            <button type="submit" class="button button-small button-outline">Put in the wash</button>
+          {% endif %}
+        </form>
+      {% endif %}
+
       {# item.outfits goes through the join table: every outfit with this item. #}
       {% set outfits = item.outfits %}
       {% if not item.is_wish %}
@@ -77,8 +90,12 @@
 
       <div class="actions">
         <a href="{{ url_for('wardrobe.edit', item_id=item.id) }}" class="{{ 'button button-outline' if item.is_wish else 'button' }}">Edit</a>
-        {# A link is fine here: it only opens the "Are you sure?" page. #}
-        <a href="{{ url_for('wardrobe.delete', item_id=item.id) }}" class="danger-link">Delete</a>
+        {# confirm.js asks in a box on this page. Without JavaScript the link
+           opens the "Are you sure?" page instead. #}
+        <a href="{{ url_for('wardrobe.delete', item_id=item.id) }}" class="danger-link"
+           data-confirm-title="Delete “{{ item.name }}”?"
+           data-confirm="This removes the item and its photo for good.
+                         {%- if item.outfit_links %} It will also be taken out of {{ item.outfit_links | length }} outfit{{ 's' if item.outfit_links | length != 1 }}.{% endif %}">Delete</a>
       </div>
     </div>
   </div>

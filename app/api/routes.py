@@ -13,6 +13,7 @@ from app.dates import format_date, parse_date
 from app.extensions import db
 from app.models import Item, Outfit
 from app.services.combo_check import check_combo
+from app.services.laundry import wash_notice
 from app.services.outfit_rules import outfit_problems
 from app.services.planner import ScheduleError, schedule_outfit
 from app.services.product_page import FetchError, fetch_product
@@ -83,8 +84,9 @@ def schedule():
         # "date" for programs (ISO), "date_text" for people (dd.mm.yyyy).
         id=entry.id, date=entry.date.isoformat(), date_text=format_date(entry.date),
         outfit={"id": outfit.id, "name": outfit.name},
-        # Idea #1: "You wore this combo on ..." or null.
-        notice=check_combo(current_user.id, outfit.items, day),
+        # "You wore this combo on ..." and/or "... is in the wash", or null.
+        notice=" ".join(filter(None, [check_combo(current_user.id, outfit.items, day),
+                                       wash_notice(outfit.items)])) or None,
         # The same HTML snippet the page uses for an entry, ready to insert.
         html=render_template("planner/_entry.html", entry=entry, today=date.today()),
     ), 201

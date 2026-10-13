@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">Trip</p>
+      <h1>{{ trip.name }}</h1>
+      <p class="muted">{{ trip | trip_dates }}</p>
+    </div>
+    <div class="actions">
+      <a href="{{ url_for('trips.edit', trip_id=trip.id) }}" class="button button-outline button-small">Edit</a>
+      <form method="post" action="{{ url_for('trips.delete', trip_id=trip.id) }}" class="inline-form"
+            data-confirm-title="Delete “{{ trip.name }}”?"
+            data-confirm="The trip and its suitcase list are deleted. Your clothes stay in your wardrobe.">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" class="link-button danger-link">Delete</button>
+      </form>
+    </div>
+  </div>
+
+  {# Two sides: the suitcase on the left, your wardrobe on the right.
+     data-* attributes tell suitcase.js where to send its requests. #}
+  {% set total = trip.item_links | length %}
+  <div class="pack-layout">
+    <section class="suitcase" data-suitcase
+             data-add-url="{{ url_for('trips.add_item', trip_id=trip.id, item_id=0) }}"
+             data-outfit-url="{{ url_for('trips.add_outfit', trip_id=trip.id, outfit_id=0) }}">
+      <div class="suitcase-head">
+        <h2>Suitcase</h2>
+        <span class="suitcase-count" data-count>
+          {% if total %}{{ trip.packed_count }} of {{ total }} packed{% else %}Empty{% endif %}
+        </span>
+      </div>
+      <div class="suitcase-bar"><span data-bar style="--width: {{ (trip.packed_count / total * 100) | round if total else 0 }}%"></span></div>
+      <ul class="suitcase-items" data-drop>
+        {% for link in trip.item_links %}{% include "trips/_suitcase_item.html" %}{% endfor %}
+      </ul>
+      <p class="suitcase-empty muted"{% if total %} hidden{% endif %}>
+        Drag clothes or a whole outfit here.
+      </p>
+      <p class="suitcase-status muted" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="pack-wardrobe">
+      {% if outfits %}
+        <h2>Outfits</h2>
+        <ul class="outfit-chips">
+          {% for outfit in outfits %}
+            <li>
+              <form method="post" action="{{ url_for('trips.add_outfit', trip_id=trip.id, outfit_id=outfit.id) }}"
+                    class="inline-form" data-suitcase-action="add">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="outfit-chip" draggable="true" data-outfit-id="{{ outfit.id }}"
+                        title="Add every item of this outfit">+ {{ outfit.name }}</button>
+              </form>
+            </li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+
+      <h2>Your wardrobe</h2>
+      {% for category, items in groups %}
+        <h3 class="picker-heading">{{ category.name }}</h3>
+        <div class="pack-grid">
+          {% for item in items %}
+            <div class="pack-card{{ ' in-suitcase' if item.id in in_suitcase }}{{ ' washing' if item.in_wash }}"
+                 draggable="true" data-item-id="{{ item.id }}">
+              {% if item.image_path %}
+                <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
+                     alt="" class="item-photo" loading="lazy" draggable="false">
+              {% else %}
+                <div class="item-photo item-photo-empty">
+                  <span class="item-dot" style="--swatch: {{ item.color | swatch }}"></span>
+                </div>
+              {% endif %}
+              {% if item.in_wash %}<span class="wash-badge wash-badge-corner">In the wash</span>{% endif %}
+              <span class="pick-name">{{ item.name }}</span>
+              <form method="post" action="{{ url_for('trips.add_item', trip_id=trip.id, item_id=item.id) }}"
+                    class="inline-form" data-suitcase-action="add">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="pack-add" aria-label="Put {{ item.name }} in the suitcase">+</button>
+              </form>
+              <span class="pack-in" aria-hidden="true">In the suitcase</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p>Add some clothes first. <a href="{{ url_for('wardrobe.create') }}">Add an item</a></p>
+      {% endfor %}
+    </section>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/suitcase.js') }}" defer></script>
+{% endblock %}

@@ -11,6 +11,12 @@ def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
+    if app.config["BEHIND_PROXY"]:
+        # Read the X-Forwarded-Proto / X-Forwarded-Host headers the proxy
+        # adds (one proxy, so trust one hop). See BEHIND_PROXY in config.py.
+        from werkzeug.middleware.proxy_fix import ProxyFix
+        app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
+
     # Make sure the uploads folder exists before anyone uploads.
     os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
@@ -56,6 +62,7 @@ def create_app(config_class=Config):
     from app.planner.routes import bp as planner_bp
     from app.api.routes import bp as api_bp
     from app.welcome.routes import bp as welcome_bp
+    from app.trips.routes import bp as trips_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -63,6 +70,7 @@ def create_app(config_class=Config):
     app.register_blueprint(outfits_bp)
     app.register_blueprint(planner_bp)
     app.register_blueprint(api_bp)
+    app.register_blueprint(trips_bp)
     app.register_blueprint(welcome_bp)
 
     return app

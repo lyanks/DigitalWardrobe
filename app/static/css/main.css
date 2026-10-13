@@ -1371,6 +1371,44 @@ a:hover {
     font-size: 0.9rem;
 }
 
+/* ---------- Laundry ---------- */
+
+.wash-badge {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    background: var(--color-info-bg);
+    color: var(--color-info-text);
+    border: 1px solid var(--color-glass-border);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+/* On a card: in the top left corner of the photo. */
+.item-card {
+    position: relative;
+}
+.wash-badge-corner {
+    position: absolute;
+    top: 0.5rem;
+    left: 0.5rem;
+}
+/* The photo fades a little while the item is in the wash. */
+.pick-card .wash-badge-corner {
+    left: auto;
+    right: 0.5rem;   /* the checkbox is in the left corner */
+}
+.pick-card.washing .item-photo,
+.item-card.washing .item-photo {
+    opacity: 0.45;
+}
+.laundry-form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    margin: var(--space) 0;
+}
+
 /* ---------- Home page (Plan. Manage. Build. style) ---------- */
 
 .eyebrow {
@@ -2117,4 +2155,434 @@ input[type="radio"] {
 .goal-list li:has(input:checked) label {
     border-color: var(--color-primary);
     background: var(--color-info-bg);
+}
+
+/* ---------- Trips: "Pack a suitcase" ---------- */
+
+.trips-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+    gap: calc(var(--space) * 1.5);
+    align-items: start;
+}
+
+.trips-layout h2 {
+    font-size: 1.1rem;
+    margin-top: 0;
+}
+
+.trip-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 0.15rem 1rem;
+    padding: 0.9rem 1.1rem;
+    margin-bottom: 0.6rem;
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius);
+    background: var(--color-glass);
+    color: var(--color-text);
+    transition: border-color 0.15s;
+}
+
+.trip-row:hover {
+    border-color: var(--color-primary);
+    text-decoration: none;
+}
+
+.trip-row-name {
+    font-weight: 700;
+}
+
+.trip-row .muted {
+    grid-column: 1;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.trip-row-count {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+    font-size: 0.85rem;
+    color: var(--color-primary);
+}
+
+/* The two sides: suitcase on the left (it stays in view while you scroll
+   the wardrobe), wardrobe on the right. */
+.pack-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
+    gap: calc(var(--space) * 1.5);
+    align-items: start;
+}
+
+.pack-layout h2 {
+    font-size: 1.1rem;
+    margin: 0 0 0.75rem;
+}
+
+.suitcase {
+    position: sticky;
+    top: 5.5rem;
+    max-height: calc(100vh - 7rem);
+    overflow-y: auto;
+    padding: 1.1rem;
+    border: 2px dashed var(--color-glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-glass);
+    transition: border-color 0.15s, background 0.15s;
+}
+
+/* While you drag something from the wardrobe, the suitcase lights up. */
+.dragging-in .suitcase {
+    border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+
+.suitcase.drop-target {
+    border-color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 12%, var(--color-glass));
+}
+
+/* ...and when you drag out of the suitcase, the wardrobe does. */
+.dragging-out .pack-wardrobe {
+    outline: 2px dashed color-mix(in srgb, var(--color-primary) 60%, transparent);
+    outline-offset: 0.5rem;
+    border-radius: var(--radius);
+}
+
+.suitcase-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+}
+
+.suitcase-count {
+    font-size: 0.85rem;
+    color: var(--color-muted);
+}
+
+.suitcase-bar {
+    height: 6px;
+    border-radius: 999px;
+    background: var(--color-field-border);
+    overflow: hidden;
+    margin-bottom: 0.9rem;
+}
+
+.suitcase-bar span {
+    display: block;
+    height: 100%;
+    width: var(--width, 0%);
+    background: var(--color-primary);
+    transition: width 0.3s;
+}
+
+.suitcase-items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.suitcase-item {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) auto auto;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.35rem 0.4rem;
+    border-radius: var(--radius);
+    background: var(--color-surface);
+    cursor: grab;
+}
+
+.suitcase-photo {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 10px;
+    object-fit: contain;
+    background: var(--color-photo-bg, var(--color-bg));
+    display: grid;
+    place-items: center;
+}
+
+.suitcase-name {
+    display: flex;
+    flex-direction: column;
+    font-weight: 600;
+    font-size: 0.9rem;
+    line-height: 1.25;
+    overflow-wrap: anywhere;
+}
+
+.suitcase-name small {
+    font-weight: 500;
+    font-size: 0.75rem;
+}
+
+.suitcase-name .wash-badge {
+    align-self: flex-start;
+    margin-top: 0.2rem;
+}
+
+.suitcase-item.is-packed .suitcase-name {
+    color: var(--color-muted);
+}
+
+.suitcase-item .link-button {
+    font-size: 1.2rem;
+    line-height: 1;
+    padding: 0.25rem 0.4rem;
+    color: var(--color-muted);
+}
+
+/* The round tick: empty ring, then filled when packed. */
+.pack-check {
+    width: 1.7rem;
+    height: 1.7rem;
+    padding: 0;
+    border-radius: 999px;
+    border: 2px solid var(--color-field-border);
+    background: transparent;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+}
+
+.pack-check svg {
+    width: 1rem;
+    height: 1rem;
+    fill: none;
+    stroke: var(--color-on-primary);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+}
+
+.pack-check[aria-pressed="true"] {
+    background: var(--color-primary);
+    border-color: var(--color-primary);
+}
+
+.pack-check[aria-pressed="true"] svg {
+    opacity: 1;
+}
+
+.suitcase-empty,
+.suitcase-status {
+    margin: 0.75rem 0 0;
+    font-size: 0.9rem;
+}
+
+.suitcase-status:empty {
+    display: none;
+}
+
+.pack-wardrobe .outfit-chips {
+    margin-bottom: 1.5rem;
+}
+
+.pack-wardrobe .outfit-chip {
+    font: inherit;
+    cursor: grab;
+}
+
+.pack-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 0.75rem;
+    margin-bottom: 1.25rem;
+}
+
+.pack-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    padding: 0.4rem;
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius);
+    background: var(--color-glass);
+    cursor: grab;
+    transition: opacity 0.15s, border-color 0.15s;
+}
+
+.pack-card:hover {
+    border-color: var(--color-primary);
+}
+
+.pack-card .item-photo {
+    aspect-ratio: 1;
+    width: 100%;
+    border-radius: 10px;
+}
+
+.pack-card .pick-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    padding: 0 0.2rem 0.2rem;
+}
+
+.pack-card form {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+}
+
+.pack-card .wash-badge-corner {
+    right: auto;
+    left: 0.6rem;
+}
+
+.pack-add {
+    width: 2rem;
+    height: 2rem;
+    border-radius: 999px;
+    border: 0;
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+    font: inherit;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.pack-in {
+    display: none;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--color-primary);
+    padding: 0 0.2rem 0.2rem;
+}
+
+/* Already packed: faded, "In the suitcase" instead of the + button. */
+.pack-card.in-suitcase {
+    opacity: 0.5;
+    cursor: default;
+}
+
+.pack-card.in-suitcase form {
+    display: none;
+}
+
+.pack-card.in-suitcase .pack-in {
+    display: block;
+}
+
+/* Phones: suitcase on top, wardrobe underneath. */
+@media (max-width: 800px) {
+    .trips-layout,
+    .pack-layout {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .suitcase {
+        position: static;
+        max-height: none;
+    }
+
+    .pack-grid {
+        grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    }
+}
+
+/* A trip on the planner calendar: a bar across its days. */
+.trip-bar {
+    display: block;
+    margin: 0 -0.3rem;
+    padding: 0.1rem 0.4rem;
+    font-size: 0.75rem;
+    font-weight: 700;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: color-mix(in srgb, var(--color-primary) 30%, transparent);
+    color: var(--color-text);
+}
+
+.trip-bar.trip-start {
+    margin-left: 0;
+    border-top-left-radius: 999px;
+    border-bottom-left-radius: 999px;
+}
+
+.trip-bar.trip-end {
+    margin-right: 0;
+    border-top-right-radius: 999px;
+    border-bottom-right-radius: 999px;
+}
+
+.trip-bar:hover {
+    background: color-mix(in srgb, var(--color-primary) 45%, transparent);
+    text-decoration: none;
+}
+
+@media (max-width: 600px) {
+    .trip-bar {
+        margin: 0;
+        border-radius: 999px;
+    }
+}
+
+/* The trip's name on a home-page week tile. */
+.week-trip {
+    display: inline-block;
+    align-self: flex-start;
+    padding: 0.1rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    background: color-mix(in srgb, var(--color-primary) 30%, transparent);
+    color: var(--color-text);
+}
+
+/* "Are you sure?" box (confirm.js): a <dialog> in the middle of the page. */
+.confirm-box {
+    width: min(26rem, calc(100% - 2rem));
+    padding: 1.75rem;
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-lg);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: 0 30px 80px rgb(0 0 0 / 0.5);
+}
+
+.confirm-box::backdrop {
+    background: rgb(5 4 12 / 0.6);
+    backdrop-filter: blur(4px);
+}
+
+.confirm-box[open] {
+    animation: confirm-in 0.18s ease-out;
+}
+
+@keyframes confirm-in {
+    from { opacity: 0; transform: translateY(8px) scale(0.98); }
+}
+
+.confirm-title {
+    margin: 0 0 0.5rem;
+    font-size: 1.25rem;
+    overflow-wrap: anywhere;
+}
+
+.confirm-text {
+    margin: 0 0 1.5rem;
+}
+
+.confirm-text:empty {
+    display: none;
+}
+
+.confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .confirm-box[open] { animation: none; }
 }

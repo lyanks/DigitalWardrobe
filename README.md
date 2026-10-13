@@ -19,6 +19,12 @@ Copy `.env.example` to `.env` and fill in `GOOGLE_CLIENT_ID` and
 `GOOGLE_CLIENT_SECRET` from Google Cloud Console. Without them the app works
 normally and simply hides the Google button.
 
+## Put it online
+
+Free hosting on PythonAnywhere, step by step: see [DEPLOY.md](DEPLOY.md).
+After the first setup, updating is `git push`, then `bash deploy/update.sh`
+on the server.
+
 ## Test it
 
 ```bash

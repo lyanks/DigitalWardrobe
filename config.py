@@ -25,6 +25,15 @@ class Config:
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
+    # On a real server (PythonAnywhere) your phone talks HTTPS to a "proxy"
+    # in front of the app, and the proxy passes the request on to Flask.
+    # BEHIND_PROXY=1 in the server's .env tells Flask to believe the proxy's
+    # note "this came in over https", so links Flask builds (like the Google
+    # callback URL) start with https://. It also makes the browser send the
+    # login cookie over https only. Leave it unset on your own computer.
+    BEHIND_PROXY = os.environ.get("BEHIND_PROXY") == "1"
+    SESSION_COOKIE_SECURE = BEHIND_PROXY
+
 
 class TestConfig(Config):
     TESTING = True

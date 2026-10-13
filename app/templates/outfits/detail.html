@@ -13,7 +13,10 @@
     </div>
     <div class="actions">
       <a href="{{ url_for('outfits.edit', outfit_id=outfit.id) }}" class="button">Edit</a>
-      <a href="{{ url_for('outfits.delete', outfit_id=outfit.id) }}" class="danger-link">Delete</a>
+      <a href="{{ url_for('outfits.delete', outfit_id=outfit.id) }}" class="danger-link"
+         data-confirm-title="Delete “{{ outfit.name }}”?"
+         data-confirm="The clothes in it stay in your wardrobe.
+                       {%- if outfit.schedule %} It's also taken off the planner.{% endif %}">Delete</a>
     </div>
   </div>
 

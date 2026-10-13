@@ -49,7 +49,7 @@
           {{ nav_link("wardrobe.index", "Wardrobe", request.blueprint == "wardrobe" and not on_wishlist) }}
           {{ nav_link("wardrobe.wishlist", "Wishlist", on_wishlist) }}
           {{ nav_link("outfits.index", "Outfits", request.blueprint == "outfits") }}
-          {{ nav_link("planner.index", "Planner", request.blueprint == "planner") }}
+          {{ nav_link("planner.index", "Planner", request.blueprint in ("planner", "trips")) }}
           {{ nav_link("main.stats", "Stats", endpoint == "main.stats") }}
         </div>
         <div class="nav-account">
@@ -99,6 +99,7 @@
 
   <script src="{{ url_for('static', filename='js/flash.js') }}"></script>
   <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/confirm.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

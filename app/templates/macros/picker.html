@@ -9,7 +9,7 @@
       {% for item in items %}
         {# The <label> wraps the whole card, so clicking anywhere on it
            ticks the box. CSS highlights the card when it's ticked. #}
-        <label class="pick-card">
+        <label class="pick-card{{ ' washing' if item.in_wash }}">
           <input type="checkbox" name="item_ids" value="{{ item.id }}"
                  {{ "checked" if selected and item.id in selected }}>
           {% if item.image_path %}
@@ -19,6 +19,7 @@
             <span class="item-photo item-photo-empty">{{ category.name }}</span>
           {% endif %}
           <span class="pick-name">{{ item.name }}</span>
+          {% if item.in_wash %}<span class="wash-badge wash-badge-corner">In the wash</span>{% endif %}
         </label>
       {% endfor %}
     </div>

@@ -7,6 +7,7 @@ from app.extensions import db
 from app.models import Item, Outfit, WearLog
 from app.services.planner import coming_week
 from app.services.stats import not_worn_lately, wardrobe_stats
+from app.services.trips import trip_for_each_day, trips_between
 
 bp = Blueprint("main", __name__)
 
@@ -17,6 +18,9 @@ def index():
         return render_template("index.html", title="Home")
 
     week = coming_week(current_user.id)
+    trips = trip_for_each_day(
+        trips_between(current_user.id, week[0][0], week[-1][0]), [day for day, _ in week]
+    )
     forgotten = not_worn_lately(current_user.id, limit=4)
     mine = Item.owned_by(current_user.id)
     recent = db.session.scalars(mine.order_by(Item.created_at.desc()).limit(4)).all()
@@ -36,7 +40,7 @@ def index():
                    WearLog.date > date.today() - timedelta(days=7))
         ),
     }
-    return render_template("index.html", title="Home", recent=recent, week=week,
+    return render_template("index.html", title="Home", recent=recent, week=week, trips=trips,
                            forgotten=forgotten, numbers=numbers, today=date.today())
 
 
