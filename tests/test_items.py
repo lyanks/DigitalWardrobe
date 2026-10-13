@@ -124,7 +124,7 @@ def test_home_shows_recent_items(client):
     register(client)
     add_item(client, name="Blue jeans")
     page = client.get("/").data
-    assert b"1 item in your wardrobe" in page
+    assert b"item in your wardrobe" in page and b"items in your wardrobe" not in page
     assert b"Blue jeans" in page
 
 

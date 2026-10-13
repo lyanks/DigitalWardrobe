@@ -1,4 +1,9 @@
 <!doctype html>
+{# One link in the nav. aria-current="page" marks the section you're in:
+   CSS makes it bold, and screen readers say "current page". #}
+{% macro nav_link(endpoint_name, label, active) %}
+  <a href="{{ url_for(endpoint_name) }}"{% if active %} aria-current="page"{% endif %}>{{ label }}</a>
+{% endmacro %}
 {# The user's theme and accent colour (idea #5). Visitors get Midnight.
    Every colour in main.css is a variable; [data-theme] swaps a whole set,
    and the inline style overrides just the accent. #}
@@ -15,59 +20,85 @@
   {# JavaScript reads this token and sends it with fetch() POSTs (CSRF). #}
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}Digital Wardrobe{% endblock %}</title>
+  {# Start downloading the font straight away instead of after the CSS. #}
+  <link rel="preload" href="{{ url_for('static', filename='fonts/manrope-latin.woff2') }}"
+        as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 {# Pages can set a body class. "public" switches to the dark look used on the
    landing, log in and sign up pages (see "Public pages" in main.css). #}
 <body class="{% block body_class %}{% endblock %}">
   <header class="site-header">
-    <a href="{{ url_for('main.index') }}" class="logo">Digital Wardrobe</a>
+    <a href="{{ url_for('main.index') }}" class="logo">Digital <span>Wardrobe</span></a>
+
+    {# Phones only: opens and closes the menu (static/js/nav.js). #}
+    {% if current_user.is_authenticated %}
+    <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav"
+            aria-label="Menu">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    {% endif %}
 
     {# current_user comes from Flask-Login and is available in every template. #}
-    <nav class="nav">
+    <nav class="nav{{ ' nav-guest' if not current_user.is_authenticated }}" id="site-nav">
       {% if current_user.is_authenticated %}
-        <a href="{{ url_for('wardrobe.index') }}">Wardrobe</a>
-        <a href="{{ url_for('wardrobe.wishlist') }}">Wishlist</a>
-        <a href="{{ url_for('outfits.index') }}">Outfits</a>
-        <a href="{{ url_for('planner.index') }}">Planner</a>
-        <a href="{{ url_for('main.stats') }}">Stats</a>
-        <a href="{{ url_for('auth.profile') }}" class="nav-user">
-          {% if current_user.avatar_path %}
-            <img src="{{ url_for('main.uploaded_file', filename=current_user.avatar_path) }}"
-                 alt="" class="avatar avatar-sm">
-          {% endif %}
-          {{ current_user.shown_name }}
-        </a>
-        {# Logging out changes state, so it is a POST form, not a link. #}
-        <form action="{{ url_for('auth.logout') }}" method="post" class="inline-form">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <button type="submit" class="link-button">Log out</button>
-        </form>
+        {% set endpoint = request.endpoint or "" %}
+        {% set on_wishlist = endpoint in ("wardrobe.wishlist", "wardrobe.create_wish") %}
+        <div class="nav-links">
+          {{ nav_link("main.index", "Home", endpoint == "main.index") }}
+          {{ nav_link("wardrobe.index", "Wardrobe", request.blueprint == "wardrobe" and not on_wishlist) }}
+          {{ nav_link("wardrobe.wishlist", "Wishlist", on_wishlist) }}
+          {{ nav_link("outfits.index", "Outfits", request.blueprint == "outfits") }}
+          {{ nav_link("planner.index", "Planner", request.blueprint == "planner") }}
+          {{ nav_link("main.stats", "Stats", endpoint == "main.stats") }}
+        </div>
+        <div class="nav-account">
+          <a href="{{ url_for('auth.profile') }}" class="nav-user">
+            {% if current_user.avatar_path %}
+              <img src="{{ url_for('main.uploaded_file', filename=current_user.avatar_path) }}"
+                   alt="" class="avatar">
+            {% else %}
+              <span class="nav-initial" aria-hidden="true">{{ current_user.shown_name[:1] | upper }}</span>
+            {% endif %}
+            {{ current_user.shown_name }}
+          </a>
+          {# Logging out changes state, so it is a POST form, not a link. #}
+          <form action="{{ url_for('auth.logout') }}" method="post" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="link-button">Log out</button>
+          </form>
+        </div>
       {% else %}
-        <a href="{{ url_for('auth.login') }}" class="button button-small button-outline">Log in</a>
-        <a href="{{ url_for('auth.register') }}" class="button button-small">Sign up</a>
+        <div class="nav-account">
+          <a href="{{ url_for('auth.login') }}" class="button button-small button-outline">Log in</a>
+          <a href="{{ url_for('auth.register') }}" class="button button-small">Sign up</a>
+        </div>
       {% endif %}
     </nav>
   </header>
 
-  <main class="container">
-    {# Messages saved with flash() in a route appear here once, then vanish. #}
+  {# Messages saved with flash() in a route. They float in the corner
+     (.toasts is position: fixed), so they never push the page down, and
+     static/js/flash.js fades them out after a few seconds. #}
+  <div class="toasts" aria-live="polite">
     {% with messages = get_flashed_messages(with_categories=true) %}
       {% for category, message in messages %}
-        {# data-flash: static/js/flash.js fades these out after a few seconds. #}
         <div class="flash flash-{{ category }}" data-flash role="status">
           <span>{{ message }}</span>
           <button type="button" class="flash-close" aria-label="Close">×</button>
         </div>
       {% endfor %}
     {% endwith %}
+  </div>
 
+  <main class="container">
     {% block content %}{% endblock %}
   </main>
 
   {% block footer %}{% endblock %}
 
   <script src="{{ url_for('static', filename='js/flash.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/nav.js') }}"></script>
   {% block scripts %}{% endblock %}
 </body>
 </html>

@@ -1,5 +1,7 @@
-"""Small Jinja filters for the wishlist: how prices and shop links look."""
+"""Small Jinja filters: how prices, shop links and colours look."""
 from urllib.parse import urlparse
+
+from app.wardrobe.choices import COLORS
 
 
 def format_price(amount, currency=None):
@@ -16,3 +18,8 @@ def shop_name(url):
     """"https://www.zara.com/ua/en/shirt-p123.html" -> "zara.com"."""
     host = urlparse(url).netloc.lower()
     return host.removeprefix("www.") or url
+
+
+def swatch(color_name):
+    """"blue" -> "#3b6fd1", the colour used for that name's dot. Unknown -> grey."""
+    return COLORS.get(color_name, "#9a9a9a")

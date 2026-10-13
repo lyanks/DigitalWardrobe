@@ -33,12 +33,17 @@ def create_app(config_class=Config):
 
     # {{ some_date | date }} in any template prints it as 14.10.2026.
     from app.dates import format_date
-    from app.filters import format_price, shop_name
+    from app.filters import format_price, shop_name, swatch
     from app.themes import text_on
     app.jinja_env.filters["date"] = format_date
     app.jinja_env.filters["price"] = format_price
     app.jinja_env.filters["shop_name"] = shop_name
+    app.jinja_env.filters["swatch"] = swatch
     app.jinja_env.filters["text_on"] = text_on
+
+    # Terminal commands: flask photos cut-out / restore (app/commands.py).
+    from app.commands import photos
+    app.cli.add_command(photos)
 
     # Import models so SQLAlchemy and Flask-Migrate know about the tables.
     from app import models  # noqa: F401

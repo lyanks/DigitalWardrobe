@@ -28,6 +28,9 @@ class ItemForm(FlaskForm):
     photo = FileField("Photo", validators=[
         FileAllowed(IMAGE_TYPES, "Images only (jpg, png, webp, gif)."),
     ])
+    # Ticked by default: product photos on white look better cut out.
+    # Untick it for white clothes on a white background.
+    remove_white = BooleanField("Remove the white background", default=True)
     remove_photo = BooleanField("Remove the current photo")
     notes = TextAreaField("Notes", validators=[Optional(), Length(max=2000)])
 

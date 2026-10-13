@@ -7,65 +7,120 @@
 
 {% block content %}
   {% if current_user.is_authenticated %}
-    <h1>Hello, {{ current_user.shown_name }} 👕</h1>
+    {# The home page, in the "Plan. Manage. Build" style: a big title,
+       one banner for today, three big numbers, then the week and items. #}
+    <section class="home-hero">
+      <div>
+        <p class="eyebrow">Hello, {{ current_user.shown_name }}</p>
+        <h1 class="big-title">Plan.<br>Wear.<br>Repeat.</h1>
+      </div>
+      <div class="home-hero-side">
+        <p class="muted">{{ today.strftime("%A") }}, {{ today | date }}</p>
+        <a href="{{ url_for('planner.index') }}" class="button button-light">
+          Plan an outfit <span class="arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+    </section>
 
     {# week = [(date, [entries]), ...]: today first, then the next 6 days. #}
     {% set today_entries = week[0][1] %}
-    <div class="card today-card">
-      <h2>Today</h2>
-      {% if today_entries %}
-        {% for entry in today_entries %}
-          <p>
-            <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}"><strong>{{ entry.outfit.name }}</strong></a>
-            {% if entry.note %}· {{ entry.note }}{% endif %}
-            {% if entry.worn %}<span class="badge">worn</span>{% endif %}
-          </p>
-        {% endfor %}
+    <section class="today-banner">
+      <p class="eyebrow">Today</p>
+      {% for entry in today_entries %}
+        <div class="today-look">
+          <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}" class="today-name">{{ entry.outfit.name }}</a>
+          {% if entry.worn %}<span class="badge">worn</span>{% endif %}
+          {% if entry.note %}<span class="today-note">{{ entry.note }}</span>{% endif %}
+        </div>
+        <div class="today-thumbs">
+          {% for item in entry.outfit.items %}
+            {% if item.image_path %}
+              <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}" alt="{{ item.name }}" title="{{ item.name }}">
+            {% else %}
+              <span class="today-swatch" style="--swatch: {{ item.color | swatch }}" title="{{ item.name }}"></span>
+            {% endif %}
+          {% endfor %}
+        </div>
       {% else %}
-        <p class="muted">Nothing planned for today. <a href="{{ url_for('planner.index') }}">Plan something</a>
-          or <a href="{{ url_for('planner.log_look') }}">log what you wore</a></p>
-      {% endif %}
+        <p class="today-name">Nothing planned yet</p>
+        <div class="hero-actions">
+          <a href="{{ url_for('planner.index') }}" class="button button-light">Plan something <span class="arrow" aria-hidden="true">→</span></a>
+          <a href="{{ url_for('planner.log_look') }}" class="button button-glass">Log what you wore</a>
+        </div>
+      {% endfor %}
+    </section>
 
-      <h3>This week</h3>
-      <ul class="week-list">
+    <section class="number-row">
+      <a href="{{ url_for('wardrobe.index') }}" class="number">
+        <span class="number-big">{{ numbers["items"] }}</span>
+        <span class="number-label">item{{ "s" if numbers["items"] != 1 }} in your wardrobe</span>
+      </a>
+      <a href="{{ url_for('outfits.index') }}" class="number">
+        <span class="number-big">{{ numbers["outfits"] }}</span>
+        <span class="number-label">outfit{{ "s" if numbers["outfits"] != 1 }}</span>
+      </a>
+      <a href="{{ url_for('planner.log_look') }}" class="number">
+        <span class="number-big">{{ numbers["worn_days"] }}<small>/7</small></span>
+        <span class="number-label">days dressed and logged this week</span>
+      </a>
+    </section>
+
+    <section class="home-section">
+      <div class="section-head">
+        <h2>This week</h2>
+        <a href="{{ url_for('planner.index') }}">Open planner <span aria-hidden="true">→</span></a>
+      </div>
+      <ol class="week-strip">
         {% for day, entries in week[1:] %}
           <li>
-            <span class="week-day">{{ day.strftime("%a %d.%m") }}</span>
+            <span class="week-day">{{ day.strftime("%a") }} <b>{{ day.strftime("%d.%m") }}</b></span>
             {% for entry in entries %}
-              <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}">{{ entry.outfit.name }}</a>{{ ", " if not loop.last }}
+              <a href="{{ url_for('outfits.detail', outfit_id=entry.outfit.id) }}">{{ entry.outfit.name }}</a>
             {% else %}
-              <span class="muted">—</span>
+              <span class="muted">Free</span>
             {% endfor %}
           </li>
         {% endfor %}
-      </ul>
-    </div>
-    {% if total %}
-      <p>You have {{ total }} item{{ "s" if total != 1 }} in your wardrobe.
-        <a href="{{ url_for('wardrobe.index') }}">See them all</a>.</p>
+      </ol>
+    </section>
+
+    {% if recent %}
       {# Clothes you used to wear but haven't for a while (services/stats.py). #}
       {% if forgotten %}
-        <h2>Not worn lately</h2>
-        <p class="muted">You haven't worn these for over a month. Maybe plan one in?</p>
-        <div class="item-grid">
-          {% for item, last in forgotten %}{{ item_card(item) }}{% endfor %}
-        </div>
+        <section class="home-section">
+          <div class="section-head">
+            <h2>Not worn lately</h2>
+            <span class="muted">Over a month ago. Maybe plan one in?</span>
+          </div>
+          <div class="item-grid">
+            {% for item, last in forgotten %}{{ item_card(item) }}{% endfor %}
+          </div>
+        </section>
       {% endif %}
 
-      <h2>Recently added</h2>
-      <div class="item-grid">
-        {% for item in recent %}{{ item_card(item) }}{% endfor %}
-      </div>
+      <section class="home-section">
+        <div class="section-head">
+          <h2>Recently added</h2>
+          <a href="{{ url_for('wardrobe.index') }}">See all <span aria-hidden="true">→</span></a>
+        </div>
+        <div class="item-grid">
+          {% for item in recent %}{{ item_card(item) }}{% endfor %}
+        </div>
+        <a href="{{ url_for('wardrobe.create') }}" class="button">Add an item</a>
+      </section>
     {% else %}
-      <p>Your wardrobe is empty. Start with the clothes you wear most.</p>
+      <section class="home-section">
+        <p>Your wardrobe is empty. Start with the clothes you wear most.</p>
+        <a href="{{ url_for('wardrobe.create') }}" class="button">Add an item</a>
+      </section>
     {% endif %}
-    <p><a href="{{ url_for('wardrobe.create') }}" class="button">Add an item</a></p>
   {% else %}
     {# The landing page. The two blurred circles are only decoration. #}
     <section class="hero">
       <div class="glows" aria-hidden="true">
         <div class="glow glow-left"></div>
         <div class="glow glow-right"></div>
+        <div class="glow glow-bottom"></div>
       </div>
       <p class="hero-tagline">Track every piece, plan outfits, and find new ideas.</p>
       <h1 class="hero-title">Your wardrobe, <em>thoughtfully</em> organised.</h1>

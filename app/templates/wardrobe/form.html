@@ -47,6 +47,7 @@
              alt="Current photo" class="photo-preview">
       {% endif %}
       {{ render_field(form.photo, accept="image/*") }}
+      <div class="field checkbox">{{ form.remove_white() }} {{ form.remove_white.label }}</div>
       {% if form.remove_photo %}
         <div class="field checkbox">{{ form.remove_photo() }} {{ form.remove_photo.label }}</div>
       {% endif %}

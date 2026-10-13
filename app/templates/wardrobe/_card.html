@@ -7,7 +7,11 @@
       <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
            alt="{{ item.name }}" class="item-photo" loading="lazy" draggable="false">
     {% else %}
-      <div class="item-photo item-photo-empty">{{ item.category.name }}</div>
+      {# No photo: a dot in the item's colour on a dark tile. #}
+      <div class="item-photo item-photo-empty">
+        <span class="item-dot" style="--swatch: {{ item.color | swatch }}"></span>
+        {{ item.category.name }}
+      </div>
     {% endif %}
     <div class="item-card-body">
       <span class="item-name">{{ item.name }}</span>

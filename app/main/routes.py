@@ -1,8 +1,10 @@
+from datetime import date, timedelta
+
 from flask import Blueprint, current_app, render_template, send_from_directory
 from flask_login import current_user, login_required
 
 from app.extensions import db
-from app.models import Item
+from app.models import Item, Outfit, WearLog
 from app.services.planner import coming_week
 from app.services.stats import not_worn_lately, wardrobe_stats
 
@@ -11,15 +13,31 @@ bp = Blueprint("main", __name__)
 
 @bp.route("/")
 def index():
-    recent, total, week, forgotten = [], 0, [], []
-    if current_user.is_authenticated:
-        week = coming_week(current_user.id)
-        forgotten = not_worn_lately(current_user.id, limit=4)
-        mine = Item.owned_by(current_user.id)
-        recent = db.session.scalars(mine.order_by(Item.created_at.desc()).limit(4)).all()
-        total = db.session.scalar(db.select(db.func.count()).select_from(mine.subquery()))
-    return render_template("index.html", title="Home", recent=recent, total=total, week=week,
-                           forgotten=forgotten)
+    if not current_user.is_authenticated:
+        return render_template("index.html", title="Home")
+
+    week = coming_week(current_user.id)
+    forgotten = not_worn_lately(current_user.id, limit=4)
+    mine = Item.owned_by(current_user.id)
+    recent = db.session.scalars(mine.order_by(Item.created_at.desc()).limit(4)).all()
+
+    def count(query):
+        """SELECT COUNT(*) FROM (the query)."""
+        return db.session.scalar(db.select(db.func.count()).select_from(query.subquery()))
+
+    # The three big numbers on the home page.
+    numbers = {
+        "items": count(mine),
+        "outfits": count(db.select(Outfit).filter_by(user_id=current_user.id)),
+        # Days in the last week you logged or ticked a look as worn.
+        "worn_days": db.session.scalar(
+            db.select(db.func.count(db.distinct(WearLog.date)))
+            .where(WearLog.user_id == current_user.id,
+                   WearLog.date > date.today() - timedelta(days=7))
+        ),
+    }
+    return render_template("index.html", title="Home", recent=recent, week=week,
+                           forgotten=forgotten, numbers=numbers, today=date.today())
 
 
 @bp.route("/stats")

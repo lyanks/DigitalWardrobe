@@ -12,7 +12,7 @@ DEFAULT_THEME = "midnight"
 
 # key -> (label, three colours for the little preview: background, card, accent)
 THEMES = {
-    "midnight": ("Midnight", ("#0f0420", "#1a0e33", "#c4a8ff")),
+    "midnight": ("Midnight", ("#0c0b14", "#16141f", "#b99bff")),
     "graphite": ("Graphite", ("#121214", "#1c1c20", "#c4a8ff")),
     "lavender": ("Lavender", ("#f8f7fc", "#ffffff", "#6157ae")),
     "linen": ("Linen", ("#f5efe6", "#fffaf3", "#9a5b3a")),
