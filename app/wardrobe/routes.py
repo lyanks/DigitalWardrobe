@@ -122,7 +122,7 @@ def index():
         categories=_category_choices(), colors=COLORS, seasons=SEASONS,
         filters={"category": category_id, "color": color, "season": season, "q": text,
                  "wash": wash if wash in ("in", "clean") else ""},
-        sort=sort, sort_options=SORT_OPTIONS,
+        sort=sort, sort_options=SORT_OPTIONS, washing=_washing_count(),
     )
 
 
@@ -262,20 +262,47 @@ def bought(item_id):
 
 # ---------- Laundry ----------
 
+def wants_json():
+    """True when a script asked for JSON (fetch with Accept: application/json)."""
+    return request.accept_mimetypes.best_match(["application/json", "text/html"]) == "application/json"
+
+
+def _washing_count():
+    """How many of your clothes are in the wash (the number on the washer)."""
+    query = Item.owned_by(current_user.id).where(Item.washing_since.is_not(None))
+    return db.session.scalar(db.select(db.func.count()).select_from(query.subquery()))
+
+
 @bp.route("/<int:item_id>/laundry", methods=["POST"])
 def laundry(item_id):
-    """Put an item in the wash, or take it out again (a toggle)."""
+    """Put an item in the wash, or take it out again.
+
+    The button on the item page is a toggle. The washer on the wardrobe
+    page (washer.js) sends state=in, because dropping something into the
+    washer should never take it out, and asks for JSON instead of a reload.
+    """
     item = get_own_item_or_404(item_id)
     if item.is_wish:
         abort(400)
-    if BoughtForm().validate_on_submit():  # any FlaskForm checks the CSRF token
-        if item.in_wash:
-            item.washing_since = None
-            flash(f"“{item.name}” is clean again.", "success")
-        else:
-            item.washing_since = date.today()
-            flash(f"“{item.name}” is in the wash.", "info")
-        db.session.commit()
+    if not BoughtForm().validate_on_submit():  # any FlaskForm checks the CSRF token
+        abort(400)
+
+    state = request.form.get("state")
+    put_in = not item.in_wash if state not in ("in", "out") else state == "in"
+    if put_in and item.in_wash:
+        message, category = f"“{item.name}” is already in the wash.", "info"
+    elif put_in:
+        item.washing_since = date.today()
+        message, category = f"“{item.name}” is in the wash.", "info"
+    else:
+        item.washing_since = None
+        message, category = f"“{item.name}” is clean again.", "success"
+    db.session.commit()
+
+    if wants_json():
+        return jsonify(item=item.id, in_wash=item.in_wash, message=message,
+                       washing=_washing_count())
+    flash(message, category)
     # Go back to the page the button was on (a safe, local address only).
     back = request.form.get("next", "")
     if not back.startswith("/") or back.startswith("//"):

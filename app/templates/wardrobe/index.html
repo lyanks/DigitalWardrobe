@@ -59,6 +59,24 @@
       {% for item in items %}{{ item_card(item, draggable=(sort == "custom")) }}{% endfor %}
     </div>
     <p class="reorder-status muted" role="status" aria-live="polite"></p>
+    {# The washer floats in the corner. Drop a card on it to put that item
+       in the wash (washer.js). A click shows what's in the wash. #}
+    <a href="{{ url_for('wardrobe.index', wash='in') }}" class="washer" data-washer
+       data-url="{{ url_for('wardrobe.laundry', item_id=0) }}"
+       title="Drop clothes here to put them in the wash">
+      <svg viewBox="0 0 48 48" aria-hidden="true">
+        <rect x="7" y="5" width="34" height="38" rx="6"/>
+        <path d="M7 14h34"/>
+        <circle cx="13" cy="9.5" r="1.2" class="washer-dot"/>
+        <circle cx="18" cy="9.5" r="1.2" class="washer-dot"/>
+        <g class="washer-drum">
+          <circle cx="24" cy="28" r="9.5"/>
+          <path d="M17.5 29c2.2-2 4.3-2 6.5 0s4.3 2 6.5 0"/>
+        </g>
+      </svg>
+      <span class="washer-count" data-washer-count{% if not washing %} hidden{% endif %}>{{ washing }}</span>
+      <span class="sr-only">In the wash</span>
+    </a>
   {% elif total %}
     <p>No items match these filters.</p>
   {% else %}
@@ -71,4 +89,5 @@
 
 {% block scripts %}
   <script src="{{ url_for('static', filename='js/reorder.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/washer.js') }}" defer></script>
 {% endblock %}

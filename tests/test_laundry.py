@@ -73,3 +73,22 @@ def test_planning_clothes_in_the_wash_gives_a_heads_up(client):
         "outfit_id": weekend.id, "date": (TODAY + timedelta(days=2)).isoformat(),
     }).get_json()
     assert "Blue jeans is in the wash" in data["notice"]
+
+
+def test_the_washer_drop_puts_in_and_never_takes_out(client):
+    register(client)
+    make_basics(client)
+    item_id = get_item("White tee").id
+    page = client.get("/items").get_data(as_text=True)
+    assert "data-washer" in page and f'data-item-id="{item_id}"' in page
+
+    headers = {"Accept": "application/json"}
+    data = client.post(f"/items/{item_id}/laundry", data={"state": "in"}, headers=headers).get_json()
+    assert data == {"item": item_id, "in_wash": True, "washing": 1,
+                    "message": "“White tee” is in the wash."}
+    again = client.post(f"/items/{item_id}/laundry", data={"state": "in"}, headers=headers).get_json()
+    assert again["in_wash"] is True and again["message"] == "“White tee” is already in the wash."
+
+    data = client.post(f"/items/{get_item('Blue jeans').id}/laundry", data={"state": "in"},
+                       headers=headers).get_json()
+    assert data["washing"] == 2

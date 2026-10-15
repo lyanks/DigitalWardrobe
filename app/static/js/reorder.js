@@ -44,7 +44,16 @@ if (grid) {
   grid.addEventListener("dragend", async () => {
     if (!dragged) return;
     dragged.classList.remove("dragging");
+    const intoWasher = dragged.dataset.droppedInWasher;
+    delete dragged.dataset.droppedInWasher;
     dragged = null;
+
+    if (intoWasher) {
+      // On its way to the washer the card slid past others: put them back.
+      const cards = new Map([...grid.querySelectorAll(".item-card")].map((c) => [c.dataset.id, c]));
+      orderBefore.split(",").forEach((id) => grid.append(cards.get(id)));
+      return;
+    }
 
     const ids = currentOrder();
     if (ids.join(",") === orderBefore) return; // dropped where it was
