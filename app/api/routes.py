@@ -7,6 +7,7 @@ JavaScript updates just the part that changed.
 from datetime import date
 
 from flask import Blueprint, jsonify, render_template, request
+from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
 from app.dates import format_date, parse_date
@@ -44,12 +45,12 @@ def check_outfit():
     data = request.get_json(silent=True) or {}
     ids = data.get("item_ids")
     if not isinstance(ids, list) or not all(isinstance(i, int) for i in ids):
-        return _error("Send a list of item ids.", 400)
+        return _error(_("Send a list of item ids."), 400)
     items = db.session.scalars(
         Item.owned_by(current_user.id).where(Item.id.in_(ids))
     ).all()
     if len(items) != len(set(ids)):
-        return _error("Unknown item.", 404)
+        return _error(_("Unknown item."), 404)
     day = parse_date(data.get("date")) or date.today()
     return jsonify(problems=outfit_problems(items), combo=check_combo(current_user.id, items, day))
 
@@ -67,13 +68,13 @@ def schedule():
     try:
         day = date.fromisoformat(data.get("date", ""))
     except (TypeError, ValueError):
-        return _error("Send the date as YYYY-MM-DD.", 400)
+        return _error(_("Send the date as YYYY-MM-DD."), 400)
     if not isinstance(outfit_id, int):
-        return _error("Send an outfit id.", 400)
+        return _error(_("Send an outfit id."), 400)
 
     outfit = db.session.scalar(db.select(Outfit).filter_by(id=outfit_id, user_id=current_user.id))
     if outfit is None:
-        return _error("Unknown outfit.", 404)
+        return _error(_("Unknown outfit."), 404)
 
     try:
         entry = schedule_outfit(outfit, day, (data.get("note") or "").strip()[:200])
@@ -103,7 +104,7 @@ def fetch_product_info():
     """
     url = ((request.get_json(silent=True) or {}).get("url") or "").strip()
     if not url:
-        return _error("Paste a link first.", 400)
+        return _error(_("Paste a link first."), 400)
     try:
         return jsonify(fetch_product(url))
     except FetchError as error:

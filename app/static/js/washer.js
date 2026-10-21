@@ -57,7 +57,7 @@ if (washer) {
       washer.classList.add("spin");
       showToast(data.message, "info");
     } catch {
-      showToast("Couldn't put that in the wash. Try again.", "error");
+      showToast(t("Couldn't put that in the wash. Try again."), "error");
     }
   });
 
@@ -66,7 +66,7 @@ if (washer) {
     card.classList.add("washing");
     const badge = document.createElement("span");
     badge.className = "wash-badge wash-badge-corner";
-    badge.textContent = "In the wash";
+    badge.textContent = t("In the wash");
     card.querySelector(".item-photo").after(badge);
   }
 }

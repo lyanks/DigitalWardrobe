@@ -9,21 +9,21 @@
   {% endif %}
   <span class="suitcase-name">
     {{ item.name }}
-    <small class="muted">{{ item.category.name }}</small>
-    {% if item.in_wash %}<small class="wash-badge">wash it first</small>{% endif %}
+    <small class="muted">{{ item.category.name | tr }}</small>
+    {% if item.in_wash %}<small class="wash-badge">{{ _("wash it first") }}</small>{% endif %}
   </span>
   <form method="post" action="{{ url_for('trips.toggle_packed', trip_id=trip.id, item_id=item.id) }}"
         class="inline-form" data-suitcase-action="packed">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     <button type="submit" class="pack-check" aria-pressed="{{ 'true' if link.packed else 'false' }}"
-            title="{{ 'Packed' if link.packed else 'Mark as packed' }}">
+            title="{{ _('Packed') if link.packed else _('Mark as packed') }}">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
-      <span class="sr-only">Packed</span>
+      <span class="sr-only">{{ _("Packed") }}</span>
     </button>
   </form>
   <form method="post" action="{{ url_for('trips.remove_item', trip_id=trip.id, item_id=item.id) }}"
         class="inline-form" data-suitcase-action="remove">
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-    <button type="submit" class="link-button" aria-label="Take out of the suitcase" title="Take out">×</button>
+    <button type="submit" class="link-button" aria-label="{{ _('Take out of the suitcase') }}" title="{{ _('Take out') }}">×</button>
   </form>
 </li>

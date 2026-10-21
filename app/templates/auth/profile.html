@@ -5,27 +5,27 @@
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
 {% block content %}
-  <h1>Your profile</h1>
+  <h1>{{ _("Your profile") }}</h1>
 
   <div class="card profile-summary">
     {% if current_user.avatar_path %}
       <img src="{{ url_for('main.uploaded_file', filename=current_user.avatar_path) }}"
-           alt="Your avatar" class="avatar avatar-lg">
+           alt="{{ _('Your avatar') }}" class="avatar avatar-lg">
     {% else %}
       <div class="avatar avatar-lg avatar-empty">{{ current_user.shown_name[0] | upper }}</div>
     {% endif %}
     <div>
       <p class="profile-name">{{ current_user.shown_name }}</p>
       <p class="muted">@{{ current_user.username }} · {{ current_user.email }}</p>
-      {% if current_user.google_id %}<p class="muted">Linked to Google</p>{% endif %}
-      <p class="muted">Member since {{ current_user.created_at | date }}</p>
+      {% if current_user.google_id %}<p class="muted">{{ _("Linked to Google") }}</p>{% endif %}
+      <p class="muted">{{ _("Member since %(date)s", date=current_user.created_at | date) }}</p>
     </div>
   </div>
 
-  <p class="tutorial-again"><a href="{{ url_for('tutorial.index') }}">How the app works <span aria-hidden="true">→</span></a></p>
+  <p class="tutorial-again"><a href="{{ url_for('tutorial.index') }}">{{ _("How the app works") }} <span aria-hidden="true">→</span></a></p>
 
   <div class="card">
-    <h2>Edit profile</h2>
+    <h2>{{ _("Edit profile") }}</h2>
     {# enctype is required to send files; without it the avatar never arrives. #}
     <form method="post" enctype="multipart/form-data" novalidate>
       {{ profile_form.hidden_tag() }}
@@ -37,16 +37,16 @@
   </div>
 
   <div class="card">
-    <h2>Why you use the app</h2>
+    <h2>{{ _("Why you use the app") }}</h2>
     <form method="post" novalidate>
       {{ goals_form.hidden_tag() }}
       {{ goals_form.goals(class="goal-list") }}
-      {{ goals_form.submit(class="button", value="Save") }}
+      {{ goals_form.submit(class="button", value=_("Save")) }}
     </form>
   </div>
 
   <div class="card">
-    <h2>Look</h2>
+    <h2>{{ _("Look") }}</h2>
     {# Clicking a theme or colour shows it at once (theme_preview.js);
        "Save look" keeps it. #}
     <form method="post" novalidate class="look-form">
@@ -58,11 +58,11 @@
 
   <div class="card">
     {% if current_user.has_password %}
-      <h2>Change password</h2>
+      <h2>{{ _("Change password") }}</h2>
     {% else %}
-      <h2>Set a password</h2>
-      <p class="muted">You signed up with Google. Set a password if you also want
-        to log in with your username or email.</p>
+      <h2>{{ _("Set a password") }}</h2>
+      <p class="muted">{{ _("You signed up with Google. Set a password if you also want "
+             "to log in with your username or email.") }}</p>
     {% endif %}
     <form method="post" novalidate>
       {{ password_form.hidden_tag() }}

@@ -5,14 +5,25 @@ Like outfit_rules.py, nothing here knows about requests or templates.
 import calendar
 from datetime import date, timedelta
 
+from flask_babel import gettext as _
 from sqlalchemy.exc import IntegrityError
 
 from app.extensions import db
+from app.i18n import weekday_short
 from app.models import ScheduledOutfit
 
 # Weeks start on Monday (calendar's day 0).
 CAL = calendar.Calendar(firstweekday=calendar.MONDAY)
-WEEKDAY_NAMES = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+
+
+def weekday_names():
+    """["Mon", "Tue", ...] / ["пн", "вт", ...]: the calendar's header row.
+
+    A function, not a list, because the language is only known during a
+    request. 5 Jan 2026 was a Monday; the next 6 days give the rest.
+    """
+    monday = date(2026, 1, 5)
+    return [weekday_short(monday + timedelta(days=n)) for n in range(7)]
 
 
 class ScheduleError(Exception):
@@ -75,5 +86,5 @@ def schedule_outfit(outfit, day, note=None):
     except IntegrityError:
         # The UniqueConstraint (outfit_id, date) said no.
         db.session.rollback()
-        raise ScheduleError(f"“{outfit.name}” is already planned for that day.")
+        raise ScheduleError(_("“%(name)s” is already planned for that day.", name=outfit.name))
     return entry

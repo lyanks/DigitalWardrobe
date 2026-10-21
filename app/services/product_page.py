@@ -26,6 +26,8 @@ from urllib.error import URLError
 from urllib.parse import urljoin, urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
+from flask_babel import gettext as _
+
 TIMEOUT_SECONDS = 8
 MAX_PAGE_BYTES = 3 * 1024 * 1024    # 3 MB of HTML is plenty
 MAX_IMAGE_BYTES = 8 * 1024 * 1024
@@ -53,13 +55,13 @@ def check_url(url):
     """Refuse anything but a public http(s) link. Raise FetchError if not."""
     parts = urlparse(url)
     if parts.scheme not in ("http", "https") or not parts.hostname:
-        raise FetchError("Paste a full link, starting with http:// or https://.")
+        raise FetchError(_("Paste a full link, starting with http:// or https://."))
     try:
         addresses = {info[4][0] for info in socket.getaddrinfo(parts.hostname, None)}
     except socket.gaierror:
-        raise FetchError("That website doesn't seem to exist.") from None
+        raise FetchError(_("That website doesn't seem to exist.")) from None
     if not all(is_public_address(address) for address in addresses):
-        raise FetchError("That link doesn't point to a public website.")
+        raise FetchError(_("That link doesn't point to a public website."))
 
 
 class _CheckRedirects(HTTPRedirectHandler):
@@ -84,9 +86,9 @@ def download(url, max_bytes):
     except FetchError:
         raise
     except (URLError, OSError, ValueError):
-        raise FetchError("Couldn't open that page. Check the link, or fill the form in by hand.") from None
+        raise FetchError(_("Couldn't open that page. Check the link, or fill the form in by hand.")) from None
     if len(body) > max_bytes:
-        raise FetchError("That page or picture is too big.")
+        raise FetchError(_("That page or picture is too big."))
     return body, content_type
 
 
@@ -214,11 +216,11 @@ def fetch_product(url):
         html = body.decode("utf-8", errors="replace")
     found = extract_product(html, url)
     if not any(found.values()):
-        raise FetchError("Couldn't find product details on that page. Fill the form in by hand.")
+        raise FetchError(_("Couldn't find product details on that page. Fill the form in by hand."))
     return found
 
 
 def download_image(url):
     """Download a product photo. Returns the bytes; Pillow checks them later."""
-    body, _ = download(url, MAX_IMAGE_BYTES)
+    body, _content_type = download(url, MAX_IMAGE_BYTES)
     return body

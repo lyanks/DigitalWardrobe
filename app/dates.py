@@ -7,6 +7,8 @@ sorts correctly and every library understands it.
 """
 from datetime import date, datetime
 
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext as _l
 from wtforms import DateField
 from wtforms.widgets import TextInput
 
@@ -47,7 +49,7 @@ class DayMonthYearField(DateField):
 
     def __init__(self, label=None, validators=None, **kwargs):
         kwargs.setdefault("format", INPUT_FORMATS)
-        kwargs.setdefault("render_kw", {"placeholder": "dd.mm.yyyy", "inputmode": "numeric"})
+        kwargs.setdefault("render_kw", {"placeholder": _l("dd.mm.yyyy"), "inputmode": "numeric"})
         super().__init__(label, validators, **kwargs)
 
     def process_formdata(self, valuelist):
@@ -56,4 +58,4 @@ class DayMonthYearField(DateField):
         try:
             super().process_formdata(valuelist)
         except ValueError:
-            raise ValueError("Write the date as dd.mm.yyyy, e.g. 14.10.2026.")
+            raise ValueError(_("Write the date as dd.mm.yyyy, e.g. 14.10.2026."))

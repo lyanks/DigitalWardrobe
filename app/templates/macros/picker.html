@@ -4,7 +4,7 @@
    WTForms collects them into form.item_ids.data (a list). #}
 {% macro item_picker(groups, selected) %}
   {% for category, items in groups %}
-    <h2 class="picker-heading">{{ category.name }}</h2>
+    <h2 class="picker-heading">{{ category.name | tr }}</h2>
     <div class="pick-grid">
       {% for item in items %}
         {# The <label> wraps the whole card, so clicking anywhere on it
@@ -16,10 +16,10 @@
             <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
                  alt="" class="item-photo" loading="lazy">
           {% else %}
-            <span class="item-photo item-photo-empty">{{ category.name }}</span>
+            <span class="item-photo item-photo-empty">{{ category.name | tr }}</span>
           {% endif %}
           <span class="pick-name">{{ item.name }}</span>
-          {% if item.in_wash %}<span class="wash-badge wash-badge-corner">In the wash</span>{% endif %}
+          {% if item.in_wash %}<span class="wash-badge wash-badge-corner">{{ _("In the wash") }}</span>{% endif %}
         </label>
       {% endfor %}
     </div>

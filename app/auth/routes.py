@@ -3,6 +3,7 @@ from urllib.parse import urlsplit
 
 from authlib.integrations.base_client import OAuthError
 from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
+from flask_babel import gettext as _
 from flask_login import current_user, login_required, login_user, logout_user
 
 from app.auth.forms import ChangePasswordForm, LoginForm, LookForm, ProfileForm, RegistrationForm
@@ -31,14 +32,14 @@ def register():
         db.session.commit()
 
         login_user(user)
-        flash("Welcome! Your account is ready.", "success")
+        flash(_("Welcome! Your account is ready."), "success")
         # Post/Redirect/Get: after a successful POST, always redirect,
         # so refreshing the page doesn't submit the form twice.
         # A new account goes through the setup wizard first (idea #7).
         return redirect(url_for("welcome.start"))
 
     # Either a GET, or a POST with errors: show the form (errors included).
-    return render_template("auth/register.html", title="Sign up", form=form)
+    return render_template("auth/register.html", title=_("Sign up"), form=form)
 
 
 @bp.route("/login", methods=["GET", "POST"])
@@ -55,21 +56,21 @@ def login():
         # Same message whether the user doesn't exist or the password is
         # wrong, so nobody can probe which usernames exist.
         if user is None or not user.check_password(form.password.data):
-            flash("Wrong username or password.", "error")
-            return render_template("auth/login.html", title="Log in", form=form), 401
+            flash(_("Wrong username or password."), "error")
+            return render_template("auth/login.html", title=_("Log in"), form=form), 401
 
         login_user(user)
-        flash(f"Hi, {user.shown_name}!", "success")
+        flash(_("Hi, %(name)s!", name=user.shown_name), "success")
         return redirect(_after_login(user))
 
-    return render_template("auth/login.html", title="Log in", form=form)
+    return render_template("auth/login.html", title=_("Log in"), form=form)
 
 
 @bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
     logout_user()
-    flash("You have been logged out.", "info")
+    flash(_("You have been logged out."), "info")
     return redirect(url_for("main.index"))
 
 
@@ -86,7 +87,7 @@ def profile():
     if goals_form.submit.data and goals_form.validate_on_submit():
         save_goals(current_user, goals_form.goals.data)
         db.session.commit()
-        flash("Saved.", "success")
+        flash(_("Saved."), "success")
         return redirect(url_for("auth.profile"))
 
     if look_form.submit.data and look_form.validate_on_submit():
@@ -95,7 +96,7 @@ def profile():
             None if look_form.use_theme_accent.data else look_form.accent_color.data.lower()
         )
         db.session.commit()
-        flash("Your new look is saved.", "success")
+        flash(_("Your new look is saved."), "success")
         return redirect(url_for("auth.profile"))
 
     if profile_form.submit.data and profile_form.validate_on_submit():
@@ -113,18 +114,18 @@ def profile():
                 delete_image(current_user.avatar_path)
                 current_user.avatar_path = new_avatar
             db.session.commit()
-            flash("Profile saved.", "success")
+            flash(_("Profile saved."), "success")
             return redirect(url_for("auth.profile"))
 
     if password_form.submit.data and password_form.validate_on_submit():
         if current_user.has_password and not current_user.check_password(
             password_form.current_password.data or ""
         ):
-            password_form.current_password.errors.append("That is not your current password.")
+            password_form.current_password.errors.append(_("That is not your current password."))
         else:
             current_user.set_password(password_form.new_password.data)
             db.session.commit()
-            flash("Password changed.", "success")
+            flash(_("Password changed."), "success")
             return redirect(url_for("auth.profile"))
 
     if request.method == "GET":
@@ -137,7 +138,7 @@ def profile():
         look_form.accent_color.data = current_user.accent_color or "#c4a8ff"
 
     return render_template(
-        "auth/profile.html", title="Profile",
+        "auth/profile.html", title=_("Profile"),
         profile_form=profile_form, password_form=password_form, look_form=look_form,
         goals_form=goals_form,
         themes=THEMES,
@@ -165,17 +166,17 @@ def google_callback():
         # with Google. The token contains who the person is ("userinfo").
         token = oauth.google.authorize_access_token()
     except OAuthError:
-        flash("Google sign-in was cancelled or failed. Please try again.", "error")
+        flash(_("Google sign-in was cancelled or failed. Please try again."), "error")
         return redirect(url_for("auth.login"))
 
     info = token.get("userinfo") or {}
     if not info.get("email_verified"):
-        flash("Your Google account's email isn't verified, so we can't use it.", "error")
+        flash(_("Your Google account's email isn't verified, so we can't use it."), "error")
         return redirect(url_for("auth.login"))
 
     user = _find_or_create_google_user(info)
     login_user(user)
-    flash(f"Hi, {user.shown_name}!", "success")
+    flash(_("Hi, %(name)s!", name=user.shown_name), "success")
     return redirect(_after_login(user))
 
 

@@ -2888,3 +2888,42 @@ input[type="radio"] {
         flex-wrap: wrap;
     }
 }
+
+/* ---------- EN | UA switch in the header ---------- */
+.lang-switch {
+    display: inline-flex;
+    padding: 3px;
+    border: 1px solid var(--color-glass-border);
+    border-radius: 999px;
+    background: var(--color-glass);
+}
+
+.lang-switch button {
+    border: 0;
+    border-radius: 999px;
+    padding: 0.25rem 0.6rem;
+    background: transparent;
+    color: var(--color-muted);
+    font: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+}
+
+.lang-switch button:hover {
+    color: var(--color-text);
+}
+
+.lang-switch button[aria-current="true"] {
+    background: var(--color-primary);
+    color: var(--color-on-primary);
+}
+
+/* Small phones: the header has no room for EN | UA, Log in and Sign up.
+   Sign up is the big button on the landing page anyway. */
+@media (max-width: 480px) {
+    .nav-guest .nav-signup {
+        display: none;
+    }
+}

@@ -6,6 +6,8 @@ User.onboarded_at, so the wizard never shows up again. Everything can be
 changed later on the profile page.
 """
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext as _l
 from flask_login import current_user, login_required
 
 from app.extensions import db
@@ -17,9 +19,9 @@ bp = Blueprint("welcome", __name__, url_prefix="/welcome")
 
 # step number -> (heading, form class)
 STEPS = {
-    1: ("What should we call you?", NameForm),
-    2: ("Why do you use Digital Wardrobe?", GoalsForm),
-    3: ("Pick your look", WelcomeLookForm),
+    1: (_l("What should we call you?"), NameForm),
+    2: (_l("Why do you use Digital Wardrobe?"), GoalsForm),
+    3: (_l("Pick your look"), WelcomeLookForm),
 }
 
 
@@ -57,7 +59,7 @@ def step(number):
 
     if request.method == "GET":
         _prefill(number, form)
-    return render_template("welcome/step.html", title="Set up", heading=heading, form=form,
+    return render_template("welcome/step.html", title=_("Set up"), heading=heading, form=form,
                            number=number, total=len(STEPS), themes=THEMES, skip_form=SkipForm())
 
 
@@ -77,7 +79,7 @@ def _next(number):
 def _finish():
     current_user.onboarded_at = utcnow()
     db.session.commit()
-    flash("All set! You can change any of this on your profile page.", "success")
+    flash(_("All set! You can change any of this on your profile page."), "success")
     return redirect(url_for("main.index"))
 
 

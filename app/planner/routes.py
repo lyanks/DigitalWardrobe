@@ -1,10 +1,12 @@
 from datetime import date, timedelta
 
 from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
 from app.dates import format_date
 from app.extensions import db
+from app.i18n import weekday
 from app.models import Item, Outfit, ScheduledOutfit, WearLog
 from app.outfits.routes import get_own_outfit_or_404, my_items_by_category
 from app.planner.forms import LogLookForm, ScheduleForm
@@ -12,8 +14,8 @@ from app.services.combo_check import WINDOW_DAYS, check_combo
 from app.services.laundry import wash_notice
 from app.services.outfit_rules import outfit_problems, sort_by_slot
 from app.services.planner import (
-    WEEKDAY_NAMES, ScheduleError, entries_between, month_weeks, parse_month,
-    schedule_outfit, shift_month,
+    ScheduleError, entries_between, month_weeks, parse_month, schedule_outfit,
+    shift_month, weekday_names,
 )
 from app.services.trips import trip_for_each_day, trips_between
 
@@ -71,8 +73,8 @@ def index():
         form.date.data = today if today.replace(day=1) == first_day else first_day
 
     return render_template(
-        "planner/index.html", title="Planner", first_day=first_day, weeks=weeks,
-        entries=entries, trips=trips, weekday_names=WEEKDAY_NAMES, today=date.today(),
+        "planner/index.html", title=_("Planner"), first_day=first_day, weeks=weeks,
+        entries=entries, trips=trips, weekday_names=weekday_names(), today=date.today(),
         prev_month=shift_month(first_day, -1), next_month=shift_month(first_day, 1),
         outfits=outfits, form=form,
     )
@@ -96,7 +98,8 @@ def schedule():
     except ScheduleError as error:
         flash(str(error), "error")
     else:
-        flash(f"Planned “{outfit.name}” for {form.date.data.strftime('%A')} {format_date(form.date.data)}.", "success")
+        flash(_("Planned “%(name)s” for %(day)s %(date)s.", name=outfit.name,
+                day=weekday(form.date.data), date=format_date(form.date.data)), "success")
         for notice in (check_combo(current_user.id, outfit.items, form.date.data),
                        wash_notice(outfit.items)):
             if notice:
@@ -110,14 +113,15 @@ def schedule():
 def toggle_worn(entry_id):
     entry = get_own_entry_or_404(entry_id)
     if not entry.worn and not entry.can_be_worn:
-        flash("You can't have worn it yet: that day is in the future.", "error")
+        flash(_("You can't have worn it yet: that day is in the future."), "error")
     else:
         entry.set_worn(not entry.worn)
         db.session.commit()
         if entry.worn:
-            flash(f"Marked “{entry.outfit.name}” as worn. Each of its items counts one more wear.", "success")
+            flash(_("Marked “%(name)s” as worn. Each of its items counts one more wear.", name=entry.outfit.name),
+                  "success")
         else:
-            flash(f"“{entry.outfit.name}” is no longer marked as worn.", "info")
+            flash(_("“%(name)s” is no longer marked as worn.", name=entry.outfit.name), "info")
     return _back_to_month(entry.date)
 
 
@@ -131,7 +135,8 @@ def delete(entry_id):
     entry.set_worn(False)
     db.session.delete(entry)
     db.session.commit()
-    flash(f"Removed “{entry.outfit.name}” from {day.strftime('%A')} {format_date(day)}.", "info")
+    flash(_("Removed “%(name)s” from %(day)s %(date)s.", name=entry.outfit.name,
+            day=weekday(day), date=format_date(day)), "info")
     return _back_to_month(day)
 
 
@@ -153,7 +158,7 @@ def log_look():
         ).all()
         problems = outfit_problems(items)
         if day > date.today():
-            form.date.errors.append("That day hasn't happened yet. Plan it in the calendar instead.")
+            form.date.errors.append(_("That day hasn't happened yet. Plan it in the calendar instead."))
         elif problems:
             form.item_ids.errors.extend(problems)
         else:
@@ -161,7 +166,7 @@ def log_look():
             notice = check_combo(current_user.id, items, day)
             WearLog.record(current_user.id, day, sort_by_slot(items))
             db.session.commit()
-            flash(f"Logged your look for {day.strftime('%A')} {format_date(day)}.", "success")
+            flash(_("Logged your look for %(day)s %(date)s.", day=weekday(day), date=format_date(day)), "success")
             if notice:
                 flash(notice, "info")
             return redirect(url_for("planner.log_look"))
@@ -172,7 +177,7 @@ def log_look():
         db.select(WearLog).filter_by(user_id=current_user.id).where(WearLog.date >= since)
         .order_by(WearLog.date.desc(), WearLog.created_at.desc())
     ).all()
-    return render_template("planner/log.html", title="Log a look", form=form,
+    return render_template("planner/log.html", title=_("Log a look"), form=form,
                            groups=groups, recent=recent)
 
 
@@ -184,9 +189,9 @@ def delete_log(log_id):
         abort(404)
     if log.outfit_id is not None:
         # It came from the planner: untick it there, so both stay in step.
-        flash("That look came from the planner. Untick “Worn” there instead.", "error")
+        flash(_("That look came from the planner. Untick “Worn” there instead."), "error")
     else:
         log.undo()
         db.session.commit()
-        flash(f"Removed the look from {format_date(log.date)}.", "info")
+        flash(_("Removed the look from %(date)s.", date=format_date(log.date)), "info")
     return redirect(url_for("planner.log_look"))

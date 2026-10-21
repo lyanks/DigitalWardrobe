@@ -3,7 +3,7 @@ import os
 from flask import Flask
 
 from config import Config
-from app.extensions import csrf, db, login_manager, migrate, oauth
+from app.extensions import babel, csrf, db, login_manager, migrate, oauth
 
 
 def create_app(config_class=Config):
@@ -27,6 +27,12 @@ def create_app(config_class=Config):
     login_manager.init_app(app)
     csrf.init_app(app)
     oauth.init_app(app)
+
+    # Languages. get_locale picks English or Ukrainian for each request;
+    # compile_translations refreshes the compiled translations if needed.
+    from app.i18n import compile_translations, get_locale
+    babel.init_app(app, locale_selector=get_locale)
+    compile_translations(app)
     if app.config["GOOGLE_CLIENT_ID"]:
         oauth.register(
             "google",
@@ -46,6 +52,19 @@ def create_app(config_class=Config):
     app.jinja_env.filters["shop_name"] = shop_name
     app.jinja_env.filters["swatch"] = swatch
     app.jinja_env.filters["text_on"] = text_on
+
+    # Day and month names in the page's language, and | tr for words that
+    # come from the database (category names, colours...).
+    import flask_babel
+    from app import i18n
+    app.jinja_env.filters["tr"] = i18n.tr
+    app.jinja_env.filters["weekday"] = i18n.weekday
+    app.jinja_env.filters["weekday_short"] = i18n.weekday_short
+    app.jinja_env.filters["month_name"] = i18n.month_name
+    app.jinja_env.filters["month_year"] = i18n.month_year
+    app.jinja_env.globals["js_texts"] = i18n.js_texts
+    app.jinja_env.globals["LANGUAGES"] = i18n.LANGUAGES
+    app.jinja_env.globals["current_language"] = lambda: str(flask_babel.get_locale())
 
     # Terminal commands: flask photos cut-out / restore (app/commands.py).
     from app.commands import photos

@@ -5,14 +5,14 @@
 
 {% block content %}
   <div class="card narrow">
-    <h1>Edit trip</h1>
+    <h1>{{ _("Edit trip") }}</h1>
     <form method="post" novalidate>
       {{ form.hidden_tag() }}
       {{ render_field(form.name) }}
       {{ render_field(form.start_date) }}
       {{ render_field(form.end_date) }}
       {{ form.submit(class="button") }}
-      <a href="{{ url_for('trips.pack', trip_id=trip.id) }}">Cancel</a>
+      <a href="{{ url_for('trips.pack', trip_id=trip.id) }}">{{ _("Cancel") }}</a>
     </form>
   </div>
 {% endblock %}

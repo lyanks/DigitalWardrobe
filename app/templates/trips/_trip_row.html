@@ -4,6 +4,6 @@
   <span class="muted">{{ trip | trip_dates }}</span>
   <span class="trip-row-count">
     {% set total = trip.item_links | length %}
-    {% if total %}{{ trip.packed_count }} of {{ total }} packed{% else %}Empty suitcase{% endif %}
+    {% if total %}{{ _("%(packed)s of %(count)s packed", packed=trip.packed_count, count=total) }}{% else %}{{ _("Empty suitcase") }}{% endif %}
   </span>
 </a>

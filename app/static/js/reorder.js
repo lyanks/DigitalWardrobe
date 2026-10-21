@@ -58,7 +58,7 @@ if (grid) {
     const ids = currentOrder();
     if (ids.join(",") === orderBefore) return; // dropped where it was
 
-    status.textContent = "Saving…";
+    status.textContent = t("Saving…");
     try {
       const response = await fetch(grid.dataset.reorderUrl, {
         method: "POST",
@@ -66,9 +66,9 @@ if (grid) {
         body: JSON.stringify({ ids }),
       });
       if (!response.ok) throw new Error(`Server answered ${response.status}`);
-      status.textContent = "Order saved.";
+      status.textContent = t("Order saved.");
     } catch (error) {
-      status.textContent = "Couldn't save the new order. Reloading…";
+      status.textContent = t("Couldn't save the new order. Reloading…");
       setTimeout(() => location.reload(), 1500);
     }
   });

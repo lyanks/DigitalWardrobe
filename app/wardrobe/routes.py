@@ -3,10 +3,13 @@ from datetime import date
 from itertools import groupby
 
 from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, url_for
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext as _l
 from flask_login import current_user, login_required
 from werkzeug.datastructures import FileStorage
 
 from app.extensions import db
+from app.i18n import tr
 from app.models import OWNED, WISHLIST, Category, Item
 from app.services.images import InvalidImageError, delete_image, save_image
 from app.services.product_page import FetchError, download_image
@@ -40,7 +43,7 @@ def get_own_item_or_404(item_id):
 
 def _category_choices():
     categories = db.session.scalars(db.select(Category).order_by(Category.id))
-    return [(c.id, c.name) for c in categories]
+    return [(c.id, tr(c.name)) for c in categories]
 
 
 # ---------- Read: list with filters and sorting ----------
@@ -48,13 +51,13 @@ def _category_choices():
 # value in the URL -> label in the dropdown. "custom" (your own
 # drag-and-drop order) is the default.
 SORT_OPTIONS = {
-    "custom": "My order",
-    "newest": "Newest first",
-    "oldest": "Oldest first",
-    "name": "Name A–Z",
-    "name_desc": "Name Z–A",
-    "color": "Color",
-    "category": "Category",
+    "custom": _l("My order"),
+    "newest": _l("Newest first"),
+    "oldest": _l("Oldest first"),
+    "name": _l("Name A–Z"),
+    "name_desc": _l("Name Z–A"),
+    "color": _l("Color"),
+    "category": _l("Category"),
 }
 
 
@@ -118,7 +121,7 @@ def index():
         db.select(db.func.count()).select_from(Item.owned_by(current_user.id).subquery())
     )
     return render_template(
-        "wardrobe/index.html", title="Wardrobe", items=items, total=total,
+        "wardrobe/index.html", title=_("Wardrobe"), items=items, total=total,
         categories=_category_choices(), colors=COLORS, seasons=SEASONS,
         filters={"category": category_id, "color": color, "season": season, "q": text,
                  "wash": wash if wash in ("in", "clean") else ""},
@@ -185,10 +188,10 @@ def create():
         if _fill_item_from_form(item, form):
             db.session.add(item)
             db.session.commit()
-            flash(f"Added “{item.name}” to your wardrobe.", "success")
+            flash(_("Added “%(name)s” to your wardrobe.", name=item.name), "success")
             return redirect(url_for("wardrobe.detail", item_id=item.id))
 
-    return render_template("wardrobe/form.html", title="Add item", form=form, item=None)
+    return render_template("wardrobe/form.html", title=_("Add item"), form=form, item=None)
 
 
 def _first_position():
@@ -218,10 +221,11 @@ def wishlist():
     # [("Must have", [wish, wish]), ("Someday", [wish]), ...]. groupby only
     # joins neighbours, which works because the list is already sorted.
     groups = [
-        (PRIORITIES.get(priority, "No priority"), list(wishes_in_group))
+        (tr(PRIORITIES[priority]) if priority in PRIORITIES else _("No priority"),
+         list(wishes_in_group))
         for priority, wishes_in_group in groupby(wishes, key=lambda wish: wish.priority)
     ]
-    return render_template("wardrobe/wishlist.html", title="Wishlist", groups=groups)
+    return render_template("wardrobe/wishlist.html", title=_("Wishlist"), groups=groups)
 
 
 @bp.route("/wishlist/new", methods=["GET", "POST"])
@@ -235,10 +239,10 @@ def create_wish():
         if _fill_item_from_form(item, form):
             db.session.add(item)
             db.session.commit()
-            flash(f"Added “{item.name}” to your wishlist.", "success")
+            flash(_("Added “%(name)s” to your wishlist.", name=item.name), "success")
             return redirect(url_for("wardrobe.detail", item_id=item.id))
 
-    return render_template("wardrobe/form.html", title="Add a wish", form=form, item=None)
+    return render_template("wardrobe/form.html", title=_("Add a wish"), form=form, item=None)
 
 
 @bp.route("/<int:item_id>/bought", methods=["POST"])
@@ -256,7 +260,7 @@ def bought(item_id):
         item.priority = None
         item.position = _first_position()
         db.session.commit()
-        flash(f"“{item.name}” is in your wardrobe now. Enjoy it!", "success")
+        flash(_("“%(name)s” is in your wardrobe now. Enjoy it!", name=item.name), "success")
     return redirect(url_for("wardrobe.detail", item_id=item.id))
 
 
@@ -290,13 +294,13 @@ def laundry(item_id):
     state = request.form.get("state")
     put_in = not item.in_wash if state not in ("in", "out") else state == "in"
     if put_in and item.in_wash:
-        message, category = f"“{item.name}” is already in the wash.", "info"
+        message, category = _("“%(name)s” is already in the wash.", name=item.name), "info"
     elif put_in:
         item.washing_since = date.today()
-        message, category = f"“{item.name}” is in the wash.", "info"
+        message, category = _("“%(name)s” is in the wash.", name=item.name), "info"
     else:
         item.washing_since = None
-        message, category = f"“{item.name}” is clean again.", "success"
+        message, category = _("“%(name)s” is clean again.", name=item.name), "success"
     db.session.commit()
 
     if wants_json():
@@ -338,10 +342,10 @@ def edit(item_id):
     if form.validate_on_submit():
         if _fill_item_from_form(item, form):
             db.session.commit()
-            flash("Changes saved.", "success")
+            flash(_("Changes saved."), "success")
             return redirect(url_for("wardrobe.detail", item_id=item.id))
 
-    return render_template("wardrobe/form.html", title=f"Edit {item.name}", form=form, item=item)
+    return render_template("wardrobe/form.html", title=_("Edit %(name)s", name=item.name), form=form, item=item)
 
 
 # ---------- Delete (two steps) ----------
@@ -356,10 +360,10 @@ def delete(item_id):
         delete_image(item.image_path)
         db.session.delete(item)
         db.session.commit()
-        flash(f"Deleted “{item.name}”.", "info")
+        flash(_("Deleted “%(name)s”.", name=item.name), "info")
         return redirect(url_for("wardrobe.wishlist" if item.is_wish else "wardrobe.index"))
 
-    return render_template("wardrobe/delete.html", title="Delete item", item=item, form=form)
+    return render_template("wardrobe/delete.html", title=_("Delete item"), item=item, form=form)
 
 
 def _fill_item_from_form(item, form):
@@ -373,7 +377,7 @@ def _fill_item_from_form(item, form):
             photo = FileStorage(stream=io.BytesIO(download_image(form.image_url.data)),
                                 filename="shop-photo")
         except FetchError as error:
-            form.photo.errors.append(f"Couldn't get the shop's photo: {error}")
+            form.photo.errors.append(_("Couldn't get the shop's photo: %(error)s", error=error))
             return False
     if photo:
         try:

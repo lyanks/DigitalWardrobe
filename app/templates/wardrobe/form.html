@@ -14,12 +14,12 @@
            /api/fetch-product and fills in what the shop's page says. #}
         <div class="autofill" data-fetch-url="{{ url_for('api.fetch_product_info') }}">
           {{ render_field(form.shop_url, placeholder="https://…") }}
-          <button type="button" class="button button-outline" data-autofill>Fill in from link</button>
+          <button type="button" class="button button-outline" data-autofill>{{ _("Fill in from link") }}</button>
           <p class="autofill-status muted" role="status" aria-live="polite"></p>
-          <img class="autofill-photo photo-preview" alt="Photo from the shop" hidden>
+          <img class="autofill-photo photo-preview" alt="{{ _('Photo from the shop') }}" hidden>
         </div>
       {% endif %}
-      {{ render_field(form.name, placeholder="Blue denim jacket") }}
+      {{ render_field(form.name, placeholder=_("Blue denim jacket")) }}
       <div class="field-row">
         {{ render_field(form.category_id) }}
         {{ render_field(form.color) }}
@@ -44,7 +44,7 @@
 
       {% if item and item.image_path %}
         <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
-             alt="Current photo" class="photo-preview">
+             alt="{{ _('Current photo') }}" class="photo-preview">
       {% endif %}
       {{ render_field(form.photo, accept="image/*") }}
       <div class="field checkbox">{{ form.remove_white() }} {{ form.remove_white.label }}</div>
@@ -56,9 +56,9 @@
       <div class="actions">
         {{ form.submit(class="button") }}
         {% if item %}
-          <a href="{{ url_for('wardrobe.detail', item_id=item.id) }}">Cancel</a>
+          <a href="{{ url_for('wardrobe.detail', item_id=item.id) }}">{{ _("Cancel") }}</a>
         {% else %}
-          <a href="{{ url_for('wardrobe.wishlist' if form.shop_url else 'wardrobe.index') }}">Cancel</a>
+          <a href="{{ url_for('wardrobe.wishlist' if form.shop_url else 'wardrobe.index') }}">{{ _("Cancel") }}</a>
         {% endif %}
       </div>
     </form>

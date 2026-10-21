@@ -10,6 +10,8 @@ The pack page works in two ways:
 from datetime import date
 
 from flask import Blueprint, abort, flash, jsonify, redirect, render_template, request, url_for
+from flask_babel import gettext as _
+from flask_babel import ngettext
 from flask_login import current_user, login_required
 
 from app.dates import format_date
@@ -57,7 +59,7 @@ def index():
                     start_date=form.start_date.data, end_date=form.end_date.data)
         db.session.add(trip)
         db.session.commit()
-        flash(f"Trip “{trip.name}” is on your calendar. Now fill the suitcase.", "success")
+        flash(_("Trip “%(name)s” is on your calendar. Now fill the suitcase.", name=trip.name), "success")
         return _back(trip)
 
     today = date.today()
@@ -66,7 +68,7 @@ def index():
     ).all()
     upcoming = sorted((t for t in trips if t.end_date >= today), key=lambda t: t.start_date)
     past = [t for t in trips if t.end_date < today]
-    return render_template("trips/index.html", title="Trips", form=form,
+    return render_template("trips/index.html", title=_("Trips"), form=form,
                            upcoming=upcoming, past=past)
 
 
@@ -88,14 +90,14 @@ def pack(trip_id):
 def edit(trip_id):
     trip = get_own_trip_or_404(trip_id)
     form = TripForm(obj=trip)
-    form.submit.label.text = "Save"
+    form.submit.label.text = _("Save")
     if form.validate_on_submit():
         form.populate_obj(trip)  # copies every field with the same name onto trip
         trip.name = trip.name.strip()
         db.session.commit()
-        flash("Trip saved.", "success")
+        flash(_("Trip saved."), "success")
         return _back(trip)
-    return render_template("trips/edit.html", title=f"Edit {trip.name}", form=form, trip=trip)
+    return render_template("trips/edit.html", title=_("Edit %(name)s", name=trip.name), form=form, trip=trip)
 
 
 @bp.route("/<int:trip_id>/delete", methods=["POST"])
@@ -104,7 +106,7 @@ def delete(trip_id):
     trip = get_own_trip_or_404(trip_id)
     db.session.delete(trip)  # the suitcase rows go too (cascade); clothes stay
     db.session.commit()
-    flash(f"Deleted the trip “{trip.name}”. Your clothes are still in your wardrobe.", "info")
+    flash(_("Deleted the trip “%(name)s”. Your clothes are still in your wardrobe.", name=trip.name), "info")
     return redirect(url_for("trips.index"))
 
 
@@ -148,7 +150,8 @@ def add_outfit(trip_id, outfit_id):
         return jsonify(added=sorted(ids), **_counts(trip),
                        html="".join(render_template("trips/_suitcase_item.html", trip=trip, link=link)
                                     for link in trip.item_links if link.item_id in ids))
-    flash(f"Added {len(added)} item{'s' if len(added) != 1 else ''} from “{outfit.name}”.", "success")
+    flash(ngettext("Added %(num)d item from “%(name)s”.", "Added %(num)d items from “%(name)s”.",
+                   len(added), name=outfit.name), "success")
     return _back(trip)
 
 
@@ -179,5 +182,5 @@ def toggle_packed(trip_id, item_id):
 @bp.app_template_filter("trip_dates")
 def trip_dates(trip):
     """"14.10.2026 – 16.10.2026 · 3 days" for a trip."""
-    days = f"{trip.days} day{'s' if trip.days != 1 else ''}"
+    days = ngettext("%(num)d day", "%(num)d days", trip.days)
     return f"{format_date(trip.start_date)} – {format_date(trip.end_date)} · {days}"

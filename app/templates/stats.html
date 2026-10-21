@@ -23,7 +23,7 @@
       <li>
         <span class="bar-label">
           {% if swatches %}<span class="swatch" style="--swatch: {{ row.swatch }}"></span>{% endif %}
-          {{ row.label | capitalize }}
+          {{ row.label | tr | capitalize }}
         </span>
         <span class="bar-track">
           <span class="bar{{ ' bar-colored' if swatches }}"
@@ -36,48 +36,48 @@
 {% endmacro %}
 
 {% block content %}
-  <h1>Your wardrobe in numbers</h1>
+  <h1>{{ _("Your wardrobe in numbers") }}</h1>
 
   {% if not stats.item_count %}
     <div class="card empty-state">
-      <p>Add some clothes first, then come back for numbers.</p>
-      <a href="{{ url_for('wardrobe.create') }}" class="button">Add an item</a>
+      <p>{{ _("Add some clothes first, then come back for numbers.") }}</p>
+      <a href="{{ url_for('wardrobe.create') }}" class="button">{{ _("Add an item") }}</a>
     </div>
   {% else %}
     <div class="stat-tiles">
-      <div class="stat-tile"><span class="stat-number">{{ stats.item_count }}</span> items</div>
-      <div class="stat-tile"><span class="stat-number">{{ stats.total_wears }}</span> wears logged</div>
-      <div class="stat-tile"><span class="stat-number">{{ stats.never_worn_count }}</span> never worn</div>
+      <div class="stat-tile"><span class="stat-number">{{ stats.item_count }}</span> {{ ngettext("item", "items", stats.item_count) }}</div>
+      <div class="stat-tile"><span class="stat-number">{{ stats.total_wears }}</span> {{ ngettext("wear logged", "wears logged", stats.total_wears) }}</div>
+      <div class="stat-tile"><span class="stat-number">{{ stats.never_worn_count }}</span> {{ _("never worn") }}</div>
     </div>
 
     <div class="stats-grid">
       <section class="card">
-        <h2>Colors</h2>
+        <h2>{{ _("Colors") }}</h2>
         {{ bars(stats.by_color, swatches=True) }}
       </section>
       <section class="card">
-        <h2>Categories</h2>
+        <h2>{{ _("Categories") }}</h2>
         {{ bars(stats.by_category) }}
       </section>
 
       <section class="card">
-        <h2>Most worn</h2>
+        <h2>{{ _("Most worn") }}</h2>
         {% if stats.most_worn %}
           {{ item_rows(stats.most_worn) }}
         {% else %}
-          <p class="muted">Nothing marked as worn yet. In the <a href="{{ url_for('planner.index') }}">planner</a>, click “Mark worn” on a day you wore an outfit.</p>
+          <p class="muted">{{ _("Nothing marked as worn yet. In the") }} <a href="{{ url_for('planner.index') }}">{{ _("planner") }}</a>{{ _(", click “Mark worn” on a day you wore an outfit.") }}</p>
         {% endif %}
       </section>
       {% if stats.least_worn %}
         <section class="card">
-          <h2>Least worn</h2>
+          <h2>{{ _("Least worn") }}</h2>
           {{ item_rows(stats.least_worn) }}
         </section>
       {% endif %}
     </div>
 
     {% if stats.not_worn_lately %}
-      <h2>Not worn in {{ stats.stale_days }} days</h2>
+      <h2>{{ ngettext("Not worn in %(num)d day", "Not worn in %(num)d days", stats.stale_days) }}</h2>
       <div class="item-grid">
         {% for item, last in stats.not_worn_lately %}{{ item_card(item) }}{% endfor %}
       </div>
@@ -86,7 +86,7 @@
     {% if stats.never_worn %}
       {# Collapsed like the outfit page's planner list: it can get long. #}
       <details class="planned">
-        <summary>Never worn: {{ stats.never_worn | length }} item{{ "s" if stats.never_worn | length != 1 }}</summary>
+        <summary>{{ ngettext("Never worn: %(num)d item", "Never worn: %(num)d items", stats.never_worn | length) }}</summary>
         <div class="item-grid">
           {% for item in stats.never_worn %}{{ item_card(item) }}{% endfor %}
         </div>

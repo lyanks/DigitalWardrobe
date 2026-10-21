@@ -34,6 +34,8 @@ class User(UserMixin, db.Model):
     onboarded_at = db.Column(db.DateTime(timezone=True))
     # When they opened the tutorial or closed its banner. Empty = suggest it.
     tutorial_seen_at = db.Column(db.DateTime(timezone=True))
+    # "en" or "uk" (app/i18n.py). Empty = follow the browser.
+    language = db.Column(db.String(5))
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
     # One user -> many items. Deleting a user deletes their items too.

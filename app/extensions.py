@@ -5,6 +5,7 @@ create_app() with init_app(). That way models.py and the blueprints can
 import `db` without importing the app itself (no circular imports).
 """
 from authlib.integrations.flask_client import OAuth
+from flask_babel import Babel, lazy_gettext as _l
 from flask_login import LoginManager
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -14,9 +15,10 @@ db = SQLAlchemy()
 migrate = Migrate()
 csrf = CSRFProtect()
 oauth = OAuth()  # "Sign in with Google"
+babel = Babel()  # English / Ukrainian (app/i18n.py)
 
 login_manager = LoginManager()
 # Where @login_required sends visitors who are not logged in.
 login_manager.login_view = "auth.login"
-login_manager.login_message = "Please log in to see that page."
+login_manager.login_message = _l("Please log in to see that page.")
 login_manager.login_message_category = "info"

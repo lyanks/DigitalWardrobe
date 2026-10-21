@@ -1,8 +1,8 @@
 {# Only shown when GOOGLE_CLIENT_ID is set in .env. `config` is Flask's
    app.config, available in every template. #}
 {% if config.GOOGLE_CLIENT_ID %}
-  <p class="divider"><span>or continue with</span></p>
-  <a href="{{ url_for('auth.google_login') }}" class="google-round" aria-label="Continue with Google" title="Continue with Google">
+  <p class="divider"><span>{{ _("or continue with") }}</span></p>
+  <a href="{{ url_for('auth.google_login') }}" class="google-round" aria-label="{{ _('Continue with Google') }}" title="{{ _('Continue with Google') }}">
     <svg viewBox="0 0 48 48" aria-hidden="true" class="google-logo">
       <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/>
       <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.3 5.7c4.3-3.9 7-9.7 7-17.1z"/>

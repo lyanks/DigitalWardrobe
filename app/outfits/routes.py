@@ -1,6 +1,7 @@
 from datetime import date
 
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
+from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
 from app.extensions import db
@@ -96,7 +97,7 @@ def index():
     outfits = db.session.scalars(
         db.select(Outfit).filter_by(user_id=current_user.id).order_by(Outfit.created_at.desc(), Outfit.id.desc())
     ).all()
-    return render_template("outfits/index.html", title="Outfits", outfits=outfits)
+    return render_template("outfits/index.html", title=_("Outfits"), outfits=outfits)
 
 
 # ---------- Create ----------
@@ -108,9 +109,9 @@ def create():
     groups = _prepare_form(form)
     outfit = Outfit(user_id=current_user.id)
     if _save_if_valid(form, outfit):
-        flash(f"Saved the outfit “{outfit.name}”.", "success")
+        flash(_("Saved the outfit “%(name)s”.", name=outfit.name), "success")
         return redirect(url_for("outfits.detail", outfit_id=outfit.id))
-    return render_template("outfits/form.html", title="New outfit", form=form, groups=groups, outfit=None)
+    return render_template("outfits/form.html", title=_("New outfit"), form=form, groups=groups, outfit=None)
 
 
 # ---------- Read: one outfit ----------
@@ -120,7 +121,7 @@ def detail(outfit_id):
     outfit = get_own_outfit_or_404(outfit_id)
     # Deleting an item can break an outfit (e.g. its only top is gone).
     # The outfit is kept, but we say what's missing.
-    problems = outfit_problems(outfit.items) if outfit.items else ["All its items were deleted."]
+    problems = outfit_problems(outfit.items) if outfit.items else [_("All its items were deleted.")]
     # For the one-line planner summary: how often worn, and the next planned day.
     today = date.today()
     worn_count = sum(1 for entry in outfit.schedule if entry.worn)
@@ -144,9 +145,9 @@ def edit(outfit_id):
         # obj=outfit can't guess item_ids (the outfit has items, not ids).
         form.item_ids.data = [item.id for item in outfit.items]
     if _save_if_valid(form, outfit):
-        flash("Outfit saved.", "success")
+        flash(_("Outfit saved."), "success")
         return redirect(url_for("outfits.detail", outfit_id=outfit.id))
-    return render_template("outfits/form.html", title=f"Edit {outfit.name}", form=form, groups=groups, outfit=outfit)
+    return render_template("outfits/form.html", title=_("Edit %(name)s", name=outfit.name), form=form, groups=groups, outfit=outfit)
 
 
 # ---------- Delete (two steps, like items) ----------
@@ -159,6 +160,6 @@ def delete(outfit_id):
         delete_image(outfit.image_path)
         db.session.delete(outfit)  # its links go too; the items stay
         db.session.commit()
-        flash(f"Deleted the outfit “{outfit.name}”. Your clothes are still in the wardrobe.", "info")
+        flash(_("Deleted the outfit “%(name)s”. Your clothes are still in the wardrobe.", name=outfit.name), "info")
         return redirect(url_for("outfits.index"))
-    return render_template("outfits/delete.html", title="Delete outfit", outfit=outfit, form=form)
+    return render_template("outfits/delete.html", title=_("Delete outfit"), outfit=outfit, form=form)

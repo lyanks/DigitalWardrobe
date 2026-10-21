@@ -1,0 +1,1462 @@
+# Ukrainian translations for Digital Wardrobe.
+# Each msgid is the English text in the code, msgstr is what Ukrainian
+# readers see. Edit a msgstr, restart the app, and the page changes.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Digital Wardrobe\n"
+"POT-Creation-Date: 2026-10-16 08:59+0000\n"
+"PO-Revision-Date: 2026-10-16 08:59+0000\n"
+"Language: uk\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: Babel 2.18.0\n"
+
+#, python-format
+msgid "%(first)s and %(last)s"
+msgstr "%(first)s та %(last)s"
+
+#, python-format
+msgid "%(first)s and %(second)s"
+msgstr "%(first)s і %(second)s"
+
+#, python-format
+msgid "%(items)s with %(last)s"
+msgstr "%(items)s і %(last)s"
+
+#, python-format
+msgid "%(name)s: pack the suitcase"
+msgstr "%(name)s: зібрати валізу"
+
+#, python-format
+msgid "%(names)s and %(last)s"
+msgstr "%(names)s і %(last)s"
+
+#, python-format
+msgid "%(num)d day"
+msgid_plural "%(num)d days"
+msgstr[0] "%(num)d день"
+msgstr[1] "%(num)d дні"
+msgstr[2] "%(num)d днів"
+
+#, python-format
+msgid "%(num)d item"
+msgid_plural "%(num)d items"
+msgstr[0] "%(num)d річ"
+msgstr[1] "%(num)d речі"
+msgstr[2] "%(num)d речей"
+
+#, python-format
+msgid "%(num)d time"
+msgid_plural "%(num)d times"
+msgstr[0] "%(num)d раз"
+msgstr[1] "%(num)d рази"
+msgstr[2] "%(num)d разів"
+
+#, python-format
+msgid "%(packed)s of %(count)s packed"
+msgstr "Спаковано %(packed)s з %(count)s"
+
+msgid ", click “Mark worn” on a day you wore an outfit."
+msgstr " натисни “Позначити” в день, коли образ було вдягнуто."
+
+msgid "A price can't be negative."
+msgstr "Ціна не може бути від'ємною."
+
+msgid "A top and a bottom, or a dress. Add shoes, a jacket and any accessories you like."
+msgstr "Верх і низ або сукня. Додай взуття, куртку й будь-які аксесуари."
+
+msgid "Accent colour"
+msgstr "Колір акценту"
+
+msgid "Accessories"
+msgstr "Аксесуари"
+
+msgid "Add a photo of yourself wearing it."
+msgstr "Додай своє фото в цьому образі."
+
+msgid "Add a trip with its dates. Your suitcase is on one side and your wardrobe on the other: drag clothes in."
+msgstr "Додай поїздку з датами. З одного боку валіза, з іншого гардероб: перетягуй одяг у валізу."
+
+msgid "Add a wish"
+msgstr "Додати бажання"
+
+msgid "Add an item"
+msgstr "Додати річ"
+
+msgid "Add every item of this outfit"
+msgstr "Додати всі речі цього образу"
+
+msgid "Add item"
+msgstr "Додати річ"
+
+msgid "Add some clothes first, then come back for numbers."
+msgstr "Спершу додай трохи одягу, а тоді повертайся по цифри."
+
+msgid "Add some clothes first."
+msgstr "Спершу додай трохи одягу."
+
+msgid "Add to calendar"
+msgstr "Додати в календар"
+
+msgid "Add your clothes"
+msgstr "Додай свій одяг"
+
+msgid "Add your first item"
+msgstr "Додай першу річ"
+
+msgid "Add your first wish"
+msgstr "Додай своє перше бажання"
+
+#, python-format
+msgid "Added %(num)d item from “%(name)s”."
+msgid_plural "Added %(num)d items from “%(name)s”."
+msgstr[0] "Додано %(num)d річ з “%(name)s”."
+msgstr[1] "Додано %(num)d речі з “%(name)s”."
+msgstr[2] "Додано %(num)d речей з “%(name)s”."
+
+#, python-format
+msgid "Added “%(name)s” to your wardrobe."
+msgstr "“%(name)s” додано до твого гардероба."
+
+#, python-format
+msgid "Added “%(name)s” to your wishlist."
+msgstr "“%(name)s” додано до списку бажань."
+
+msgid "All categories"
+msgstr "Усі категорії"
+
+msgid "All colors"
+msgstr "Усі кольори"
+
+msgid "All its items were deleted."
+msgstr "Усі його речі видалено."
+
+msgid "All set! You can change any of this on your profile page."
+msgstr "Готово! Усе це можна змінити на сторінці профілю."
+
+msgid "Already have one?"
+msgstr "Уже маєш акаунт?"
+
+msgid "Already in the suitcase."
+msgstr "Вже у валізі."
+
+msgid "An account with that email already exists."
+msgstr "Акаунт із цією поштою вже існує."
+
+msgid "An outfit needs a top and a bottom, or a dress / full-body item."
+msgstr "Для образу потрібні верх і низ або сукня / річ на все тіло."
+
+msgid "Any season"
+msgstr "Будь-який сезон"
+
+#, python-format
+msgid "Appears in %(num)d outfit"
+msgid_plural "Appears in %(num)d outfits"
+msgstr[0] "Є в %(num)d образі"
+msgstr[1] "Є в %(num)d образах"
+msgstr[2] "Є в %(num)d образах"
+
+msgid "Apply"
+msgstr "Застосувати"
+
+msgid "Are you sure?"
+msgstr "Точно?"
+
+msgid "At least 8 characters, with upper and lowercase letters, a number and a special character."
+msgstr "Щонайменше 8 символів: великі й малі літери, цифра та спецсимвол."
+
+msgid "Avatar"
+msgstr "Аватар"
+
+msgid "Back home"
+msgstr "На головну"
+
+msgid "Back to the planner"
+msgstr "Назад до планувальника"
+
+msgid "Blue denim jacket"
+msgstr "Синя джинсова куртка"
+
+msgid "Bottoms"
+msgstr "Низ"
+
+msgid "Bought"
+msgstr "Куплено"
+
+msgid "Bought on"
+msgstr "Дата покупки"
+
+msgid "Brand"
+msgstr "Бренд"
+
+msgid "Buy less, wear more of what I have"
+msgstr "Купувати менше, носити більше того, що є"
+
+msgid "Cancel"
+msgstr "Скасувати"
+
+msgid "Categories"
+msgstr "Категорії"
+
+msgid "Category"
+msgstr "Категорія"
+
+msgid "Change password"
+msgstr "Змінити пароль"
+
+msgid "Changes saved."
+msgstr "Зміни збережено."
+
+msgid "Clean only"
+msgstr "Лише чисті"
+
+msgid "Clean or in the wash"
+msgstr "Чисті й у пранні"
+
+msgid "Clear filters"
+msgstr "Скинути фільтри"
+
+msgid "Close"
+msgstr "Закрити"
+
+msgid "Clothes in the wash look faded, and the planner reminds you about them."
+msgstr "Одяг у пранні виглядає блідим, а планувальник нагадує про нього."
+
+msgid "Clothes you'd like to have. A shop link, or just \"grey sport shorts\"."
+msgstr "Одяг, який ти хочеш мати. Посилання на магазин або просто “сірі спортивні шорти”."
+
+msgid "Color"
+msgstr "Колір"
+
+msgid "Colors"
+msgstr "Кольори"
+
+msgid "Coming up"
+msgstr "Попереду"
+
+msgid "Continue with Google"
+msgstr "Продовжити з Google"
+
+msgid "Couldn't find product details on that page. Fill the form in by hand."
+msgstr "На цій сторінці не знайшлося даних про товар. Заповни форму вручну."
+
+#, python-format
+msgid "Couldn't get the shop's photo: %(error)s"
+msgstr "Не вдалося отримати фото з магазину: %(error)s"
+
+msgid "Couldn't open that page. Check the link, or fill the form in by hand."
+msgstr "Не вдалося відкрити цю сторінку. Перевір посилання або заповни форму вручну."
+
+msgid "Couldn't put that in the wash. Try again."
+msgstr "Не вдалося покласти в прання. Спробуй ще раз."
+
+msgid "Couldn't reach the server. Try again."
+msgstr "Немає зв'язку із сервером. Спробуй ще раз."
+
+msgid "Couldn't save that."
+msgstr "Не вдалося зберегти."
+
+msgid "Couldn't save that. Try again."
+msgstr "Не вдалося зберегти. Спробуй ще раз."
+
+msgid "Couldn't save the new order. Reloading…"
+msgstr "Не вдалося зберегти порядок. Перезавантажую…"
+
+msgid "Create account"
+msgstr "Створити акаунт"
+
+msgid "Create your first outfit"
+msgstr "Створи свій перший образ"
+
+msgid "Currency"
+msgstr "Валюта"
+
+msgid "Current password"
+msgstr "Поточний пароль"
+
+msgid "Current photo"
+msgstr "Поточне фото"
+
+msgid "Day"
+msgstr "День"
+
+msgid "Delete"
+msgstr "Видалити"
+
+msgid "Delete item"
+msgstr "Видалити річ"
+
+msgid "Delete outfit"
+msgstr "Видалити образ"
+
+#, python-format
+msgid "Delete “%(name)s”?"
+msgstr "Видалити “%(name)s”?"
+
+#, python-format
+msgid "Deleted the outfit “%(name)s”. Your clothes are still in the wardrobe."
+msgstr "Образ “%(name)s” видалено. Твій одяг лишився в гардеробі."
+
+#, python-format
+msgid "Deleted the trip “%(name)s”. Your clothes are still in your wardrobe."
+msgstr "Поїздку “%(name)s” видалено. Твій одяг лишився в гардеробі."
+
+#, python-format
+msgid "Deleted “%(name)s”."
+msgstr "“%(name)s” видалено."
+
+msgid "Display name"
+msgstr "Ім'я на сторінці"
+
+msgid "Don't have an account yet?"
+msgstr "Ще немає акаунта?"
+
+msgid "Don't show this again"
+msgstr "Більше не показувати"
+
+msgid "Drag an outfit onto a day in the planner. Tick it once you've worn it."
+msgstr "Перетягни образ на день у планувальнику. Познач його, коли вдягнеш."
+
+msgid "Drag clothes onto the washer in the corner of your wardrobe."
+msgstr "Перетягуй одяг на пральну машину в кутку гардеробу."
+
+msgid "Drag clothes or a whole outfit here."
+msgstr "Перетягни сюди одяг або цілий образ."
+
+msgid "Drag one onto a day."
+msgstr "Перетягни образ на день."
+
+msgid "Drag the cards to put them in your own order."
+msgstr "Перетягуй картки, щоб розставити їх у своєму порядку."
+
+msgid "Dresses"
+msgstr "Сукні"
+
+msgid "Drop a whole outfit to pack all of it at once."
+msgstr "Перетягни цілий образ, щоб спакувати його одразу."
+
+msgid "Drop clothes here to put them in the wash"
+msgstr "Кинь сюди одяг, щоб покласти його в прання"
+
+msgid "Edit"
+msgstr "Редагувати"
+
+#, python-format
+msgid "Edit %(name)s"
+msgstr "Редагувати %(name)s"
+
+msgid "Edit profile"
+msgstr "Редагувати профіль"
+
+msgid "Edit trip"
+msgstr "Редагувати поїздку"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Email or username"
+msgstr "Email або ім'я користувача"
+
+msgid "Empty"
+msgstr "Порожньо"
+
+msgid "Empty suitcase"
+msgstr "Валіза порожня"
+
+msgid "Everything starts in your wardrobe: one item for each piece you own."
+msgstr "Усе починається з гардеробу: одна річ на кожен предмет одягу, який у тебе є."
+
+msgid "Fill in from link"
+msgstr "Заповнити за посиланням"
+
+#, python-format
+msgid "Filled in: %(fields)s. Check it, then pick a category and colour."
+msgstr "Заповнено: %(fields)s. Перевір і обери категорію та колір."
+
+msgid "Filter by category, colour and season, or drag cards into your own order."
+msgstr "Фільтруй за категорією, кольором і сезоном або перетягуй картки у свій порядок."
+
+msgid "Finish"
+msgstr "Готово"
+
+msgid "Fix it"
+msgstr "Виправити"
+
+msgid "Free"
+msgstr "Вільно"
+
+msgid "From"
+msgstr "З"
+
+msgid "Get dressed faster"
+msgstr "Швидше збиратися"
+
+msgid "Get started free"
+msgstr "Почати безкоштовно"
+
+msgid "Google sign-in was cancelled or failed. Please try again."
+msgstr "Вхід через Google скасовано або він не вдався. Спробуй ще раз."
+
+msgid "Graphite"
+msgstr "Графіт"
+
+#, python-format
+msgid "Heads up: %(what)s is in the wash."
+msgid_plural "Heads up: %(what)s are in the wash."
+msgstr[0] "Увага: %(what)s у пранні."
+msgstr[1] "Увага: %(what)s у пранні."
+msgstr[2] "Увага: %(what)s у пранні."
+
+#, python-format
+msgid "Hello, %(name)s"
+msgstr "Привіт, %(name)s"
+
+#, python-format
+msgid "Hi, %(name)s!"
+msgstr "Привіт, %(name)s!"
+
+msgid "Hide password"
+msgstr "Сховати пароль"
+
+msgid "Home"
+msgstr "Головна"
+
+msgid "How it works"
+msgstr "Як це працює"
+
+msgid "How the app works"
+msgstr "Як працює застосунок"
+
+msgid "How your name is shown"
+msgstr "Як показувати твоє ім'я"
+
+msgid "I bought it"
+msgstr "Вже куплено"
+
+msgid "I wore this"
+msgstr "Це було на мені"
+
+msgid "Images only (jpg, png, webp, gif)."
+msgstr "Лише зображення (jpg, png, webp, gif)."
+
+msgid "In the suitcase"
+msgstr "У валізі"
+
+msgid "In the wash"
+msgstr "У пранні"
+
+#, python-format
+msgid "In the wash since %(day)s %(date)s"
+msgstr "У пранні з %(date)s (%(day)s)"
+
+#, python-format
+msgid "It will also be taken out of %(num)d outfit."
+msgid_plural "It will also be taken out of %(num)d outfits."
+msgstr[0] "Її також буде прибрано з %(num)d образу."
+msgstr[1] "Її також буде прибрано з %(num)d образів."
+msgstr[2] "Її також буде прибрано з %(num)d образів."
+
+#, python-format
+msgid "It's also taken off the planner (%(num)d day)."
+msgid_plural "It's also taken off the planner (%(num)d days)."
+msgstr[0] "Його також буде прибрано з планувальника (%(num)d день)."
+msgstr[1] "Його також буде прибрано з планувальника (%(num)d дні)."
+msgstr[2] "Його також буде прибрано з планувальника (%(num)d днів)."
+
+msgid "It's also taken off the planner."
+msgstr "Його також буде прибрано з планувальника."
+
+msgid "It's clean"
+msgstr "Випрано"
+
+msgid "Items"
+msgstr "Речі"
+
+msgid "Job interview"
+msgstr "Співбесіда"
+
+msgid "Keep track of the laundry"
+msgstr "Стеж за пранням"
+
+msgid "Language"
+msgstr "Мова"
+
+msgid "Last 7 days"
+msgstr "Останні 7 днів"
+
+msgid "Laundry"
+msgstr "Прання"
+
+msgid "Lavender"
+msgstr "Лаванда"
+
+msgid "Least worn"
+msgstr "Найрідше вдягаєш"
+
+msgid "Letters, numbers, dots and underscores only."
+msgstr "Лише літери, цифри, крапки та підкреслення."
+
+msgid "Linen"
+msgstr "Льон"
+
+msgid "Link to the shop"
+msgstr "Посилання на магазин"
+
+msgid "Linked to Google"
+msgstr "Пов'язано з Google"
+
+msgid "Log a look"
+msgstr "Записати образ"
+
+msgid "Log in"
+msgstr "Увійти"
+
+msgid "Log out"
+msgstr "Вийти"
+
+msgid "Log what you wore"
+msgstr "Записати, що вдягнуто"
+
+#, python-format
+msgid "Logged your look for %(day)s %(date)s."
+msgstr "Образ записано: %(day)s, %(date)s."
+
+msgid "Look"
+msgstr "Вигляд"
+
+msgid "Looking at the page…"
+msgstr "Дивлюся сторінку…"
+
+msgid "Looks like a complete outfit ✓"
+msgstr "Схоже на повний образ ✓"
+
+msgid "Lviv weekend"
+msgstr "Вихідні у Львові"
+
+msgid "Made by someone who forgets what they own."
+msgstr "Зроблено людиною, яка забуває, що в неї є."
+
+msgid "Make an account"
+msgstr "Створи акаунт"
+
+msgid "Make an outfit first, then plan it here."
+msgstr "Спершу склади образ, а тоді заплануй його тут."
+
+msgid "Mark as packed"
+msgstr "Позначити як спаковане"
+
+msgid "Mark worn"
+msgstr "Позначити"
+
+#, python-format
+msgid "Marked “%(name)s” as worn. Each of its items counts one more wear."
+msgstr "“%(name)s” позначено як вдягнутий. Кожна його річ отримує ще одне вдягання."
+
+#, python-format
+msgid "Member since %(date)s"
+msgstr "З нами з %(date)s"
+
+msgid "Menu"
+msgstr "Меню"
+
+msgid "Midnight"
+msgstr "Опівніч"
+
+msgid "Monday office"
+msgstr "Понеділок в офісі"
+
+msgid "Most worn"
+msgstr "Найчастіше вдягаєш"
+
+msgid "Must have"
+msgstr "Дуже треба"
+
+msgid "My order"
+msgstr "Мій порядок"
+
+msgid "Name"
+msgstr "Назва"
+
+msgid "Name A–Z"
+msgstr "Назва А–Я"
+
+msgid "Name Z–A"
+msgstr "Назва Я–А"
+
+#, python-format
+msgid "Never worn: %(num)d item"
+msgid_plural "Never worn: %(num)d items"
+msgstr[0] "Ще не вдягалася: %(num)d річ"
+msgstr[1] "Ще не вдягалися: %(num)d речі"
+msgstr[2] "Ще не вдягалися: %(num)d речей"
+
+msgid "New here?"
+msgstr "Тут уперше?"
+
+msgid "New outfit"
+msgstr "Новий образ"
+
+msgid "New password"
+msgstr "Новий пароль"
+
+msgid "Newest first"
+msgstr "Спершу нові"
+
+msgid "Next"
+msgstr "Далі"
+
+msgid "No items match these filters."
+msgstr "Жодна річ не підходить під ці фільтри."
+
+msgid "No outfits yet. Put a few of your clothes together and give the combination a name."
+msgstr "Образів ще немає. Поєднай кілька речей і дай поєднанню назву."
+
+msgid "No photo"
+msgstr "Без фото"
+
+msgid "No priority"
+msgstr "Без пріоритету"
+
+msgid "No trips planned yet."
+msgstr "Поїздок ще не заплановано."
+
+msgid "Not worn after all"
+msgstr "Усе ж не вдягнуто"
+
+#, python-format
+msgid "Not worn in %(num)d day"
+msgid_plural "Not worn in %(num)d days"
+msgstr[0] "Не вдягалося %(num)d день"
+msgstr[1] "Не вдягалося %(num)d дні"
+msgstr[2] "Не вдягалося %(num)d днів"
+
+msgid "Not worn lately"
+msgstr "Давно не вдягалося"
+
+msgid "Note"
+msgstr "Нотатка"
+
+msgid "Notes"
+msgstr "Нотатки"
+
+msgid "Nothing here yet."
+msgstr "Тут поки нічого немає."
+
+msgid "Nothing marked as worn yet. In the"
+msgstr "Ще нічого не позначено як вдягнуте. У"
+
+msgid "Nothing planned yet"
+msgstr "Поки нічого не заплановано"
+
+msgid "Nothing yet."
+msgstr "Поки нічого."
+
+msgid "Occasion"
+msgstr "Нагода"
+
+msgid "Oldest first"
+msgstr "Спершу старі"
+
+#, python-format
+msgid "Only one bottom per outfit (you picked %(count)s)."
+msgstr "В образі може бути лише один низ (обрано %(count)s)."
+
+#, python-format
+msgid "Only one dress or other full-body item per outfit (you picked %(count)s)."
+msgstr "В образі може бути лише одна сукня чи інша річ на все тіло (обрано %(count)s)."
+
+#, python-format
+msgid "Only one outerwear per outfit (you picked %(count)s)."
+msgstr "В образі може бути лише один верхній одяг (обрано %(count)s)."
+
+#, python-format
+msgid "Only one pair of shoes per outfit (you picked %(count)s)."
+msgstr "В образі може бути лише одна пара взуття (обрано %(count)s)."
+
+#, python-format
+msgid "Only one top per outfit (you picked %(count)s)."
+msgstr "В образі може бути лише один верх (обрано %(count)s)."
+
+msgid "Only the outfit is deleted."
+msgstr "Буде видалено лише образ."
+
+msgid "Open planner"
+msgstr "Відкрити планувальник"
+
+msgid "Open the planner"
+msgstr "Відкрити планувальник"
+
+msgid "Open the wardrobe"
+msgstr "Відкрити гардероб"
+
+msgid "Optional: a picture of you wearing it."
+msgstr "Необов'язково: фото, де ти в ньому."
+
+msgid "Or pick a day"
+msgstr "Або обери день"
+
+msgid "Order saved."
+msgstr "Порядок збережено."
+
+msgid "Outerwear"
+msgstr "Верхній одяг"
+
+msgid "Outfit"
+msgstr "Образ"
+
+msgid "Outfit saved."
+msgstr "Образ збережено."
+
+msgid "Outfits"
+msgstr "Образи"
+
+msgid "Over a month ago. Maybe plan one in?"
+msgstr "Понад місяць тому. Може, заплануєш щось із цього?"
+
+msgid "Pack a suitcase"
+msgstr "Збери валізу"
+
+msgid "Packed"
+msgstr "Спаковано"
+
+msgid "Password"
+msgstr "Пароль"
+
+msgid "Password changed."
+msgstr "Пароль змінено."
+
+#, python-format
+msgid "Password needs %(rules)s."
+msgstr "Пароль має містити %(rules)s."
+
+msgid "Passwords must match."
+msgstr "Паролі мають збігатися."
+
+msgid "Past trips"
+msgstr "Минулі поїздки"
+
+msgid "Paste a full link, starting with http:// or https://."
+msgstr "Встав повне посилання, що починається з http:// або https://."
+
+msgid "Paste a link first."
+msgstr "Спершу встав посилання."
+
+msgid "Paste a shop link and the name, brand and photo fill themselves in."
+msgstr "Встав посилання на магазин, і назва, бренд та фото заповняться самі."
+
+msgid "Photo"
+msgstr "Фото"
+
+msgid "Photo from the shop"
+msgstr "Фото з магазину"
+
+msgid "Photo of the outfit"
+msgstr "Фото образу"
+
+msgid "Pick a colour like #c4a8ff."
+msgstr "Обери колір на кшталт #c4a8ff."
+
+msgid "Pick a top and a bottom (or a dress), add shoes and extras, and save it under a name."
+msgstr "Обери верх і низ (або сукню), додай взуття й аксесуари та збережи під назвою."
+
+msgid "Pick as many as you like."
+msgstr "Обери скільки завгодно."
+
+msgid "Pick at least one item."
+msgstr "Обери хоча б одну річ."
+
+msgid "Pick the items"
+msgstr "Обери речі"
+
+msgid "Pick your look"
+msgstr "Обери вигляд"
+
+msgid "Plan a trip"
+msgstr "Спланувати поїздку"
+
+msgid "Plan an outfit"
+msgstr "Спланувати образ"
+
+msgid "Plan it"
+msgstr "Запланувати"
+
+msgid "Plan outfits ahead"
+msgstr "Планувати образи наперед"
+
+msgid "Plan something"
+msgstr "Спланувати щось"
+
+msgid "Plan the week"
+msgstr "Плануй тиждень"
+
+msgid "Plan."
+msgstr "Плануй."
+
+#, python-format
+msgid "Planned %(count)s×"
+msgstr "Заплановано %(count)s×"
+
+#, python-format
+msgid "Planned “%(name)s” for %(date)s."
+msgstr "“%(name)s” заплановано на %(date)s."
+
+#, python-format
+msgid "Planned “%(name)s” for %(day)s %(date)s."
+msgstr "“%(name)s” заплановано: %(day)s, %(date)s."
+
+msgid "Planner"
+msgstr "Планувальник"
+
+msgid "Please log in to see that page."
+msgstr "Увійди, щоб побачити цю сторінку."
+
+msgid "Press It's clean on the item when it's back."
+msgstr "Коли річ повернеться, натисни на ній Випрано."
+
+msgid "Price"
+msgstr "Ціна"
+
+msgid "Priority"
+msgstr "Пріоритет"
+
+msgid "Profile"
+msgstr "Профіль"
+
+msgid "Profile saved."
+msgstr "Профіль збережено."
+
+#, python-format
+msgid "Put %(name)s in the suitcase"
+msgstr "Покласти %(name)s у валізу"
+
+msgid "Put in the wash"
+msgstr "Покласти в прання"
+
+msgid "Put outfits together"
+msgstr "Складай образи"
+
+msgid "Recently added"
+msgstr "Нещодавно додані"
+
+msgid "Remove"
+msgstr "Прибрати"
+
+msgid "Remove from this day"
+msgstr "Прибрати з цього дня"
+
+msgid "Remove the current photo"
+msgstr "Видалити поточне фото"
+
+msgid "Remove the white background"
+msgstr "Прибрати білий фон"
+
+msgid "Remove this look"
+msgstr "Видалити цей образ"
+
+#, python-format
+msgid "Removed the look from %(date)s."
+msgstr "Образ за %(date)s видалено."
+
+#, python-format
+msgid "Removed “%(name)s” from %(day)s %(date)s."
+msgstr "“%(name)s” прибрано з планувальника: %(day)s, %(date)s."
+
+msgid "Repeat new password"
+msgstr "Повтори новий пароль"
+
+msgid "Repeat password"
+msgstr "Повтори пароль"
+
+msgid "Repeat."
+msgstr "Повторюй."
+
+msgid "Repeating the same combo within a week gets a gentle note."
+msgstr "Якщо повториш те саме поєднання протягом тижня, отримаєш лагідне нагадування."
+
+msgid "Save"
+msgstr "Зберегти"
+
+msgid "Save look"
+msgstr "Зберегти вигляд"
+
+msgctxt "outfit"
+msgid "Save look"
+msgstr "Зберегти образ"
+
+msgid "Save outfit"
+msgstr "Зберегти образ"
+
+msgid "Save profile"
+msgstr "Зберегти профіль"
+
+msgid "Save things you'd like to buy, and see what you actually wear."
+msgstr "Зберігай речі, які хочеш купити, і дивись, що ти насправді вдягаєш."
+
+#, python-format
+msgid "Saved the outfit “%(name)s”."
+msgstr "Образ “%(name)s” збережено."
+
+msgid "Saved."
+msgstr "Збережено."
+
+msgid "Saving…"
+msgstr "Зберігаю…"
+
+msgid "Search name, brand, notes"
+msgstr "Шукай за назвою, брендом, нотатками"
+
+msgid "Season"
+msgstr "Сезон"
+
+msgid "See all"
+msgstr "Усі речі"
+
+msgid "See how it works"
+msgstr "Як це працює"
+
+msgid "See what the app can do in two minutes."
+msgstr "Дізнайся за дві хвилини, що вміє застосунок."
+
+msgid "See your stats"
+msgstr "Переглянути статистику"
+
+msgid "Sell or donate what I don't wear"
+msgstr "Продати або віддати те, що не ношу"
+
+msgid "Send a list of item ids."
+msgstr "Надішли список id речей."
+
+msgid "Send an outfit id."
+msgstr "Надішли id образу."
+
+msgid "Send the date as YYYY-MM-DD."
+msgstr "Надішли дату у форматі РРРР-ММ-ДД."
+
+msgid "Set a password"
+msgstr "Встановити пароль"
+
+msgid "Set up"
+msgstr "Налаштування"
+
+msgid "Shoes"
+msgstr "Взуття"
+
+msgid "Shop"
+msgstr "Магазин"
+
+msgid "Show me"
+msgstr "Покажи"
+
+msgid "Show password"
+msgstr "Показати пароль"
+
+#, python-format
+msgid "Showing %(shown)s of %(total)s."
+msgstr "Показано %(shown)s з %(total)s."
+
+msgid "Sign in"
+msgstr "Вхід"
+
+msgid "Sign in to"
+msgstr "Увійди у"
+
+msgid "Sign up"
+msgstr "Зареєструватися"
+
+msgid "Since some of its clothes were deleted, this outfit is incomplete:"
+msgstr "Частину речей цього образу видалено, тож він неповний:"
+
+msgid "Six things the app does for you, in the order most people use them."
+msgstr "Шість речей, які застосунок робить для тебе, у тому порядку, в якому ними користується більшість."
+
+msgid "Size"
+msgstr "Розмір"
+
+msgid "Skip"
+msgstr "Пропустити"
+
+msgid "Skip the setup"
+msgstr "Пропустити налаштування"
+
+msgid "Someday"
+msgstr "Колись"
+
+msgid "Something went wrong. Try again, or fill the form in by hand."
+msgstr "Щось пішло не так. Спробуй ще раз або заповни форму вручну."
+
+msgid "Sort by"
+msgstr "Сортувати"
+
+msgid "Stats"
+msgstr "Статистика"
+
+msgid "Stats show your colours and categories, and what you wear most and least."
+msgstr "Статистика показує твої кольори й категорії та що ти вдягаєш найчастіше і найрідше."
+
+#, python-format
+msgid "Step %(number)s of %(total)s"
+msgstr "Крок %(number)s з %(total)s"
+
+msgid "Style"
+msgstr "Стиль"
+
+msgid "Suitcase"
+msgstr "Валіза"
+
+msgid "Take a photo on a white background, and the app cuts the white away."
+msgstr "Сфотографуй річ на білому тлі, і застосунок сам прибере біле."
+
+msgid "Take out"
+msgstr "Вийняти"
+
+msgid "Take out of the suitcase"
+msgstr "Вийняти з валізи"
+
+msgid "That day hasn't happened yet. Plan it in the calendar instead."
+msgstr "Цей день ще не настав. Краще заплануй образ у календарі."
+
+msgid "That file is not a readable image."
+msgstr "Цей файл не вдається прочитати як зображення."
+
+msgid "That is not your current password."
+msgstr "Це не твій поточний пароль."
+
+msgid "That link doesn't point to a public website."
+msgstr "Це посилання не веде на публічний сайт."
+
+msgid "That look came from the planner. Untick “Worn” there instead."
+msgstr "Цей образ — із планувальника. Зніми там позначку “Вдягнуто”."
+
+msgid "That page or picture is too big."
+msgstr "Ця сторінка або зображення завеликі."
+
+msgid "That username is taken."
+msgstr "Це ім'я користувача вже зайняте."
+
+msgid "That website doesn't seem to exist."
+msgstr "Схоже, такого сайту не існує."
+
+#, python-format
+msgid "That's more than %(num)s days. Check the year?"
+msgstr "Це більше ніж %(num)s днів. Перевір рік?"
+
+msgid "The app warns you if something is missing, like a second top or no bottom."
+msgstr "Застосунок попередить, якщо щось не так, наприклад два верхи або немає низу."
+
+msgid "The clothes in it stay in your wardrobe."
+msgstr "Одяг з нього лишиться в гардеробі."
+
+msgid "The outfit and its photo are deleted."
+msgstr "Образ і його фото буде видалено."
+
+msgid "The outfits themselves stay."
+msgstr "Самі образи залишаться."
+
+msgid "The page had no details we could read. Fill the form in by hand."
+msgstr "На сторінці не знайшлося даних, які можна прочитати. Заповни форму вручну."
+
+#, python-format
+msgid "The price is in %(currency)s, which isn't in the list."
+msgstr "Ціна в %(currency)s, а цієї валюти немає у списку."
+
+msgid "The trip and its suitcase list are deleted. Your clothes stay in your wardrobe."
+msgstr "Поїздку і список речей у валізі буде видалено. Твій одяг лишиться в гардеробі."
+
+msgid "The trip can't end before it starts."
+msgstr "Поїздка не може закінчитися раніше, ніж почнеться."
+
+msgid "Theme"
+msgstr "Тема"
+
+msgid "This removes the item and its photo for good."
+msgstr "Річ і її фото буде видалено назавжди."
+
+msgid "This week"
+msgstr "Цей тиждень"
+
+msgid "Tick each piece as it goes in the bag. The trip shows on your calendar."
+msgstr "Познач кожну річ, коли кладеш її у валізу. Поїздка з'явиться в календарі."
+
+msgid "To"
+msgstr "До"
+
+msgid "Today"
+msgstr "Сьогодні"
+
+msgid "Tops"
+msgstr "Верх"
+
+msgid "Track every piece, plan outfits, and find new ideas."
+msgstr "Стеж за кожною річчю, плануй образи й знаходь нові ідеї."
+
+msgid "Track what I actually wear"
+msgstr "Бачити, що я насправді ношу"
+
+msgid "Trip"
+msgstr "Поїздка"
+
+msgid "Trip saved."
+msgstr "Поїздку збережено."
+
+#, python-format
+msgid "Trip “%(name)s” is on your calendar. Now fill the suitcase."
+msgstr "Поїздка “%(name)s” уже в календарі. Тепер збери валізу."
+
+msgid "Trips"
+msgstr "Поїздки"
+
+msgid "Tutorial"
+msgstr "Навчання"
+
+msgid "Unknown item."
+msgstr "Невідома річ."
+
+msgid "Unknown outfit."
+msgstr "Невідомий образ."
+
+msgid "Use the theme's own colour"
+msgstr "Використати колір теми"
+
+msgid "Username"
+msgstr "Ім'я користувача"
+
+msgid "Username or email"
+msgstr "Ім'я користувача або email"
+
+msgid "Wardrobe"
+msgstr "Гардероб"
+
+msgid "Wear."
+msgstr "Вдягай."
+
+msgid "Wears you already marked still count on the clothes."
+msgstr "Уже позначені вдягання й далі рахуються речам."
+
+msgid "Welcome! Your account is ready."
+msgstr "Вітаємо! Твій акаунт готовий."
+
+msgid "What did you wear?"
+msgstr "Що було на тобі?"
+
+msgid "What should we call you?"
+msgstr "Як до тебе звертатися?"
+
+msgid "Where to?"
+msgstr "Куди?"
+
+msgid "Why do you use Digital Wardrobe?"
+msgstr "Навіщо тобі Digital Wardrobe?"
+
+msgid "Why you use the app"
+msgstr "Навіщо тобі застосунок"
+
+msgid "Wishlist"
+msgstr "Бажання"
+
+msgid "Wishlist and stats"
+msgstr "Бажання і статистика"
+
+msgid "Wore something without a saved outfit? Use Log a look."
+msgstr "Вдягнуто щось без збереженого образу? Скористайся кнопкою Записати образ."
+
+msgid "Worn"
+msgstr "Вдягнуто"
+
+msgid "Would be nice"
+msgstr "Було б добре"
+
+msgid "Write the date as dd.mm.yyyy, e.g. 14.10.2026."
+msgstr "Напиши дату як дд.мм.рррр, наприклад 14.10.2026."
+
+msgid "Wrong username or password."
+msgstr "Неправильне ім'я користувача або пароль."
+
+msgid "Yes, delete it"
+msgstr "Так, видалити"
+
+msgid "You can"
+msgstr "Можеш"
+
+msgid "You can log in with this or your email."
+msgstr "Можеш входити з ним або з email."
+
+msgid "You can't have worn it yet: that day is in the future."
+msgstr "Ще рано позначати як вдягнуте: цей день ще не настав."
+
+msgid "You have been logged out."
+msgstr "Вихід виконано."
+
+msgid "You need some clothes before you can build an outfit."
+msgstr "Щоб скласти образ, спершу потрібен одяг."
+
+msgid "You signed up with Google. Set a password if you also want to log in with your username or email."
+msgstr "Твій акаунт створено через Google. Встанови пароль, якщо хочеш входити ще й з іменем користувача або email."
+
+#, python-format
+msgid "You wore %(what)s on %(when)s."
+msgstr "%(what)s — уже вдягнуто: %(when)s."
+
+msgid "Your Google account's email isn't verified, so we can't use it."
+msgstr "Пошта твого акаунта Google не підтверджена, тож ми не можемо її використати."
+
+msgid "Your avatar"
+msgstr "Твій аватар"
+
+msgid "Your new look is saved."
+msgstr "Новий вигляд збережено."
+
+msgid "Your outfits"
+msgstr "Твої образи"
+
+msgid "Your profile"
+msgstr "Твій профіль"
+
+msgid "Your profile lets you change the theme and the accent colour."
+msgstr "У профілі можна змінити тему й колір акценту."
+
+msgid "Your wardrobe"
+msgstr "Твій гардероб"
+
+msgid "Your wardrobe in numbers"
+msgstr "Твій гардероб у цифрах"
+
+msgid "Your wardrobe is empty. Start with the clothes you wear most."
+msgstr "Твій гардероб порожній. Почни з одягу, який вдягаєш найчастіше."
+
+msgid "Your wardrobe,"
+msgstr "Твій гардероб,"
+
+msgid "a lowercase letter"
+msgstr "малу літеру"
+
+msgid "a number"
+msgstr "цифру"
+
+msgid "a special character like ! ? # @ $"
+msgstr "спецсимвол, як-от ! ? # @ $"
+
+msgid "all"
+msgstr "усі сезони"
+
+msgid "an uppercase letter"
+msgstr "велику літеру"
+
+msgid "at least 8 characters"
+msgstr "щонайменше 8 символів"
+
+msgid "autumn"
+msgstr "осінь"
+
+msgid "beige"
+msgstr "бежевий"
+
+msgid "black"
+msgstr "чорний"
+
+msgid "blue"
+msgstr "синій"
+
+msgid "brown"
+msgstr "коричневий"
+
+msgid "burgundy"
+msgstr "бордовий"
+
+msgid "business"
+msgstr "діловий"
+
+msgid "casual"
+msgstr "повсякденний"
+
+msgid "classic"
+msgstr "класичний"
+
+msgid "date"
+msgstr "побачення"
+
+msgid "days dressed and logged this week"
+msgstr "днів з записаним образом цього тижня"
+
+msgid "dd.mm.yyyy"
+msgstr "дд.мм.рррр"
+
+msgid "for your wardrobe"
+msgstr "для свого гардеробу"
+
+msgid "formal"
+msgstr "офіційний"
+
+msgid "green"
+msgstr "зелений"
+
+msgid "grey"
+msgstr "сірий"
+
+msgid "home"
+msgstr "домашній"
+
+msgid "item"
+msgid_plural "items"
+msgstr[0] "річ"
+msgstr[1] "речі"
+msgstr[2] "речей"
+
+msgid "item in your wardrobe"
+msgid_plural "items in your wardrobe"
+msgstr[0] "річ у твоєму гардеробі"
+msgstr[1] "речі у твоєму гардеробі"
+msgstr[2] "речей у твоєму гардеробі"
+
+#, python-format
+msgid "last %(date)s"
+msgstr "востаннє %(date)s"
+
+msgid "light blue"
+msgstr "блакитний"
+
+msgid "log in here!"
+msgstr "увійти тут!"
+
+msgid "moves it to your wardrobe"
+msgstr "переносить її до гардероба"
+
+msgid "multicolor"
+msgstr "різнокольоровий"
+
+msgid "name"
+msgstr "назву"
+
+msgid "navy"
+msgstr "темно-синій"
+
+msgid "never worn"
+msgstr "ще не вдягалися"
+
+#, python-format
+msgid "next %(day)s %(date)s"
+msgstr "наступний: %(day)s %(date)s"
+
+msgid "olive"
+msgstr "оливковий"
+
+msgid "or continue with"
+msgstr "або продовж через"
+
+msgid "orange"
+msgstr "помаранчевий"
+
+msgid "organised."
+msgstr "організований."
+
+msgid "outfit"
+msgid_plural "outfits"
+msgstr[0] "образ"
+msgstr[1] "образи"
+msgstr[2] "образів"
+
+msgid "party"
+msgstr "вечірка"
+
+msgid "photo"
+msgstr "фото"
+
+msgid "pink"
+msgstr "рожевий"
+
+msgid "planner"
+msgstr "планувальнику"
+
+msgid "price"
+msgstr "ціну"
+
+msgid "purple"
+msgstr "фіолетовий"
+
+msgid "red"
+msgstr "червоний"
+
+msgid "register here!"
+msgstr "зареєструватися тут!"
+
+msgid "sport"
+msgstr "спорт"
+
+msgid "sporty"
+msgstr "спортивний"
+
+msgid "spring"
+msgstr "весна"
+
+msgid "streetwear"
+msgstr "вуличний"
+
+msgid "summer"
+msgstr "літо"
+
+msgid "thoughtfully"
+msgstr "продумано"
+
+msgid "travel"
+msgstr "подорож"
+
+msgid "wash it first"
+msgstr "спершу випери"
+
+msgid "wear logged"
+msgid_plural "wears logged"
+msgstr[0] "записане вдягання"
+msgstr[1] "записані вдягання"
+msgstr[2] "записаних вдягань"
+
+msgid "white"
+msgstr "білий"
+
+msgid "winter"
+msgstr "зима"
+
+msgid "work"
+msgstr "робота"
+
+msgid "worn"
+msgstr "вдягнуто"
+
+#, python-format
+msgid "worn %(count)s×"
+msgstr "вдягнуто %(count)s×"
+
+msgid "yellow"
+msgstr "жовтий"
+
+msgid "your wardrobe"
+msgstr "свій гардероб"
+
+#, python-format
+msgid "“%(name)s” is already in the wash."
+msgstr "“%(name)s” вже у пранні."
+
+#, python-format
+msgid "“%(name)s” is already planned for that day."
+msgstr "“%(name)s” уже заплановано на цей день."
+
+#, python-format
+msgid "“%(name)s” is clean again."
+msgstr "“%(name)s” знову чиста."
+
+#, python-format
+msgid "“%(name)s” is in the wash."
+msgstr "“%(name)s” у пранні."
+
+#, python-format
+msgid "“%(name)s” is in your wardrobe now. Enjoy it!"
+msgstr "“%(name)s” тепер у твоєму гардеробі. Насолоджуйся!"
+
+#, python-format
+msgid "“%(name)s” is no longer marked as worn."
+msgstr "“%(name)s” більше не позначено як вдягнутий."
+
+msgid "✓ Worn"
+msgstr "✓ Вдягнуто"
+

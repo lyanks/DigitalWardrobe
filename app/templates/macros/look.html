@@ -2,18 +2,18 @@
    setup wizard. theme_preview.js makes them preview live. #}
 {% macro look_fields(form, themes) %}
   <fieldset class="theme-picker">
-    <legend class="sr-only">Theme</legend>
+    <legend class="sr-only">{{ _("Theme") }}</legend>
     {% for choice in form.theme %}
       {% set swatches = themes[choice.data][1] %}
       <label class="theme-option">
         {{ choice() }}
         <span class="theme-swatch" style="--bg: {{ swatches[0] }}; --card: {{ swatches[1] }}; --accent: {{ swatches[2] }}"></span>
-        {{ choice.label.text }}
+        {{ choice.label.text | tr }}
       </label>
     {% endfor %}
   </fieldset>
   <div class="accent-row">
-    {{ form.accent_color(type="color", class="accent-input", **{"aria-label": "Accent colour"}) }}
+    {{ form.accent_color(type="color", class="accent-input", **{"aria-label": _("Accent colour")}) }}
     <label class="checkbox">{{ form.use_theme_accent() }} {{ form.use_theme_accent.label.text }}</label>
   </div>
   {% for error in form.accent_color.errors %}<p class="field-error">{{ error }}</p>{% endfor %}

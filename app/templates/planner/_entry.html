@@ -7,14 +7,14 @@
     {% if entry.worn or entry.date <= today %}
       <form action="{{ url_for('planner.toggle_worn', entry_id=entry.id) }}" method="post" class="inline-form">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="link-button" title="{{ 'Not worn after all' if entry.worn else 'I wore this' }}">
-          {{ "✓ Worn" if entry.worn else "Mark worn" }}
+        <button type="submit" class="link-button" title="{{ _('Not worn after all') if entry.worn else _('I wore this') }}">
+          {{ _("✓ Worn") if entry.worn else _("Mark worn") }}
         </button>
       </form>
     {% endif %}
     <form action="{{ url_for('planner.delete', entry_id=entry.id) }}" method="post" class="inline-form">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-      <button type="submit" class="link-button" title="Remove from this day" aria-label="Remove">×</button>
+      <button type="submit" class="link-button" title="{{ _('Remove from this day') }}" aria-label="{{ _('Remove') }}">×</button>
     </form>
   </div>
 </div>

@@ -1,15 +1,19 @@
 """A reusable WTForms validator for strong passwords."""
 import string
 
+from flask_babel import gettext as _
 from wtforms.validators import ValidationError
 
+from app.i18n import N_
+
 # Each rule: (what is missing, a function that checks the password).
+# N_() only marks the label for translation; it is translated when shown.
 RULES = [
-    ("at least 8 characters", lambda p: len(p) >= 8),
-    ("a lowercase letter", lambda p: any(c.islower() for c in p)),
-    ("an uppercase letter", lambda p: any(c.isupper() for c in p)),
-    ("a number", lambda p: any(c.isdigit() for c in p)),
-    ("a special character like ! ? # @ $", lambda p: any(c in string.punctuation for c in p)),
+    (N_("at least 8 characters"), lambda p: len(p) >= 8),
+    (N_("a lowercase letter"), lambda p: any(c.islower() for c in p)),
+    (N_("an uppercase letter"), lambda p: any(c.isupper() for c in p)),
+    (N_("a number"), lambda p: any(c.isdigit() for c in p)),
+    (N_("a special character like ! ? # @ $"), lambda p: any(c in string.punctuation for c in p)),
 ]
 
 
@@ -27,11 +31,11 @@ class StrongPassword:
     """
 
     def __call__(self, form, field):
-        missing = missing_rules(field.data)
+        missing = [_(label) for label in missing_rules(field.data)]
         if missing:
             # ["a", "b", "c"] -> "a, b and c"
             if len(missing) > 1:
-                text = ", ".join(missing[:-1]) + " and " + missing[-1]
+                text = _("%(first)s and %(last)s", first=", ".join(missing[:-1]), last=missing[-1])
             else:
                 text = missing[0]
-            raise ValidationError(f"Password needs {text}.")
+            raise ValidationError(_("Password needs %(rules)s.", rules=text))

@@ -4,27 +4,27 @@
 {% block title %}{{ outfit.name }} · Digital Wardrobe{% endblock %}
 
 {% block content %}
-  <p><a href="{{ url_for('outfits.index') }}">← Outfits</a></p>
+  <p><a href="{{ url_for('outfits.index') }}">← {{ _("Outfits") }}</a></p>
 
   <div class="page-head">
     <div>
       <h1>{{ outfit.name }}</h1>
-      {% if outfit.occasion %}<p class="muted">{{ outfit.occasion | capitalize }}</p>{% endif %}
+      {% if outfit.occasion %}<p class="muted">{{ outfit.occasion | tr | capitalize }}</p>{% endif %}
     </div>
     <div class="actions">
-      <a href="{{ url_for('outfits.edit', outfit_id=outfit.id) }}" class="button">Edit</a>
+      <a href="{{ url_for('outfits.edit', outfit_id=outfit.id) }}" class="button">{{ _("Edit") }}</a>
       <a href="{{ url_for('outfits.delete', outfit_id=outfit.id) }}" class="danger-link"
-         data-confirm-title="Delete “{{ outfit.name }}”?"
-         data-confirm="The clothes in it stay in your wardrobe.
-                       {%- if outfit.schedule %} It's also taken off the planner.{% endif %}">Delete</a>
+         data-confirm-title="{{ _('Delete “%(name)s”?', name=outfit.name) }}"
+         data-confirm="{{ _('The clothes in it stay in your wardrobe.') }}
+                       {%- if outfit.schedule %} {{ _("It's also taken off the planner.") }}{% endif %}">{{ _("Delete") }}</a>
     </div>
   </div>
 
   {# Shown when deleting clothes left this outfit incomplete. #}
   {% if problems %}
     <div class="flash flash-info">
-      Since some of its clothes were deleted, this outfit is incomplete: {{ problems | join(" ") }}
-      <a href="{{ url_for('outfits.edit', outfit_id=outfit.id) }}">Fix it</a>
+      {{ _("Since some of its clothes were deleted, this outfit is incomplete:") }} {{ problems | join(" ") }}
+      <a href="{{ url_for('outfits.edit', outfit_id=outfit.id) }}">{{ _("Fix it") }}</a>
     </div>
   {% endif %}
 
@@ -44,14 +44,16 @@
   {% if outfit.schedule %}
     <details class="planned">
       <summary>
-        Planned {{ outfit.schedule | length }}×{% if worn_count %}, worn {{ worn_count }}×{% endif %}{% if next_entry %} · next {{ next_entry.date.strftime("%a") }} {{ next_entry.date.strftime("%d.%m") }}{% endif %}
+        {{ _("Planned %(count)s×", count=outfit.schedule | length) }}
+        {%- if worn_count %}, {{ _("worn %(count)s×", count=worn_count) }}{% endif %}
+        {%- if next_entry %} · {{ _("next %(day)s %(date)s", day=next_entry.date | weekday_short, date=next_entry.date.strftime("%d.%m")) }}{% endif %}
       </summary>
       <ul class="date-chips">
         {% for entry in outfit.schedule %}
           <li>
             <a href="{{ url_for('planner.index', month=entry.date.strftime('%Y-%m')) }}"
                class="date-chip{{ ' worn' if entry.worn }}"
-               title="{{ entry.date | date }}{{ ' · ' ~ entry.note if entry.note }}{{ ' · worn' if entry.worn }}">
+               title="{{ entry.date | date }}{{ ' · ' ~ entry.note if entry.note }}{{ ' · ' ~ _('worn') if entry.worn }}">
               {{- entry.date.strftime("%d.%m") -}}
             </a>
           </li>
@@ -59,6 +61,6 @@
       </ul>
     </details>
   {% else %}
-    <p class="muted"><a href="{{ url_for('planner.index') }}">Plan it</a></p>
+    <p class="muted"><a href="{{ url_for('planner.index') }}">{{ _("Plan it") }}</a></p>
   {% endif %}
 {% endblock %}

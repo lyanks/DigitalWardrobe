@@ -1,3 +1,4 @@
+from flask_babel import lazy_gettext as _l
 from wtforms import SelectMultipleField, SubmitField
 from wtforms.widgets import CheckboxInput, ListWidget
 
@@ -14,7 +15,7 @@ class NameForm(ProfileForm):
     subclass removes it, so there's no avatar upload here.
     """
     avatar = None
-    submit = SubmitField("Next")
+    submit = SubmitField(_l("Next"))
 
 
 class MultiCheckboxField(SelectMultipleField):
@@ -25,14 +26,16 @@ class MultiCheckboxField(SelectMultipleField):
 
 class GoalsForm(BaseForm):
     """Step 2 (and the profile page): why you use the app. Pick any number."""
-    goals = MultiCheckboxField("Why do you use Digital Wardrobe?",
-                               choices=list(GOALS.items()))
-    submit = SubmitField("Next")
+    # The labels are fixed English texts (goals.py); _l() shows each one
+    # in the page's language when the checkboxes are drawn.
+    goals = MultiCheckboxField(_l("Why do you use Digital Wardrobe?"),
+                               choices=[(key, _l(label)) for key, label in GOALS.items()])
+    submit = SubmitField(_l("Next"))
 
 
 class WelcomeLookForm(LookForm):
     """Step 3: the theme picker from the profile page."""
-    submit = SubmitField("Finish")
+    submit = SubmitField(_l("Finish"))
 
 
 class SkipForm(BaseForm):

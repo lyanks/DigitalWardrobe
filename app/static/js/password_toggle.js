@@ -11,5 +11,5 @@ document.addEventListener("click", (event) => {
 
   // Tell screen readers (and the CSS) which state the button is in.
   button.setAttribute("aria-pressed", String(show));
-  button.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  button.setAttribute("aria-label", t(show ? "Hide password" : "Show password"));
 });

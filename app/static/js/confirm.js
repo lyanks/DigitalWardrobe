@@ -15,18 +15,19 @@ dialog.innerHTML = `
     <h2 class="confirm-title"></h2>
     <p class="confirm-text muted"></p>
     <div class="confirm-actions">
-      <button value="cancel" class="button button-outline">Cancel</button>
-      <button value="yes" class="button button-danger">Delete</button>
+      <button value="cancel" class="button button-outline"></button>
+      <button value="yes" class="button button-danger"></button>
     </div>
   </form>`;
+dialog.querySelector('[value="cancel"]').textContent = t("Cancel");
 document.body.append(dialog);
 
 let onYes = null;
 
 function ask(element, yes) {
-  dialog.querySelector(".confirm-title").textContent = element.dataset.confirmTitle || "Are you sure?";
+  dialog.querySelector(".confirm-title").textContent = element.dataset.confirmTitle || t("Are you sure?");
   dialog.querySelector(".confirm-text").textContent = element.dataset.confirm;
-  dialog.querySelector('[value="yes"]').textContent = element.dataset.confirmButton || "Delete";
+  dialog.querySelector('[value="yes"]').textContent = element.dataset.confirmButton || t("Delete");
   onYes = yes;
   dialog.showModal();  // centred, page behind it dimmed, Esc closes it
   dialog.querySelector('[value="cancel"]').focus();  // the safe choice first

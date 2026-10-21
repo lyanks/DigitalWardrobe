@@ -5,13 +5,13 @@
 
 {% block content %}
   <div class="page-head">
-    <h1>Trips</h1>
-    <a href="{{ url_for('planner.index') }}">Back to the planner</a>
+    <h1>{{ _("Trips") }}</h1>
+    <a href="{{ url_for('planner.index') }}">{{ _("Back to the planner") }}</a>
   </div>
 
   <div class="trips-layout">
     <section class="card">
-      <h2>Pack a suitcase</h2>
+      <h2>{{ _("Pack a suitcase") }}</h2>
       <form method="post" novalidate>
         {{ form.hidden_tag() }}
         {{ render_field(form.name) }}
@@ -25,14 +25,14 @@
 
     <section>
       {% for trip in upcoming %}
-        {% if loop.first %}<h2>Coming up</h2>{% endif %}
+        {% if loop.first %}<h2>{{ _("Coming up") }}</h2>{% endif %}
         {% include "trips/_trip_row.html" %}
       {% else %}
-        <p class="muted">No trips planned yet.</p>
+        <p class="muted">{{ _("No trips planned yet.") }}</p>
       {% endfor %}
 
       {% for trip in past %}
-        {% if loop.first %}<h2>Past trips</h2>{% endif %}
+        {% if loop.first %}<h2>{{ _("Past trips") }}</h2>{% endif %}
         {% include "trips/_trip_row.html" %}
       {% endfor %}
     </section>

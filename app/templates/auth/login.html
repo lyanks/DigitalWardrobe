@@ -9,17 +9,17 @@
      On a phone they stack (see .auth-split in main.css). #}
   <div class="auth-split">
     <div class="auth-greeting">
-      <h1>Sign in to</h1>
-      <p class="auth-sub">your wardrobe</p>
-      <p class="auth-switch">Don't have an account yet?<br>You can <a href="{{ url_for('auth.register') }}">register here!</a></p>
+      <h1>{{ _("Sign in to") }}</h1>
+      <p class="auth-sub">{{ _("your wardrobe") }}</p>
+      <p class="auth-switch">{{ _("Don't have an account yet?") }}<br>{{ _("You can") }} <a href="{{ url_for('auth.register') }}">{{ _("register here!") }}</a></p>
     </div>
     <div class="auth-form">
-      <h2>Sign in</h2>
+      <h2>{{ _("Sign in") }}</h2>
       {# novalidate: let the server do the checking, so you see Flask-WTF's errors. #}
       <form method="post" novalidate>
         {{ form.hidden_tag() }}  {# hidden CSRF token #}
-        {{ render_field(form.login, autocomplete="username", placeholder="Email or username") }}
-        {{ password_field(form.password, autocomplete="current-password", placeholder="Password") }}
+        {{ render_field(form.login, autocomplete="username", placeholder=_("Email or username")) }}
+        {{ password_field(form.password, autocomplete="current-password", placeholder=_("Password")) }}
         {{ form.submit(class="button button-glow") }}
       </form>
       {% include "auth/_google_button.html" %}

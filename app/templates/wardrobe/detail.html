@@ -4,9 +4,9 @@
 
 {% block content %}
   {% if item.is_wish %}
-    <p><a href="{{ url_for('wardrobe.wishlist') }}">← Wishlist</a></p>
+    <p><a href="{{ url_for('wardrobe.wishlist') }}">← {{ _("Wishlist") }}</a></p>
   {% else %}
-    <p><a href="{{ url_for('wardrobe.index') }}">← Wardrobe</a></p>
+    <p><a href="{{ url_for('wardrobe.index') }}">← {{ _("Wardrobe") }}</a></p>
   {% endif %}
 
   <div class="item-detail">
@@ -14,42 +14,42 @@
       <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
            alt="{{ item.name }}" class="item-detail-photo">
     {% else %}
-      <div class="item-detail-photo item-photo-empty">No photo</div>
+      <div class="item-detail-photo item-photo-empty">{{ _("No photo") }}</div>
     {% endif %}
 
     <div>
       <h1>{{ item.name }}</h1>
       {# A definition list: label/value pairs, made for exactly this. #}
       <dl class="facts">
-        <dt>Category</dt><dd>{{ item.category.name }}</dd>
-        <dt>Color</dt>
+        <dt>{{ _("Category") }}</dt><dd>{{ item.category.name | tr }}</dd>
+        <dt>{{ _("Color") }}</dt>
         <dd>
           {# The hex lives in a CSS variable on this element only, so the
              stylesheet still never contains a raw color for it. #}
           <span class="swatch" style="--swatch: {{ colors[item.color] }}"></span>
-          {{ item.color | capitalize }}
+          {{ item.color | tr | capitalize }}
         </dd>
-        <dt>Season</dt><dd>{{ item.season | capitalize }}</dd>
-        {% if item.style %}<dt>Style</dt><dd>{{ item.style | capitalize }}</dd>{% endif %}
-        {% if item.brand %}<dt>Brand</dt><dd>{{ item.brand }}</dd>{% endif %}
-        {% if item.size %}<dt>Size</dt><dd>{{ item.size }}</dd>{% endif %}
+        <dt>{{ _("Season") }}</dt><dd>{{ item.season | tr | capitalize }}</dd>
+        {% if item.style %}<dt>{{ _("Style") }}</dt><dd>{{ item.style | tr | capitalize }}</dd>{% endif %}
+        {% if item.brand %}<dt>{{ _("Brand") }}</dt><dd>{{ item.brand }}</dd>{% endif %}
+        {% if item.size %}<dt>{{ _("Size") }}</dt><dd>{{ item.size }}</dd>{% endif %}
         {% if item.price is not none %}
-          <dt>Price</dt><dd>{{ item.price | price(item.currency) }}</dd>
+          <dt>{{ _("Price") }}</dt><dd>{{ item.price | price(item.currency) }}</dd>
         {% endif %}
         {% if item.shop_url %}
           {# rel="noopener": the shop's page can't reach back into this tab. #}
-          <dt>Shop</dt><dd><a href="{{ item.shop_url }}" target="_blank" rel="noopener">{{ item.shop_url | shop_name }} ↗</a></dd>
+          <dt>{{ _("Shop") }}</dt><dd><a href="{{ item.shop_url }}" target="_blank" rel="noopener">{{ item.shop_url | shop_name }} ↗</a></dd>
         {% endif %}
         {% if item.is_wish %}
-          {% if item.priority %}<dt>Priority</dt><dd>{{ priorities[item.priority] }}</dd>{% endif %}
+          {% if item.priority %}<dt>{{ _("Priority") }}</dt><dd>{{ priorities[item.priority] | tr }}</dd>{% endif %}
         {% else %}
           {% if item.purchase_date %}
-            <dt>Bought</dt><dd>{{ item.purchase_date | date }}</dd>
+            <dt>{{ _("Bought") }}</dt><dd>{{ item.purchase_date | date }}</dd>
           {% endif %}
-          <dt>Worn</dt>
+          <dt>{{ _("Worn") }}</dt>
           <dd>
-            {{ item.times_worn }} time{{ "s" if item.times_worn != 1 }}
-            {% if last_worn %}<span class="muted">· last {{ last_worn | date }}</span>{% endif %}
+            {{ ngettext("%(num)d time", "%(num)d times", item.times_worn) }}
+            {% if last_worn %}<span class="muted">· {{ _("last %(date)s", date=last_worn | date) }}</span>{% endif %}
           </dd>
         {% endif %}
       </dl>
@@ -60,7 +60,7 @@
         <form method="post" action="{{ url_for('wardrobe.bought', item_id=item.id) }}" class="bought-form">
           {{ bought_form.hidden_tag() }}
           {{ bought_form.submit(class="button") }}
-          <span class="muted">moves it to your wardrobe</span>
+          <span class="muted">{{ _("moves it to your wardrobe") }}</span>
         </form>
       {% endif %}
 
@@ -69,10 +69,10 @@
         <form method="post" action="{{ url_for('wardrobe.laundry', item_id=item.id) }}" class="laundry-form">
           <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
           {% if item.in_wash %}
-            <span class="wash-badge">In the wash since {{ item.washing_since.strftime("%a") }} {{ item.washing_since | date }}</span>
-            <button type="submit" class="button button-small">It's clean</button>
+            <span class="wash-badge">{{ _("In the wash since %(day)s %(date)s", day=item.washing_since | weekday_short, date=item.washing_since | date) }}</span>
+            <button type="submit" class="button button-small">{{ _("It's clean") }}</button>
           {% else %}
-            <button type="submit" class="button button-small button-outline">Put in the wash</button>
+            <button type="submit" class="button button-small button-outline">{{ _("Put in the wash") }}</button>
           {% endif %}
         </form>
       {% endif %}
@@ -81,7 +81,7 @@
       {% set outfits = item.outfits %}
       {% if not item.is_wish %}
       <p class="muted">
-        Appears in {{ outfits | length }} outfit{{ "s" if outfits | length != 1 }}{{ ":" if outfits }}
+        {{ ngettext("Appears in %(num)d outfit", "Appears in %(num)d outfits", outfits | length) }}{{ ":" if outfits }}
         {% for outfit in outfits %}
           <a href="{{ url_for('outfits.detail', outfit_id=outfit.id) }}">{{ outfit.name }}</a>{{ ", " if not loop.last }}
         {% endfor %}
@@ -89,13 +89,13 @@
       {% endif %}
 
       <div class="actions">
-        <a href="{{ url_for('wardrobe.edit', item_id=item.id) }}" class="{{ 'button button-outline' if item.is_wish else 'button' }}">Edit</a>
+        <a href="{{ url_for('wardrobe.edit', item_id=item.id) }}" class="{{ 'button button-outline' if item.is_wish else 'button' }}">{{ _("Edit") }}</a>
         {# confirm.js asks in a box on this page. Without JavaScript the link
            opens the "Are you sure?" page instead. #}
         <a href="{{ url_for('wardrobe.delete', item_id=item.id) }}" class="danger-link"
-           data-confirm-title="Delete “{{ item.name }}”?"
-           data-confirm="This removes the item and its photo for good.
-                         {%- if item.outfit_links %} It will also be taken out of {{ item.outfit_links | length }} outfit{{ 's' if item.outfit_links | length != 1 }}.{% endif %}">Delete</a>
+           data-confirm-title="{{ _('Delete “%(name)s”?', name=item.name) }}"
+           data-confirm="{{ _('This removes the item and its photo for good.') }}
+                         {%- if item.outfit_links %} {{ ngettext('It will also be taken out of %(num)d outfit.', 'It will also be taken out of %(num)d outfits.', item.outfit_links | length) }}{% endif %}">{{ _("Delete") }}</a>
       </div>
     </div>
   </div>

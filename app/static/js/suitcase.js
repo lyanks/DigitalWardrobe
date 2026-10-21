@@ -29,7 +29,8 @@ if (suitcase) {
 
   // After any change: "3 of 7 packed", the progress bar, the empty hint.
   function showCounts({ count, packed }) {
-    suitcase.querySelector("[data-count]").textContent = count ? `${packed} of ${count} packed` : "Empty";
+    suitcase.querySelector("[data-count]").textContent = count
+      ? t("%(packed)s of %(count)s packed", { packed, count }) : t("Empty");
     suitcase.querySelector("[data-bar]").style.setProperty("--width", `${count ? (packed / count) * 100 : 0}%`);
     suitcase.querySelector(".suitcase-empty").hidden = count > 0;
   }
@@ -38,7 +39,7 @@ if (suitcase) {
     list.insertAdjacentHTML("beforeend", data.html);
     data.added.forEach((id) => cardFor(id)?.classList.add("in-suitcase"));
     showCounts(data);
-    status.textContent = data.added.length ? "" : "Already in the suitcase.";
+    status.textContent = data.added.length ? "" : t("Already in the suitcase.");
   }
 
   function removed(data) {
@@ -64,7 +65,7 @@ if (suitcase) {
     event.preventDefault();
     send(form.action, new FormData(form))
       .then(handlers[action])
-      .catch(() => (status.textContent = "Couldn't save that. Try again."));
+      .catch(() => (status.textContent = t("Couldn't save that. Try again.")));
   });
 
   // 2. Dragging. What is being dragged goes into dataTransfer as text:
@@ -101,7 +102,7 @@ if (suitcase) {
     const [kind, id] = event.dataTransfer.getData("text/plain").split(":");
     const url = kind === "item" ? urlFor(suitcase.dataset.addUrl, id)
       : kind === "outfit" ? urlFor(suitcase.dataset.outfitUrl, id) : null;
-    if (url) send(url).then(added).catch(() => (status.textContent = "Couldn't save that. Try again."));
+    if (url) send(url).then(added).catch(() => (status.textContent = t("Couldn't save that. Try again.")));
   });
 
   // ...and the wardrobe side takes things back out of the suitcase.

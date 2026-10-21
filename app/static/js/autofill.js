@@ -26,12 +26,12 @@ if (box) {
   button.addEventListener("click", async () => {
     const url = form.elements.shop_url.value.trim();
     if (!url) {
-      status.textContent = "Paste a link first.";
+      status.textContent = t("Paste a link first.");
       return;
     }
 
     button.disabled = true;
-    status.textContent = "Looking at the page…";
+    status.textContent = t("Looking at the page…");
     try {
       const response = await fetch(box.dataset.fetchUrl, {
         method: "POST",
@@ -53,7 +53,7 @@ if (box) {
       }
       if (setField("price", data.price)) filled.push("price");
       if (data.currency && !setField("currency", data.currency)) {
-        note = ` The price is in ${data.currency}, which isn't in the list.`;
+        note = " " + t("The price is in %(currency)s, which isn't in the list.", { currency: data.currency });
       }
       if (data.image_url) {
         setField("image_url", data.image_url);  // the server downloads it on Save
@@ -63,10 +63,11 @@ if (box) {
       }
 
       status.textContent = filled.length
-        ? `Filled in: ${filled.join(", ")}. Check it, then pick a category and colour.` + note
-        : "The page had no details we could read. Fill the form in by hand.";
+        ? t("Filled in: %(fields)s. Check it, then pick a category and colour.",
+            { fields: filled.map((field) => t(field)).join(", ") }) + note
+        : t("The page had no details we could read. Fill the form in by hand.");
     } catch {
-      status.textContent = "Something went wrong. Try again, or fill the form in by hand.";
+      status.textContent = t("Something went wrong. Try again, or fill the form in by hand.");
     } finally {
       button.disabled = false;
     }

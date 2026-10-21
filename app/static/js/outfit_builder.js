@@ -48,7 +48,7 @@ if (picker) {
     if (requestNumber !== latestRequest || !response.ok) return;
     const data = await response.json();
     const problems = data.problems;
-    verdict.textContent = problems.length ? problems.join(" ") : "Looks like a complete outfit ✓";
+    verdict.textContent = problems.length ? problems.join(" ") : t("Looks like a complete outfit ✓");
     verdict.classList.toggle("ok", problems.length === 0);
     combo.textContent = data.combo || "";
     combo.hidden = !data.combo;

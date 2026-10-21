@@ -12,8 +12,13 @@ database:
 """
 from datetime import timedelta
 
+from babel.dates import format_date as babel_format_date
+from flask import has_app_context
+from flask_babel import gettext as _
+
 from app.dates import format_date
 from app.extensions import db
+from app.i18n import weekday
 from app.models import WearLog, WearLogItem
 
 # How far back to look.
@@ -75,6 +80,15 @@ def recent_combo_days(user_id, items, day, days=WINDOW_DAYS):
     return matching_days(combo, worn)
 
 
+def _day_name(day):
+    """"Wednesday" in the page's language.
+
+    app.i18n.weekday needs the running app to know the language; the tests
+    call combo_notice without one, so then it's English.
+    """
+    return weekday(day) if has_app_context() else babel_format_date(day, "EEEE", locale="en")
+
+
 def combo_notice(items, dates):
     """The sentence for the page, e.g.
     "You wore Blue shirt with Jeans on Wednesday 07.10.2026."
@@ -84,9 +98,13 @@ def combo_notice(items, dates):
         return None
     combo = combo_ids(items)
     names = [item.name for item in items if item.id in combo]
-    what = names[0] if len(names) == 1 else ", ".join(names[:-1]) + " with " + names[-1]
-    when = " and ".join(f"{d.strftime('%A')} {format_date(d)}" for d in dates[-2:])
-    return f"You wore {what} on {when}."
+    if len(names) == 1:
+        what = names[0]
+    else:
+        what = _("%(items)s with %(last)s", items=", ".join(names[:-1]), last=names[-1])
+    days = [f"{_day_name(d)} {format_date(d)}" for d in dates[-2:]]
+    when = days[0] if len(days) == 1 else _("%(first)s and %(second)s", first=days[0], second=days[1])
+    return _("You wore %(what)s on %(when)s.", what=what, when=when)
 
 
 def check_combo(user_id, items, day, days=WINDOW_DAYS):

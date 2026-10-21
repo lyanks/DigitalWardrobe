@@ -6,6 +6,7 @@ so the banner never comes back. The page itself stays open to everyone,
 visitors included (the landing page links to it).
 """
 from flask import Blueprint, redirect, render_template, url_for
+from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
 from app.extensions import db
@@ -23,7 +24,7 @@ def mark_seen():
 @bp.route("")
 def index():
     mark_seen()
-    return render_template("tutorial/index.html", title="How it works")
+    return render_template("tutorial/index.html", title=_("How it works"))
 
 
 @bp.route("/hide", methods=["POST"])

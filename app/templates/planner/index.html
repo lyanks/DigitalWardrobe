@@ -5,17 +5,17 @@
 
 {% block content %}
   <div class="page-head">
-    <h1>{{ first_day.strftime("%B %Y") }}</h1>
+    <h1>{{ first_day | month_year }}</h1>
     {# Plain links: changing month is a normal page load. #}
     <nav class="month-nav">
-      <a href="{{ url_for('planner.index', month=prev_month.strftime('%Y-%m')) }}">← {{ prev_month.strftime("%B") }}</a>
-      <a href="{{ url_for('planner.index') }}">Today</a>
-      <a href="{{ url_for('planner.index', month=next_month.strftime('%Y-%m')) }}">{{ next_month.strftime("%B") }} →</a>
+      <a href="{{ url_for('planner.index', month=prev_month.strftime('%Y-%m')) }}">← {{ prev_month | month_name }}</a>
+      <a href="{{ url_for('planner.index') }}">{{ _("Today") }}</a>
+      <a href="{{ url_for('planner.index', month=next_month.strftime('%Y-%m')) }}">{{ next_month | month_name }} →</a>
     </nav>
     {# Idea #1: what you wore without a saved outfit. #}
     <div class="actions">
-      <a href="{{ url_for('trips.index') }}" class="button button-outline">Pack a suitcase</a>
-      <a href="{{ url_for('planner.log_look') }}" class="button button-outline">Log a look</a>
+      <a href="{{ url_for('trips.index') }}" class="button button-outline">{{ _("Pack a suitcase") }}</a>
+      <a href="{{ url_for('planner.log_look') }}" class="button button-outline">{{ _("Log a look") }}</a>
     </div>
   </div>
 
@@ -32,7 +32,7 @@
                       {{- ' today' if day == today }}
                       {{- ' past' if day < today }}"
                data-date="{{ day.isoformat() }}">
-            <span class="day-number"><span class="day-weekday">{{ day.strftime("%a") }} </span>{{ day.day }}</span>
+            <span class="day-number"><span class="day-weekday">{{ day | weekday_short }} </span>{{ day.day }}</span>
             {# A trip is a bar across its days. The name is written on its first
                day and again on each Monday, where a new row of the grid starts. #}
             {% set trip = trips.get(day) %}
@@ -41,7 +41,7 @@
                  class="trip-bar
                         {{- ' trip-start' if day == trip.start_date }}
                         {{- ' trip-end' if day == trip.end_date }}"
-                 title="{{ trip.name }}: pack the suitcase">
+                 title="{{ _('%(name)s: pack the suitcase', name=trip.name) }}">
                 {%- if day == trip.start_date or day.weekday() == 0 %}{{ trip.name }}{% else %}&nbsp;{% endif -%}
               </a>
             {% endif %}
@@ -58,8 +58,8 @@
     <aside class="planner-side">
       {% if outfits %}
         <div class="card">
-          <h2>Your outfits</h2>
-          <p class="field-hint">Drag one onto a day.</p>
+          <h2>{{ _("Your outfits") }}</h2>
+          <p class="field-hint">{{ _("Drag one onto a day.") }}</p>
           <ul class="outfit-chips">
             {% for outfit in outfits %}
               <li class="outfit-chip" draggable="true" data-outfit-id="{{ outfit.id }}">{{ outfit.name }}</li>
@@ -70,19 +70,19 @@
 
         {# The same thing without dragging: works on phones and without JS. #}
         <div class="card">
-          <h2>Or pick a day</h2>
+          <h2>{{ _("Or pick a day") }}</h2>
           <form action="{{ url_for('planner.schedule') }}" method="post" novalidate>
             {{ form.hidden_tag() }}
             {{ render_field(form.outfit_id) }}
             {{ render_field(form.date) }}
-            {{ render_field(form.note, placeholder="Job interview") }}
+            {{ render_field(form.note, placeholder=_("Job interview")) }}
             {{ form.submit(class="button") }}
           </form>
         </div>
       {% else %}
         <div class="card">
-          <p>Make an outfit first, then plan it here.</p>
-          <a href="{{ url_for('outfits.create') }}" class="button">New outfit</a>
+          <p>{{ _("Make an outfit first, then plan it here.") }}</p>
+          <a href="{{ url_for('outfits.create') }}" class="button">{{ _("New outfit") }}</a>
         </div>
       {% endif %}
     </aside>

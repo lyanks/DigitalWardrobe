@@ -10,13 +10,13 @@
       {# No photo: a dot in the item's colour on a dark tile. #}
       <div class="item-photo item-photo-empty">
         <span class="item-dot" style="--swatch: {{ item.color | swatch }}"></span>
-        {{ item.category.name }}
+        {{ item.category.name | tr }}
       </div>
     {% endif %}
-    {% if item.in_wash %}<span class="wash-badge wash-badge-corner">In the wash</span>{% endif %}
+    {% if item.in_wash %}<span class="wash-badge wash-badge-corner">{{ _("In the wash") }}</span>{% endif %}
     <div class="item-card-body">
       <span class="item-name">{{ item.name }}</span>
-      <span class="muted item-meta">{{ item.category.name }} · {{ item.color }}</span>
+      <span class="muted item-meta">{{ item.category.name | tr }} · {{ item.color | tr }}</span>
       {% if item.is_wish and item.price is not none %}
         <span class="item-price">{{ item.price | price(item.currency) }}</span>
       {% endif %}

@@ -5,17 +5,17 @@
 {% block content %}
   <div class="page-head">
     <div>
-      <p class="eyebrow">Trip</p>
+      <p class="eyebrow">{{ _("Trip") }}</p>
       <h1>{{ trip.name }}</h1>
       <p class="muted">{{ trip | trip_dates }}</p>
     </div>
     <div class="actions">
-      <a href="{{ url_for('trips.edit', trip_id=trip.id) }}" class="button button-outline button-small">Edit</a>
+      <a href="{{ url_for('trips.edit', trip_id=trip.id) }}" class="button button-outline button-small">{{ _("Edit") }}</a>
       <form method="post" action="{{ url_for('trips.delete', trip_id=trip.id) }}" class="inline-form"
-            data-confirm-title="Delete “{{ trip.name }}”?"
-            data-confirm="The trip and its suitcase list are deleted. Your clothes stay in your wardrobe.">
+            data-confirm-title="{{ _('Delete “%(name)s”?', name=trip.name) }}"
+            data-confirm="{{ _('The trip and its suitcase list are deleted. Your clothes stay in your wardrobe.') }}">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <button type="submit" class="link-button danger-link">Delete</button>
+        <button type="submit" class="link-button danger-link">{{ _("Delete") }}</button>
       </form>
     </div>
   </div>
@@ -28,9 +28,9 @@
              data-add-url="{{ url_for('trips.add_item', trip_id=trip.id, item_id=0) }}"
              data-outfit-url="{{ url_for('trips.add_outfit', trip_id=trip.id, outfit_id=0) }}">
       <div class="suitcase-head">
-        <h2>Suitcase</h2>
+        <h2>{{ _("Suitcase") }}</h2>
         <span class="suitcase-count" data-count>
-          {% if total %}{{ trip.packed_count }} of {{ total }} packed{% else %}Empty{% endif %}
+          {% if total %}{{ _("%(packed)s of %(count)s packed", packed=trip.packed_count, count=total) }}{% else %}{{ _("Empty") }}{% endif %}
         </span>
       </div>
       <div class="suitcase-bar"><span data-bar style="--width: {{ (trip.packed_count / total * 100) | round if total else 0 }}%"></span></div>
@@ -38,14 +38,14 @@
         {% for link in trip.item_links %}{% include "trips/_suitcase_item.html" %}{% endfor %}
       </ul>
       <p class="suitcase-empty muted"{% if total %} hidden{% endif %}>
-        Drag clothes or a whole outfit here.
+        {{ _("Drag clothes or a whole outfit here.") }}
       </p>
       <p class="suitcase-status muted" role="status" aria-live="polite"></p>
     </section>
 
     <section class="pack-wardrobe">
       {% if outfits %}
-        <h2>Outfits</h2>
+        <h2>{{ _("Outfits") }}</h2>
         <ul class="outfit-chips">
           {% for outfit in outfits %}
             <li>
@@ -53,16 +53,16 @@
                     class="inline-form" data-suitcase-action="add">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                 <button type="submit" class="outfit-chip" draggable="true" data-outfit-id="{{ outfit.id }}"
-                        title="Add every item of this outfit">+ {{ outfit.name }}</button>
+                        title="{{ _('Add every item of this outfit') }}">+ {{ outfit.name }}</button>
               </form>
             </li>
           {% endfor %}
         </ul>
       {% endif %}
 
-      <h2>Your wardrobe</h2>
+      <h2>{{ _("Your wardrobe") }}</h2>
       {% for category, items in groups %}
-        <h3 class="picker-heading">{{ category.name }}</h3>
+        <h3 class="picker-heading">{{ category.name | tr }}</h3>
         <div class="pack-grid">
           {% for item in items %}
             <div class="pack-card{{ ' in-suitcase' if item.id in in_suitcase }}{{ ' washing' if item.in_wash }}"
@@ -75,19 +75,19 @@
                   <span class="item-dot" style="--swatch: {{ item.color | swatch }}"></span>
                 </div>
               {% endif %}
-              {% if item.in_wash %}<span class="wash-badge wash-badge-corner">In the wash</span>{% endif %}
+              {% if item.in_wash %}<span class="wash-badge wash-badge-corner">{{ _("In the wash") }}</span>{% endif %}
               <span class="pick-name">{{ item.name }}</span>
               <form method="post" action="{{ url_for('trips.add_item', trip_id=trip.id, item_id=item.id) }}"
                     class="inline-form" data-suitcase-action="add">
                 <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-                <button type="submit" class="pack-add" aria-label="Put {{ item.name }} in the suitcase">+</button>
+                <button type="submit" class="pack-add" aria-label="{{ _('Put %(name)s in the suitcase', name=item.name) }}">+</button>
               </form>
-              <span class="pack-in" aria-hidden="true">In the suitcase</span>
+              <span class="pack-in" aria-hidden="true">{{ _("In the suitcase") }}</span>
             </div>
           {% endfor %}
         </div>
       {% else %}
-        <p>Add some clothes first. <a href="{{ url_for('wardrobe.create') }}">Add an item</a></p>
+        <p>{{ _("Add some clothes first.") }} <a href="{{ url_for('wardrobe.create') }}">{{ _("Add an item") }}</a></p>
       {% endfor %}
     </section>
   </div>

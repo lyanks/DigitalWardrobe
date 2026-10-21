@@ -1,3 +1,5 @@
+from flask_babel import gettext as _
+from flask_babel import lazy_gettext as _l
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length, ValidationError
 
@@ -9,11 +11,11 @@ MAX_TRIP_DAYS = 60
 
 
 class TripForm(BaseForm):
-    name = StringField("Where to?", validators=[DataRequired(), Length(max=80)],
-                       render_kw={"placeholder": "Lviv weekend"})
-    start_date = DayMonthYearField("From", validators=[DataRequired()])
-    end_date = DayMonthYearField("To", validators=[DataRequired()])
-    submit = SubmitField("Pack a suitcase")
+    name = StringField(_l("Where to?"), validators=[DataRequired(), Length(max=80)],
+                       render_kw={"placeholder": _l("Lviv weekend")})
+    start_date = DayMonthYearField(_l("From"), validators=[DataRequired()])
+    end_date = DayMonthYearField(_l("To"), validators=[DataRequired()])
+    submit = SubmitField(_l("Pack a suitcase"))
 
     # WTForms calls validate_<field name> by itself, after the field's own
     # validators. It's the place for rules that need two fields at once.
@@ -21,6 +23,6 @@ class TripForm(BaseForm):
         start = self.start_date.data
         if start and field.data:
             if field.data < start:
-                raise ValidationError("The trip can't end before it starts.")
+                raise ValidationError(_("The trip can't end before it starts."))
             if (field.data - start).days + 1 > MAX_TRIP_DAYS:
-                raise ValidationError(f"That's more than {MAX_TRIP_DAYS} days. Check the year?")
+                raise ValidationError(_("That's more than %(num)s days. Check the year?", num=MAX_TRIP_DAYS))

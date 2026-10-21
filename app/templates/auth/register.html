@@ -9,19 +9,19 @@
      On a phone they stack (see .auth-split in main.css). #}
   <div class="auth-split">
     <div class="auth-greeting">
-      <h1>Make an account</h1>
-      <p class="auth-sub">for your wardrobe</p>
-      <p class="auth-switch">Already have one?<br>You can <a href="{{ url_for('auth.login') }}">log in here!</a></p>
+      <h1>{{ _("Make an account") }}</h1>
+      <p class="auth-sub">{{ _("for your wardrobe") }}</p>
+      <p class="auth-switch">{{ _("Already have one?") }}<br>{{ _("You can") }} <a href="{{ url_for('auth.login') }}">{{ _("log in here!") }}</a></p>
     </div>
     <div class="auth-form">
-      <h2>Sign up</h2>
+      <h2>{{ _("Sign up") }}</h2>
       {# novalidate: let the server do the checking, so you see Flask-WTF's errors. #}
       <form method="post" novalidate>
         {{ form.hidden_tag() }}  {# hidden CSRF token #}
-        {{ render_field(form.username, autocomplete="username", placeholder="Username") }}
-        {{ render_field(form.email, type="email", autocomplete="email", placeholder="Email") }}
-        {{ password_field(form.password, autocomplete="new-password", placeholder="Password") }}
-        {{ password_field(form.confirm, autocomplete="new-password", placeholder="Repeat password") }}
+        {{ render_field(form.username, autocomplete="username", placeholder=_("Username")) }}
+        {{ render_field(form.email, type="email", autocomplete="email", placeholder=_("Email")) }}
+        {{ password_field(form.password, autocomplete="new-password", placeholder=_("Password")) }}
+        {{ password_field(form.confirm, autocomplete="new-password", placeholder=_("Repeat password")) }}
         {{ form.submit(class="button button-glow") }}
       </form>
       {% include "auth/_google_button.html" %}

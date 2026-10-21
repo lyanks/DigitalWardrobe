@@ -7,6 +7,7 @@ import os
 import uuid
 
 from flask import current_app
+from flask_babel import gettext as _
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps, UnidentifiedImageError
 
 # How close to pure white (255) a pixel must be to count as background.
@@ -75,7 +76,7 @@ def save_image(file_storage, subfolder, max_size=1200, remove_white=False):
         image = Image.open(file_storage.stream)
         image = ImageOps.exif_transpose(image)
     except (UnidentifiedImageError, OSError) as error:
-        raise InvalidImageError("That file is not a readable image.") from error
+        raise InvalidImageError(_("That file is not a readable image.")) from error
 
     image.thumbnail((max_size, max_size))  # keeps proportions, never enlarges
     if _has_see_through_parts(image):

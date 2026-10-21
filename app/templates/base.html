@@ -7,12 +7,24 @@
 {# The user's theme and accent colour (idea #5). Visitors get Midnight.
    Every colour in main.css is a variable; [data-theme] swaps a whole set,
    and the inline style overrides just the accent. #}
+{# EN | UA in the header. Each button posts to /language/<code>, and the
+   hidden "next" brings you back to the same page. #}
+{% macro language_switch() %}
+  <form method="post" class="lang-switch" aria-label="{{ _('Language') }}">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ request.full_path if request.query_string else request.path }}">
+    {% for code, label in LANGUAGES.items() %}
+      <button type="submit" formaction="{{ url_for('main.set_language', code=code) }}"
+              {% if code == current_language() %}aria-current="true"{% endif %}>{{ label }}</button>
+    {% endfor %}
+  </form>
+{% endmacro %}
 {% if current_user.is_authenticated %}
   {% set accent = current_user.accent_color %}
-  <html lang="en" data-theme="{{ current_user.theme }}"
+  <html lang="{{ current_language() }}" data-theme="{{ current_user.theme }}"
         {% if accent %}style="--color-primary: {{ accent }}; --color-on-primary: {{ accent | text_on }}"{% endif %}>
 {% else %}
-  <html lang="en" data-theme="midnight">
+  <html lang="{{ current_language() }}" data-theme="midnight">
 {% endif %}
 <head>
   <meta charset="utf-8">
@@ -24,6 +36,15 @@
   <link rel="preload" href="{{ url_for('static', filename='fonts/manrope-latin.woff2') }}"
         as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {# Texts for the JavaScript files in this page's language. Scripts call
+     t("Saving…") and get "Зберігаю…" back in Ukrainian (see app/i18n.py). #}
+  <script id="js-texts" type="application/json">{{ js_texts() | tojson }}</script>
+  <script>
+    const JS_TEXTS = JSON.parse(document.getElementById("js-texts").textContent);
+    // t("%(packed)s of %(count)s packed", {packed: 2, count: 5}) -> "2 of 5 packed"
+    window.t = (text, values = {}) =>
+      (JS_TEXTS[text] || text).replace(/%\((\w+)\)s/g, (match, name) => values[name]);
+  </script>
   {% block head %}{% endblock %}
 </head>
 {# Pages can set a body class. "public" switches to the dark look used on the
@@ -35,7 +56,7 @@
     {# Phones only: opens and closes the menu (static/js/nav.js). #}
     {% if current_user.is_authenticated %}
     <button type="button" class="nav-toggle" aria-expanded="false" aria-controls="site-nav"
-            aria-label="Menu">
+            aria-label="{{ _('Menu') }}">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
     </button>
     {% endif %}
@@ -46,14 +67,15 @@
         {% set endpoint = request.endpoint or "" %}
         {% set on_wishlist = endpoint in ("wardrobe.wishlist", "wardrobe.create_wish") %}
         <div class="nav-links">
-          {{ nav_link("main.index", "Home", endpoint == "main.index") }}
-          {{ nav_link("wardrobe.index", "Wardrobe", request.blueprint == "wardrobe" and not on_wishlist) }}
-          {{ nav_link("wardrobe.wishlist", "Wishlist", on_wishlist) }}
-          {{ nav_link("outfits.index", "Outfits", request.blueprint == "outfits") }}
-          {{ nav_link("planner.index", "Planner", request.blueprint in ("planner", "trips")) }}
-          {{ nav_link("main.stats", "Stats", endpoint == "main.stats") }}
+          {{ nav_link("main.index", _("Home"), endpoint == "main.index") }}
+          {{ nav_link("wardrobe.index", _("Wardrobe"), request.blueprint == "wardrobe" and not on_wishlist) }}
+          {{ nav_link("wardrobe.wishlist", _("Wishlist"), on_wishlist) }}
+          {{ nav_link("outfits.index", _("Outfits"), request.blueprint == "outfits") }}
+          {{ nav_link("planner.index", _("Planner"), request.blueprint in ("planner", "trips")) }}
+          {{ nav_link("main.stats", _("Stats"), endpoint == "main.stats") }}
         </div>
         <div class="nav-account">
+          {{ language_switch() }}
           <a href="{{ url_for('auth.profile') }}" class="nav-user">
             {% if current_user.avatar_path %}
               <img src="{{ url_for('main.uploaded_file', filename=current_user.avatar_path) }}"
@@ -66,13 +88,14 @@
           {# Logging out changes state, so it is a POST form, not a link. #}
           <form action="{{ url_for('auth.logout') }}" method="post" class="inline-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="link-button">Log out</button>
+            <button type="submit" class="link-button">{{ _("Log out") }}</button>
           </form>
         </div>
       {% else %}
         <div class="nav-account">
-          <a href="{{ url_for('auth.login') }}" class="button button-small button-outline">Log in</a>
-          <a href="{{ url_for('auth.register') }}" class="button button-small">Sign up</a>
+          {{ language_switch() }}
+          <a href="{{ url_for('auth.login') }}" class="button button-small button-outline">{{ _("Log in") }}</a>
+          <a href="{{ url_for('auth.register') }}" class="button button-small nav-signup">{{ _("Sign up") }}</a>
         </div>
       {% endif %}
     </nav>
@@ -86,7 +109,7 @@
       {% for category, message in messages %}
         <div class="flash flash-{{ category }}" data-flash role="status">
           <span>{{ message }}</span>
-          <button type="button" class="flash-close" aria-label="Close">×</button>
+          <button type="button" class="flash-close" aria-label="{{ _('Close') }}">×</button>
         </div>
       {% endfor %}
     {% endwith %}

@@ -4,15 +4,21 @@
 
 {% block content %}
   <div class="card narrow">
-    <h1>Delete “{{ outfit.name }}”?</h1>
-    <p>{{ "The outfit and its photo are" if outfit.image_path else "Only the outfit is" }} deleted. The clothes in it stay in your wardrobe.</p>
+    <h1>{{ _("Delete “%(name)s”?", name=outfit.name) }}</h1>
+    <p>
+      {%- if outfit.image_path %}{{ _("The outfit and its photo are deleted.") }}{% else %}{{ _("Only the outfit is deleted.") }}{% endif %}
+      {{ _("The clothes in it stay in your wardrobe.") -}}
+    </p>
     {% if outfit.schedule %}
-      <p>It's also taken off the planner ({{ outfit.schedule | length }} day{{ "s" if outfit.schedule | length != 1 }}). Wears you already marked still count on the clothes.</p>
+      <p>
+        {{- ngettext("It's also taken off the planner (%(num)d day).", "It's also taken off the planner (%(num)d days).", outfit.schedule | length) }}
+        {{ _("Wears you already marked still count on the clothes.") -}}
+      </p>
     {% endif %}
     <form method="post" class="actions">
       {{ form.hidden_tag() }}
       {{ form.submit(class="button button-danger") }}
-      <a href="{{ url_for('outfits.detail', outfit_id=outfit.id) }}">Cancel</a>
+      <a href="{{ url_for('outfits.detail', outfit_id=outfit.id) }}">{{ _("Cancel") }}</a>
     </form>
   </div>
 {% endblock %}

@@ -5,52 +5,52 @@
 
 {% block content %}
   <div class="page-head">
-    <h1>Your wardrobe</h1>
-    <a href="{{ url_for('wardrobe.create') }}" class="button">Add item</a>
+    <h1>{{ _("Your wardrobe") }}</h1>
+    <a href="{{ url_for('wardrobe.create') }}" class="button">{{ _("Add item") }}</a>
   </div>
 
   {# method="get": the choices end up in the URL (?color=blue&season=winter),
      so a filtered view can be bookmarked, shared or refreshed. #}
   <form method="get" class="filters">
-    <input type="search" name="q" value="{{ filters.q }}" placeholder="Search name, brand, notes">
+    <input type="search" name="q" value="{{ filters.q }}" placeholder="{{ _('Search name, brand, notes') }}">
     <select name="category">
-      <option value="">All categories</option>
+      <option value="">{{ _("All categories") }}</option>
       {% for id, name in categories %}
         <option value="{{ id }}" {{ "selected" if filters.category == id }}>{{ name }}</option>
       {% endfor %}
     </select>
     <select name="color">
-      <option value="">All colors</option>
+      <option value="">{{ _("All colors") }}</option>
       {% for name in colors %}
-        <option value="{{ name }}" {{ "selected" if filters.color == name }}>{{ name | capitalize }}</option>
+        <option value="{{ name }}" {{ "selected" if filters.color == name }}>{{ name | tr | capitalize }}</option>
       {% endfor %}
     </select>
     <select name="season">
-      <option value="">Any season</option>
+      <option value="">{{ _("Any season") }}</option>
       {% for name in seasons if name != "all" %}
-        <option value="{{ name }}" {{ "selected" if filters.season == name }}>{{ name | capitalize }}</option>
+        <option value="{{ name }}" {{ "selected" if filters.season == name }}>{{ name | tr | capitalize }}</option>
       {% endfor %}
     </select>
-    <select name="wash" aria-label="Laundry">
-      <option value="">Clean or in the wash</option>
-      <option value="clean" {{ "selected" if filters.wash == "clean" }}>Clean only</option>
-      <option value="in" {{ "selected" if filters.wash == "in" }}>In the wash</option>
+    <select name="wash" aria-label="{{ _('Laundry') }}">
+      <option value="">{{ _("Clean or in the wash") }}</option>
+      <option value="clean" {{ "selected" if filters.wash == "clean" }}>{{ _("Clean only") }}</option>
+      <option value="in" {{ "selected" if filters.wash == "in" }}>{{ _("In the wash") }}</option>
     </select>
-    <select name="sort" aria-label="Sort by">
+    <select name="sort" aria-label="{{ _('Sort by') }}">
       {% for value, label in sort_options.items() %}
         <option value="{{ value }}" {{ "selected" if sort == value }}>{{ label }}</option>
       {% endfor %}
     </select>
-    <button type="submit" class="button button-small">Apply</button>
+    <button type="submit" class="button button-small">{{ _("Apply") }}</button>
     {% if filters.values() | select | list %}
-      <a href="{{ url_for('wardrobe.index', sort=(sort if sort != 'custom' else None)) }}">Clear filters</a>
+      <a href="{{ url_for('wardrobe.index', sort=(sort if sort != 'custom' else None)) }}">{{ _("Clear filters") }}</a>
     {% endif %}
   </form>
 
   {% if items %}
     <p class="muted">
-      Showing {{ items | length }} of {{ total }}.
-      {% if sort == "custom" and items | length > 1 %}Drag the cards to put them in your own order.{% endif %}
+      {{ _("Showing %(shown)s of %(total)s.", shown=items | length, total=total) }}
+      {% if sort == "custom" and items | length > 1 %}{{ _("Drag the cards to put them in your own order.") }}{% endif %}
     </p>
     {# In "My order", the grid gets data-reorder-url; reorder.js looks for
        it and switches drag and drop on. Other sorts stay fixed. #}
@@ -63,7 +63,7 @@
        in the wash (washer.js). A click shows what's in the wash. #}
     <a href="{{ url_for('wardrobe.index', wash='in') }}" class="washer" data-washer
        data-url="{{ url_for('wardrobe.laundry', item_id=0) }}"
-       title="Drop clothes here to put them in the wash">
+       title="{{ _('Drop clothes here to put them in the wash') }}">
       <svg viewBox="0 0 48 48" aria-hidden="true">
         <rect x="7" y="5" width="34" height="38" rx="6"/>
         <path d="M7 14h34"/>
@@ -75,14 +75,14 @@
         </g>
       </svg>
       <span class="washer-count" data-washer-count{% if not washing %} hidden{% endif %}>{{ washing }}</span>
-      <span class="sr-only">In the wash</span>
+      <span class="sr-only">{{ _("In the wash") }}</span>
     </a>
   {% elif total %}
-    <p>No items match these filters.</p>
+    <p>{{ _("No items match these filters.") }}</p>
   {% else %}
     <div class="card empty-state">
-      <p>Nothing here yet.</p>
-      <a href="{{ url_for('wardrobe.create') }}" class="button">Add your first item</a>
+      <p>{{ _("Nothing here yet.") }}</p>
+      <a href="{{ url_for('wardrobe.create') }}" class="button">{{ _("Add your first item") }}</a>
     </div>
   {% endif %}
 {% endblock %}

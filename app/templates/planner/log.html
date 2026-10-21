@@ -7,14 +7,14 @@
 {% block content %}
   <div class="page-head">
     <h1>{{ title }}</h1>
-    <a href="{{ url_for('planner.index') }}">← Planner</a>
+    <a href="{{ url_for('planner.index') }}">← {{ _("Planner") }}</a>
   </div>
 
   <div class="log-layout">
     <div class="card">
       {% if not groups %}
-        <p>Add some clothes first.</p>
-        <a href="{{ url_for('wardrobe.create') }}" class="button">Add an item</a>
+        <p>{{ _("Add some clothes first.") }}</p>
+        <a href="{{ url_for('wardrobe.create') }}" class="button">{{ _("Add an item") }}</a>
       {% else %}
       <form method="post" novalidate>
         {{ form.hidden_tag() }}
@@ -29,7 +29,7 @@
 
         <fieldset class="picker{% if form.item_ids.errors %} has-error{% endif %}"
                   data-check-url="{{ url_for('api.check_outfit') }}">
-          <legend>What did you wear?</legend>
+          <legend>{{ _("What did you wear?") }}</legend>
           {% for error in form.item_ids.errors %}
             <p class="field-error">{{ error }}</p>
           {% endfor %}
@@ -42,10 +42,10 @@
     </div>
 
     <aside class="card">
-      <h2>Last 7 days</h2>
+      <h2>{{ _("Last 7 days") }}</h2>
       {% for log in recent %}
         <div class="log-entry">
-          <span class="week-day">{{ log.date.strftime("%a") }} {{ log.date | date }}</span>
+          <span class="week-day">{{ log.date | weekday_short }} {{ log.date | date }}</span>
           <span class="log-items">
             {% if log.outfit %}<a href="{{ url_for('outfits.detail', outfit_id=log.outfit.id) }}">{{ log.outfit.name }}</a>{% endif %}
             <span class="muted">{{ log.items | map(attribute="name") | join(", ") }}</span>
@@ -53,12 +53,12 @@
           {% if not log.outfit_id %}
             <form action="{{ url_for('planner.delete_log', log_id=log.id) }}" method="post" class="inline-form">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-              <button type="submit" class="link-button" title="Remove this look" aria-label="Remove">×</button>
+              <button type="submit" class="link-button" title="{{ _('Remove this look') }}" aria-label="{{ _('Remove') }}">×</button>
             </form>
           {% endif %}
         </div>
       {% else %}
-        <p class="muted">Nothing yet.</p>
+        <p class="muted">{{ _("Nothing yet.") }}</p>
       {% endfor %}
     </aside>
   </div>
