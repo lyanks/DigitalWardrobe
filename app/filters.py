@@ -1,7 +1,7 @@
 """Small Jinja filters: how prices, shop links and colours look."""
 from urllib.parse import urlparse
 
-from app.wardrobe.choices import COLORS
+from app import options
 
 
 def format_price(amount, currency=None):
@@ -22,4 +22,4 @@ def shop_name(url):
 
 def swatch(color_name):
     """"blue" -> "#3b6fd1", the colour used for that name's dot. Unknown -> grey."""
-    return COLORS.get(color_name, "#9a9a9a")
+    return options.swatch(color_name)

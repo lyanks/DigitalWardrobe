@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  {% set active = "dashboard" %}{% include "admin/_nav.html" %}
+  <h1>{{ _("Dashboard") }}</h1>
+
+  <div class="stat-tiles admin-numbers">
+    <div class="stat-tile"><span class="stat-number">{{ numbers.users }}</span> {{ ngettext("user", "users", numbers.users) }}</div>
+    <div class="stat-tile"><span class="stat-number">{{ numbers.clothes }}</span> {{ ngettext("item", "items", numbers.clothes) }}</div>
+    <div class="stat-tile"><span class="stat-number">{{ numbers.outfits }}</span> {{ ngettext("outfit", "outfits", numbers.outfits) }}</div>
+    <div class="stat-tile"><span class="stat-number">{{ numbers.waiting }}</span> {{ ngettext("code waiting", "codes waiting", numbers.waiting) }}</div>
+    <div class="stat-tile"><span class="stat-number">{{ numbers.used }}</span> {{ ngettext("code used", "codes used", numbers.used) }}</div>
+  </div>
+
+  <section class="card">
+    <h2>{{ _("Why people use the app") }}</h2>
+    <p class="muted">{{ _("Anonymous answers from the setup after sign-up. Someone can pick several.") }}</p>
+    <ul class="bars">
+      {% for row in goals %}
+        <li>
+          <span class="bar-label">{{ row.label }}</span>
+          <span class="bar-track"><span class="bar" style="--width: {{ row.percent }}%"></span></span>
+          <span class="bar-count">{{ row.count }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+    {% if not answered %}<p class="muted">{{ _("No answers yet.") }}</p>{% endif %}
+  </section>
+{% endblock %}

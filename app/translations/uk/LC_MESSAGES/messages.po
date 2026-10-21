@@ -1535,3 +1535,156 @@ msgstr "Вимкнути"
 
 msgid "No codes yet. Make one to invite someone."
 msgstr "Кодів ще немає. Створи код, щоб когось запросити."
+
+msgid "Name in English"
+msgstr "Назва англійською"
+
+msgid "Name in Ukrainian"
+msgstr "Назва українською"
+
+msgid "Shown when the app is in Ukrainian. Empty = the English name."
+msgstr "Показується, коли застосунок українською. Порожньо = англійська назва."
+
+msgid "Colour of the dot"
+msgstr "Колір кружечка"
+
+msgid "Write it like #3b6fd1."
+msgstr "Напиши так: #3b6fd1."
+
+msgid "Where it's worn"
+msgstr "Де носиться"
+
+msgid "Top"
+msgstr "Верх"
+
+msgid "Bottom"
+msgstr "Низ"
+
+msgid "Full body"
+msgstr "Усе тіло"
+
+msgid "Outer layer"
+msgstr "Верхній шар"
+
+msgid "Feet"
+msgstr "Ноги"
+
+msgid "Accessory"
+msgstr "Аксесуар"
+
+msgid "Add"
+msgstr "Додати"
+
+msgid "Seasons"
+msgstr "Сезони"
+
+msgid "Styles"
+msgstr "Стилі"
+
+msgid "Occasions"
+msgstr "Нагоди"
+
+msgid "That one is already in the list."
+msgstr "Така вже є у списку."
+
+msgid "Added “%(name)s”."
+msgstr "Додано «%(name)s»."
+
+msgid "Renaming changes it on everything that uses it."
+msgstr "Нова назва зміниться в усьому, що її використовує."
+
+msgid "Saved."
+msgstr "Збережено."
+
+msgid "Edit “%(name)s”"
+msgstr "Редагувати «%(name)s»"
+
+msgid "Keep at least one, or the item form has nothing to offer."
+msgstr "Залиш хоча б одну, інакше у формі речі не буде з чого вибрати."
+
+msgid "“%(name)s” is used by %(num)d item, so it's hidden instead: new items can't pick it."
+msgid_plural "“%(name)s” is used by %(num)d items, so it's hidden instead: new items can't pick it."
+msgstr[0] "«%(name)s» використовує %(num)d річ, тому варіант приховано: нові речі не зможуть його вибрати."
+msgstr[1] "«%(name)s» використовують %(num)d речі, тому варіант приховано: нові речі не зможуть його вибрати."
+msgstr[2] "«%(name)s» використовують %(num)d речей, тому варіант приховано: нові речі не зможуть його вибрати."
+
+msgid "Removed “%(name)s”."
+msgstr "Видалено «%(name)s»."
+
+msgid "“%(name)s” can be picked again."
+msgstr "«%(name)s» знову можна вибрати."
+
+msgid "Dashboard"
+msgstr "Огляд"
+
+msgid "Options"
+msgstr "Варіанти"
+
+msgid "user"
+msgid_plural "users"
+msgstr[0] "користувач"
+msgstr[1] "користувачі"
+msgstr[2] "користувачів"
+
+msgid "code waiting"
+msgid_plural "codes waiting"
+msgstr[0] "код чекає"
+msgstr[1] "коди чекають"
+msgstr[2] "кодів чекають"
+
+msgid "code used"
+msgid_plural "codes used"
+msgstr[0] "код використано"
+msgstr[1] "коди використано"
+msgstr[2] "кодів використано"
+
+msgid "Why people use the app"
+msgstr "Навіщо люди користуються застосунком"
+
+msgid "Anonymous answers from the setup after sign-up. Someone can pick several."
+msgstr "Анонімні відповіді з налаштування після реєстрації. Можна вибрати кілька."
+
+msgid "No answers yet."
+msgstr "Відповідей ще немає."
+
+msgid "%(num)d item uses it"
+msgid_plural "%(num)d items use it"
+msgstr[0] "%(num)d річ має це"
+msgstr[1] "%(num)d речі мають це"
+msgstr[2] "%(num)d речей мають це"
+
+msgid "%(num)d outfit uses it"
+msgid_plural "%(num)d outfits use it"
+msgstr[0] "%(num)d образ має це"
+msgstr[1] "%(num)d образи мають це"
+msgstr[2] "%(num)d образів мають це"
+
+msgid "Options for everyone"
+msgstr "Варіанти для всіх"
+
+msgid "Drag the rows to change the order in every list."
+msgstr "Перетягни рядки, щоб змінити порядок у всіх списках."
+
+msgid "Hidden"
+msgstr "Приховано"
+
+msgid "%(num)d outfit"
+msgid_plural "%(num)d outfits"
+msgstr[0] "%(num)d образ"
+msgstr[1] "%(num)d образи"
+msgstr[2] "%(num)d образів"
+
+msgid "Show again"
+msgstr "Показати знову"
+
+msgid "Remove “%(name)s”?"
+msgstr "Видалити «%(name)s»?"
+
+msgid "If clothes already use it, it is hidden instead and they keep it."
+msgstr "Якщо речі вже це мають, його буде приховано, а речі збережуть значення."
+
+msgid "Nothing uses it, so it is deleted."
+msgstr "Ніщо цього не використовує, тож його буде видалено."
+
+msgid "Built in"
+msgstr "Вбудоване"

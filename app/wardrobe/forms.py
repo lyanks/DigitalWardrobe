@@ -8,7 +8,8 @@ from wtforms.validators import URL, DataRequired, Length, NumberRange, Optional
 from app.dates import DayMonthYearField
 from app.forms import BaseForm
 from app.i18n import tr
-from app.wardrobe.choices import COLORS, CURRENCIES, PRIORITIES, SEASONS, STYLES
+from app import options
+from app.wardrobe.choices import CURRENCIES, PRIORITIES
 
 IMAGE_TYPES = ["jpg", "jpeg", "png", "webp", "gif"]
 
@@ -25,11 +26,12 @@ def _label(value):
 class ItemForm(BaseForm):
     name = StringField(_l("Name"), validators=[DataRequired(), Length(max=100)])
     # coerce=int: the browser sends "3" as text; we want the number 3.
-    # The choices come from the database, so the route fills them in.
+    # These four lists come from the database (the admin can change them),
+    # so __init__ below fills them in for each request.
     category_id = SelectField(_l("Category"), coerce=int, validators=[DataRequired()])
-    color = SelectField(_l("Color"), choices=[(c, _label(c)) for c in COLORS])
-    season = SelectField(_l("Season"), choices=[(s, _label(s)) for s in SEASONS], default="all")
-    style = SelectField(_l("Style"), choices=[("", "—")] + [(s, _label(s)) for s in STYLES])
+    color = SelectField(_l("Color"))
+    season = SelectField(_l("Season"), default="all")
+    style = SelectField(_l("Style"))
     brand = StringField(_l("Brand"), validators=[Optional(), Length(max=60)])
     size = StringField(_l("Size"), validators=[Optional(), Length(max=20)])
     purchase_date = DayMonthYearField(_l("Bought on"), validators=[Optional()])
@@ -63,6 +65,28 @@ class ItemForm(BaseForm):
     # uploaded photo, the server downloads this one when you save.
     image_url = HiddenField()
     submit = SubmitField(_l("Save"))
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        item = kwargs.get("obj")
+
+        def keep_current(values, current):
+            # An item keeps a value the admin has hidden since.
+            if current and current not in values:
+                values.append(current)
+            return values
+
+        categories = options.categories()
+        if item and item.category and item.category.hidden:
+            categories.append(item.category)
+        self.category_id.choices = [(c.id, tr(c.name)) for c in categories]
+        self.color.choices = [(c, _label(c)) for c in
+                              keep_current(options.values("color"), getattr(item, "color", None))]
+        self.season.choices = [(s, _label(s)) for s in
+                               keep_current(options.values("season"), getattr(item, "season", None))]
+        self.style.choices = [("", "—")] + [(s, _label(s)) for s in
+                                            keep_current(options.values("style"), getattr(item, "style", None))]
 
 
 WISH_FIELDS = ("shop_url", "price", "currency", "priority", "image_url")

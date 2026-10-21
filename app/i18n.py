@@ -21,6 +21,7 @@ from babel.messages.mofile import write_mo
 from babel.messages.pofile import read_po
 from flask import request, session
 from flask_babel import format_date as babel_format_date
+from flask_babel import get_locale as get_locale_of_request
 from flask_babel import gettext
 from flask_login import current_user
 
@@ -55,8 +56,19 @@ def N_(text):
 
 
 def tr(text):
-    """The | tr filter: {{ item.category.name | tr }} -> "Верх"."""
-    return gettext(text) if text else text
+    """The | tr filter: {{ item.category.name | tr }} -> "Верх".
+
+    In Ukrainian a name the admin typed on /admin/options wins; otherwise
+    the translation from messages.po.
+    """
+    if not text:
+        return text
+    if str(get_locale_of_request()) == "uk":
+        from app.options import ukrainian_names
+        name = ukrainian_names().get(text)
+        if name:
+            return name
+    return gettext(text)
 
 
 # Words that come from the database or fixed lists, so pybabel can find them.

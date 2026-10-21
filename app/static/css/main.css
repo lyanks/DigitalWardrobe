@@ -2979,3 +2979,83 @@ input[type="radio"] {
         grid-row: auto;
     }
 }
+
+/* ---------- Admin: tabs, shared options ---------- */
+.admin-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: var(--space);
+}
+.admin-tabs a {
+    padding: 0.4rem 0.95rem;
+    border: 1px solid var(--color-glass-border);
+    border-radius: 999px;
+    color: var(--color-muted);
+    font-weight: 500;
+    text-decoration: none;
+}
+.admin-tabs a:hover {
+    color: var(--color-text);
+}
+.admin-tabs a[aria-current="page"] {
+    color: var(--color-text);
+    font-weight: 700;
+    background: var(--color-glass-border);
+}
+.admin-kinds {
+    margin-top: calc(var(--space) * -0.25);
+}
+
+.option-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.option-row {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    margin-bottom: 0.5rem;
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius);
+    background: var(--color-glass);
+    cursor: grab;
+}
+.option-row.dragging {
+    opacity: 0.4;
+}
+.option-hidden .option-name {
+    color: var(--color-muted);
+}
+.drag-handle {
+    color: var(--color-muted);
+    letter-spacing: -0.2em;
+    user-select: none;
+}
+.option-name {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+}
+.option-name .muted {
+    font-weight: 500;
+}
+.option-uses {
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+.option-actions {
+    margin: 0;
+    gap: 0.6rem;
+}
+@media (max-width: 700px) {
+    .option-row {
+        flex-wrap: wrap;
+    }
+    .option-actions {
+        width: 100%;
+        padding-left: 1.6rem;
+    }
+}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  {% set active = "options" %}{% include "admin/_nav.html" %}
+  <h1>{{ _("Options for everyone") }}</h1>
+
+  <nav class="admin-tabs admin-kinds" aria-label="{{ _('Options') }}">
+    {% for key, label in kinds.items() %}
+      <a href="{{ url_for('admin.option_list', kind=key) }}" {% if key == kind %}aria-current="page"{% endif %}>{{ label }}</a>
+    {% endfor %}
+  </nav>
+
+  <div class="trips-layout">
+    <section class="card">
+      <h2>{{ _("Add") }}</h2>
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        {{ render_field(form.name) }}
+        {{ render_field(form.name_uk) }}
+        {% if form.hex %}{{ render_field(form.hex) }}{% endif %}
+        {% if form.slot %}{{ render_field(form.slot) }}{% endif %}
+        {{ form.submit(class="button") }}
+      </form>
+    </section>
+
+    <section>
+      <p class="muted">{{ _("Drag the rows to change the order in every list.") }}</p>
+      <ul class="option-list" data-order-url="{{ url_for('admin.option_order', kind=kind) }}">
+        {% for entry in rows %}
+          {% set row = entry.row %}
+          <li class="option-row{{ ' option-hidden' if row.hidden }}" data-id="{{ row.id }}" draggable="true">
+            <span class="drag-handle" aria-hidden="true">⋮⋮</span>
+            {% if kind == "color" %}<span class="swatch" style="--swatch: {{ row.hex or '#9a9a9a' }}"></span>{% endif %}
+            <span class="option-name">
+              {{ entry.name }}
+              {% if entry.uk %}<span class="muted">· {{ entry.uk }}</span>{% endif %}
+            </span>
+            <span class="muted option-uses">
+              {% if row.hidden %}{{ _("Hidden") }} · {% endif %}{{ ngettext("%(num)d item", "%(num)d items", entry.uses) if kind != "occasion" else ngettext("%(num)d outfit", "%(num)d outfits", entry.uses) }}
+            </span>
+            <span class="actions option-actions">
+              {% if not entry.protected %}
+                <a href="{{ url_for('admin.option_edit', kind=kind, row_id=row.id) }}" class="button button-outline button-small">{{ _("Edit") }}</a>
+                {% if row.hidden %}
+                  <form method="post" action="{{ url_for('admin.option_show', kind=kind, row_id=row.id) }}" class="inline-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="link-button">{{ _("Show again") }}</button>
+                  </form>
+                {% else %}
+                  <form method="post" action="{{ url_for('admin.option_remove', kind=kind, row_id=row.id) }}" class="inline-form"
+                        data-confirm-title="{{ _('Remove “%(name)s”?', name=entry.name) }}"
+                        data-confirm="{{ _('If clothes already use it, it is hidden instead and they keep it.') if entry.uses else _('Nothing uses it, so it is deleted.') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="link-button danger-link">{{ _("Remove") }}</button>
+                  </form>
+                {% endif %}
+              {% else %}
+                <span class="muted">{{ _("Built in") }}</span>
+              {% endif %}
+            </span>
+          </li>
+        {% endfor %}
+      </ul>
+    </section>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/admin_order.js') }}"></script>
+{% endblock %}

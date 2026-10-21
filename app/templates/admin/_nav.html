@@ -1,0 +1,6 @@
+{# The admin pages' own tabs. `active` = which one is open. #}
+<nav class="admin-tabs" aria-label="{{ _('Admin') }}">
+  <a href="{{ url_for('admin.index') }}" {% if active == "dashboard" %}aria-current="page"{% endif %}>{{ _("Dashboard") }}</a>
+  <a href="{{ url_for('admin.invites') }}" {% if active == "invites" %}aria-current="page"{% endif %}>{{ _("Invite codes") }}</a>
+  <a href="{{ url_for('admin.options_index') }}" {% if active == "options" %}aria-current="page"{% endif %}>{{ _("Options") }}</a>
+</nav>

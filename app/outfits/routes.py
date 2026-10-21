@@ -33,7 +33,7 @@ def my_items_by_category():
     """[(category, [items...]), ...] for the builder, empty categories left out."""
     items = db.session.scalars(
         Item.owned_by(current_user.id)
-        .join(Item.category).order_by(Category.id, Item.position, Item.id)
+        .join(Item.category).order_by(Category.position, Category.id, Item.position, Item.id)
     ).all()
     groups = {}
     for item in items:

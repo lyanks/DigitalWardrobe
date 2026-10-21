@@ -5,7 +5,7 @@ from wtforms.validators import DataRequired, Length, Optional
 
 from app.forms import BaseForm
 from app.i18n import tr
-from app.wardrobe.choices import OCCASIONS
+from app import options
 from app.wardrobe.forms import IMAGE_TYPES
 
 
@@ -28,7 +28,13 @@ class OutfitForm(BaseForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # Built for each request, so "work" shows as "Робота" in Ukrainian.
-        self.occasion.choices = [("", "—")] + [(o, tr(o).capitalize()) for o in OCCASIONS]
+        # The list comes from the database (the admin can change it). An
+        # outfit keeps an occasion the admin has hidden since.
+        occasions = options.values("occasion")
+        current = getattr(kwargs.get("obj"), "occasion", None)
+        if current and current not in occasions:
+            occasions.append(current)
+        self.occasion.choices = [("", "—")] + [(o, tr(o).capitalize()) for o in occasions]
 
 
 class DeleteOutfitForm(BaseForm):

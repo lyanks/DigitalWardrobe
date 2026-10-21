@@ -4,6 +4,7 @@
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
 {% block content %}
+  {% set active = "invites" %}{% include "admin/_nav.html" %}
   <div class="page-head">
     <h1>{{ _("Invite codes") }}</h1>
   </div>

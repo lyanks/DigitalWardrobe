@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  {% set active = "options" %}{% include "admin/_nav.html" %}
+  <div class="card narrow">
+    <h1>{{ title }}</h1>
+    <p class="muted">{{ kinds[kind] }} ·
+      {{ ngettext("%(num)d item uses it", "%(num)d items use it", uses) if kind != "occasion" else ngettext("%(num)d outfit uses it", "%(num)d outfits use it", uses) }}
+    </p>
+    <form method="post" novalidate>
+      {{ form.hidden_tag() }}
+      {{ render_field(form.name) }}
+      {{ render_field(form.name_uk) }}
+      {% if form.hex %}{{ render_field(form.hex) }}{% endif %}
+      {% if form.slot %}{{ render_field(form.slot) }}{% endif %}
+      <div class="actions">
+        {{ form.submit(class="button") }}
+        <a href="{{ url_for('admin.option_list', kind=kind) }}">{{ _("Cancel") }}</a>
+      </div>
+    </form>
+  </div>
+{% endblock %}

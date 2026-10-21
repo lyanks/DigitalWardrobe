@@ -7,7 +7,7 @@ from PIL import Image
 from app import create_app
 from app.extensions import db
 from config import TestConfig
-from seed import seed_categories
+from seed import seed_categories, seed_options
 
 
 @pytest.fixture
@@ -16,9 +16,19 @@ def app(tmp_path):
         UPLOAD_FOLDER = str(tmp_path / "uploads")  # throwaway folder per test
 
     app = create_app(Cfg)
+
+    # A real server starts every request with a fresh `g`. The tests share
+    # one app context, so drop what the last request kept in it: the
+    # shared lists (app/options.py) and the language (Flask-Babel).
+    from flask_babel import refresh
+    from app.options import forget
+    app.before_request(forget)
+    app.before_request(refresh)
+
     with app.app_context():
         db.create_all()  # fresh tables in the in-memory database
         seed_categories()
+        seed_options()
         yield app
         db.session.remove()
         db.drop_all()

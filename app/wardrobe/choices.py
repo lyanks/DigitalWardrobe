@@ -1,7 +1,9 @@
-"""Fixed lists used by the item form, the filters and seed.py.
+"""Starting lists, and the fixed ones.
 
-Keeping them in one module means the dropdowns, the validation and the
-database all agree on the exact spelling of every value.
+Categories, colours, seasons, styles and occasions now live in the
+database (app/options.py), and the admin changes them on /admin/options.
+The lists below are only what seed.py puts there on a fresh database.
+Currencies and priorities are still fixed here.
 """
 
 # (name, slot). The slot says where it goes on the body; Phase 3's outfit

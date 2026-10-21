@@ -7,7 +7,7 @@ from datetime import date, timedelta
 
 from app.extensions import db
 from app.models import OWNED, Category, Item, WearLog, WearLogItem
-from app.wardrobe.choices import COLORS
+from app import options
 
 # "Not worn lately" means: last worn more than this many days ago.
 STALE_AFTER_DAYS = 30
@@ -107,7 +107,7 @@ def wardrobe_stats(user_id, today=None):
 
     colors = breakdown(by_color)
     for row in colors:
-        row["swatch"] = COLORS.get(row["label"], "")
+        row["swatch"] = options.swatch(row["label"])
 
     return {
         "item_count": item_count,

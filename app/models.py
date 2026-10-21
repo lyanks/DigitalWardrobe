@@ -82,12 +82,18 @@ def load_user(user_id):
 
 
 class Category(db.Model):
-    """A fixed list shared by everyone (Tops, Bottoms, ...). Filled by seed.py."""
+    """A list shared by everyone (Tops, Bottoms, ...). Filled by seed.py,
+    and changed by the admin on /admin/options."""
 
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(50), unique=True, nullable=False)
     # Where it goes on the body: top, bottom, full, outer, feet, accessory.
     slot = db.Column(db.String(20), nullable=False)
+    # Shown in Ukrainian. Empty = the translation in messages.po, if any.
+    name_uk = db.Column(db.String(50))
+    position = db.Column(db.Integer, nullable=False, default=0)
+    # Hidden = can't be picked for new items; old items keep it.
+    hidden = db.Column(db.Boolean, nullable=False, default=False)
 
     items = db.relationship("Item", back_populates="category")
 
@@ -285,6 +291,25 @@ class ScheduledOutfit(db.Model):
 
     def __repr__(self):
         return f"<ScheduledOutfit {self.outfit_id} on {self.date}>"
+
+
+class Option(db.Model):
+    """One choice in a shared list: a colour, season, style or occasion.
+
+    Items store the English `value` itself ("light blue"), not this row's
+    id, so the lists could move here from code without touching any item.
+    The admin changes them on /admin/options.
+    """
+
+    id = db.Column(db.Integer, primary_key=True)
+    kind = db.Column(db.String(10), nullable=False)  # color, season, style, occasion
+    value = db.Column(db.String(30), nullable=False)
+    name_uk = db.Column(db.String(50))  # empty = the translation in messages.po, if any
+    hex = db.Column(db.String(120))  # colours only: the dot ("#3b6fd1" or a gradient)
+    position = db.Column(db.Integer, nullable=False, default=0)
+    hidden = db.Column(db.Boolean, nullable=False, default=False)
+
+    __table_args__ = (db.UniqueConstraint("kind", "value"),)
 
 
 class InviteCode(db.Model):

@@ -14,7 +14,8 @@ from app.models import OWNED, WISHLIST, Category, Item
 from app.services.images import InvalidImageError, delete_image, save_image
 from app.services.product_page import FetchError, download_image
 from app.services.stats import last_worn_date
-from app.wardrobe.choices import COLORS, PRIORITIES, SEASONS
+from app import options
+from app.wardrobe.choices import PRIORITIES
 from app.wardrobe.forms import WISH_FIELDS, BoughtForm, DeleteForm, ItemForm
 
 # url_prefix: every route below starts with /items.
@@ -42,8 +43,8 @@ def get_own_item_or_404(item_id):
 
 
 def _category_choices():
-    categories = db.session.scalars(db.select(Category).order_by(Category.id))
-    return [(c.id, tr(c.name)) for c in categories]
+    """For the wardrobe filter: every category, hidden ones too."""
+    return [(c.id, tr(c.name)) for c in options.categories(include_hidden=True)]
 
 
 # ---------- Read: list with filters and sorting ----------
@@ -72,15 +73,19 @@ def _order_by(sort):
     if sort == "name_desc":
         return [db.func.lower(Item.name).desc(), Item.id]
     if sort == "color":
-        # Follow the order of the COLORS palette (black, white, grey, ...),
+        # Follow the order of the colour list (black, white, grey, ...),
         # not the alphabet. CASE turns each color name into its index.
+        palette = options.values("color", include_hidden=True)
         palette_index = db.case(
-            {name: index for index, name in enumerate(COLORS)},
-            value=Item.color, else_=len(COLORS),
+            {name: index for index, name in enumerate(palette)},
+            value=Item.color, else_=len(palette),
         )
         return [palette_index, db.func.lower(Item.name)]
     if sort == "category":
-        return [Item.category_id, db.func.lower(Item.name)]
+        # In the admin's order of categories (a small sub-query per item).
+        category_position = (db.select(Category.position)
+                             .where(Category.id == Item.category_id).scalar_subquery())
+        return [category_position, Item.category_id, db.func.lower(Item.name)]
     return [Item.position, Item.id]  # "custom"
 
 @bp.route("")
@@ -101,9 +106,11 @@ def index():
     query = Item.owned_by(current_user.id)
     if category_id:
         query = query.filter_by(category_id=category_id)
-    if color in COLORS:
+    colors = options.colors()
+    seasons = options.values("season", include_hidden=True)
+    if color in colors:
         query = query.filter_by(color=color)
-    if season in SEASONS and season != "all":
+    if season in seasons and season != "all":
         # An "all seasons" item also fits a winter search.
         query = query.where(Item.season.in_([season, "all"]))
     if wash == "in":
@@ -122,7 +129,7 @@ def index():
     )
     return render_template(
         "wardrobe/index.html", title=_("Wardrobe"), items=items, total=total,
-        categories=_category_choices(), colors=COLORS, seasons=SEASONS,
+        categories=_category_choices(), colors=colors, seasons=seasons,
         filters={"category": category_id, "color": color, "season": season, "q": text,
                  "wash": wash if wash in ("in", "clean") else ""},
         sort=sort, sort_options=SORT_OPTIONS, washing=_washing_count(),
@@ -179,7 +186,6 @@ def _renumber_positions():
 @bp.route("/new", methods=["GET", "POST"])
 def create():
     form = ItemForm()
-    form.category_id.choices = _category_choices()
     del form.remove_photo  # nothing to remove on a new item
     _drop_fields(form, WISH_FIELDS)
 
@@ -231,7 +237,6 @@ def wishlist():
 @bp.route("/wishlist/new", methods=["GET", "POST"])
 def create_wish():
     form = ItemForm()
-    form.category_id.choices = _category_choices()
     _drop_fields(form, ("remove_photo", "purchase_date"))
 
     if form.validate_on_submit():
@@ -320,7 +325,7 @@ def laundry(item_id):
 def detail(item_id):
     item = get_own_item_or_404(item_id)
     return render_template(
-        "wardrobe/detail.html", title=item.name, item=item, colors=COLORS,
+        "wardrobe/detail.html", title=item.name, item=item, colors=options.colors(),
         last_worn=None if item.is_wish else last_worn_date(item),
         priorities=PRIORITIES, bought_form=BoughtForm(),
     )
@@ -333,7 +338,6 @@ def edit(item_id):
     item = get_own_item_or_404(item_id)
     # obj=item pre-fills every field whose name matches an Item attribute.
     form = ItemForm(obj=item)
-    form.category_id.choices = _category_choices()
     if not item.image_path:
         del form.remove_photo
     # A wish has a shop link and price but no "bought on" date yet.
