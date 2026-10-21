@@ -1688,3 +1688,72 @@ msgstr "Ніщо цього не використовує, тож його бу�
 
 msgid "Built in"
 msgstr "Вбудоване"
+
+msgid "Try it as a guest"
+msgstr "Спробувати як гість"
+
+msgid "Your guest visit has ended, so everything you added is gone."
+msgstr "Гостьовий візит завершився, тож усе, що ти додав(ла), видалено."
+
+msgid "Guest"
+msgstr "Гість"
+
+msgid "Guest visit ended. Everything you added is deleted."
+msgstr "Гостьовий візит завершено. Усе, що ти додав(ла), видалено."
+
+msgid "Guests can add up to %(num)d photos."
+msgstr "Гості можуть додати не більше %(num)d фото."
+
+msgid "Leave"
+msgstr "Вийти"
+
+msgid "Guest mode."
+msgstr "Гостьовий режим."
+
+msgid "Nothing you do here is saved. It's deleted when you leave or after 1 hour without activity."
+msgstr "Нічого з того, що ти тут робиш, не зберігається. Усе видаляється, коли ти виходиш, або через 1 годину бездіяльності."
+
+msgid "Create an account"
+msgstr "Створити акаунт"
+
+msgid "Sign up with an invite"
+msgstr "Зареєструватися із запрошенням"
+
+msgid "Just looking?"
+msgstr "Просто подивитися?"
+
+msgid "Guest visit"
+msgstr "Гостьовий візит"
+
+msgid "No invite code?"
+msgstr "Немає коду запрошення?"
+
+msgid "White T-shirt"
+msgstr "Біла футболка"
+
+msgid "Striped shirt"
+msgstr "Сорочка в смужку"
+
+msgid "Blue jeans"
+msgstr "Сині джинси"
+
+msgid "Black trousers"
+msgstr "Чорні штани"
+
+msgid "Beige trench coat"
+msgstr "Бежевий тренч"
+
+msgid "White sneakers"
+msgstr "Білі кросівки"
+
+msgid "Black boots"
+msgstr "Чорні черевики"
+
+msgid "Red scarf"
+msgstr "Червоний шарф"
+
+msgid "Weekend"
+msgstr "Вихідні"
+
+msgid "Office"
+msgstr "Офіс"

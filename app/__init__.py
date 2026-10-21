@@ -28,6 +28,12 @@ def create_app(config_class=Config):
     csrf.init_app(app)
     oauth.init_app(app)
 
+    # Guest mode (app/guests.py). Registered before everything else, so the
+    # switch to the guest's own database happens first on every request.
+    from app import guests
+    guests.register_routes(app)
+    app.jinja_env.globals["is_guest"] = guests.is_guest
+
     # Languages. get_locale picks English or Ukrainian for each request;
     # compile_translations refreshes the compiled translations if needed.
     from app.i18n import compile_translations, get_locale

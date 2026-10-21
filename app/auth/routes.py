@@ -12,6 +12,7 @@ from app.auth.forms import (
     INVALID_INVITE, ChangePasswordForm, LoginForm, LookForm, ProfileForm, RegistrationForm,
 )
 from app.extensions import db, oauth
+from app.guests import is_guest, leave
 from app.invites import find_usable, tidy, use_invite
 from app.models import User
 from app.services.images import InvalidImageError, delete_image, save_image
@@ -79,6 +80,9 @@ def login():
 @bp.route("/logout", methods=["POST"])
 @login_required
 def logout():
+    if is_guest():
+        leave()
+        return redirect(url_for("main.index"))
     logout_user()
     flash(_("You have been logged out."), "info")
     return redirect(url_for("main.index"))
@@ -120,7 +124,7 @@ def profile():
             flash(_("Profile saved."), "success")
             return redirect(url_for("auth.profile"))
 
-    if password_form.submit.data and password_form.validate_on_submit():
+    if password_form.submit.data and not is_guest() and password_form.validate_on_submit():
         if current_user.has_password and not current_user.check_password(
             password_form.current_password.data or ""
         ):
@@ -152,6 +156,10 @@ def profile():
 def google_login():
     if not current_app.config["GOOGLE_CLIENT_ID"]:
         abort(404)  # not set up on this computer
+    # A guest who picks Google: end the guest visit first, so the Google
+    # account is looked up in the real database.
+    if is_guest():
+        leave()
     # The Google button on the sign-up page sends the invite code along
     # (POST). It waits in the session until Google sends the person back.
     if request.method == "POST":
@@ -178,6 +186,8 @@ def google_callback():
         flash(_("Google sign-in was cancelled or failed. Please try again."), "error")
         return redirect(url_for("auth.login"))
 
+    if is_guest():
+        leave(keep_session=True)  # keep_session: Google's own steps live there
     info = token.get("userinfo") or {}
     if not info.get("email_verified"):
         flash(_("Your Google account's email isn't verified, so we can't use it."), "error")

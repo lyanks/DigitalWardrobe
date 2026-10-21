@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "macros/forms.html" import render_field, password_field %}
+{% from "macros/guest.html" import guest_button %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 {% block body_class %}public{% endblock %}
@@ -12,6 +13,8 @@
       <h1>{{ _("Sign in to") }}</h1>
       <p class="auth-sub">{{ _("your wardrobe") }}</p>
       <p class="auth-switch">{{ _("Don't have an account yet?") }}<br>{{ _("You can") }} <a href="{{ url_for('auth.register') }}">{{ _("register here!") }}</a></p>
+      <p class="auth-switch">{{ _("Just looking?") }}</p>
+      {{ guest_button("button button-outline") }}
     </div>
     <div class="auth-form">
       <h2>{{ _("Sign in") }}</h2>

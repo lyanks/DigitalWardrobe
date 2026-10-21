@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros/guest.html" import guest_button %}
 {% from "wardrobe/_card.html" import item_card %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
@@ -172,7 +173,8 @@
         <span data-type>{{ _("Your wardrobe,") }}</span><em data-reveal>&nbsp;{{ _("thoughtfully") }}</em><br><span data-type>{{ _("organised.") }}</span>
       </h1>
       <div class="hero-actions intro-fade intro-late">
-        <a href="{{ url_for('auth.register') }}" class="button">{{ _("Get started free") }}</a>
+        {{ guest_button("button") }}
+        <a href="{{ url_for('auth.register') }}" class="button button-outline">{{ _("Sign up with an invite") }}</a>
         {% if config.GOOGLE_CLIENT_ID %}
           <a href="{{ url_for('auth.google_login') }}" class="button button-outline">{{ _("Continue with Google") }}</a>
         {% endif %}

@@ -6,7 +6,6 @@ so both follow exactly the same safety rules.
 import os
 import uuid
 
-from flask import current_app
 from flask_babel import gettext as _
 from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageOps, UnidentifiedImageError
 
@@ -16,6 +15,18 @@ WHITE_TOLERANCE = 24
 
 class InvalidImageError(ValueError):
     """The uploaded file is not an image Pillow can read."""
+
+
+def upload_folder():
+    """The real uploads folder, or a guest's own folder (app/guests.py)."""
+    from app.guests import upload_folder as folder
+    return folder()
+
+
+def _check_guest_limit():
+    from app.guests import MAX_PHOTOS, is_guest, photo_count
+    if is_guest() and photo_count() >= MAX_PHOTOS:
+        raise InvalidImageError(_("Guests can add up to %(num)d photos.", num=MAX_PHOTOS))
 
 
 def cut_out_white(image, tolerance=WHITE_TOLERANCE):
@@ -72,6 +83,7 @@ def save_image(file_storage, subfolder, max_size=1200, remove_white=False):
       Then it's saved as PNG instead, because JPEG can't be see-through.
     - The file gets a random name; the uploaded name is never used.
     """
+    _check_guest_limit()
     try:
         image = Image.open(file_storage.stream)
         image = ImageOps.exif_transpose(image)
@@ -100,7 +112,7 @@ def write_image(image, subfolder, name=None):
     see_through = image.mode == "RGBA"
     extension = "png" if see_through else "jpg"
     relative_path = f"{subfolder}/{name or uuid.uuid4().hex}.{extension}"
-    full_path = os.path.join(current_app.config["UPLOAD_FOLDER"], relative_path)
+    full_path = os.path.join(upload_folder(), relative_path)
     os.makedirs(os.path.dirname(full_path), exist_ok=True)
     if see_through:
         image.save(full_path, "PNG", optimize=True)
@@ -113,6 +125,6 @@ def delete_image(relative_path):
     """Delete a previously saved image. Missing files are ignored."""
     if not relative_path:
         return
-    full_path = os.path.join(current_app.config["UPLOAD_FOLDER"], relative_path)
+    full_path = os.path.join(upload_folder(), relative_path)
     if os.path.exists(full_path):
         os.remove(full_path)

@@ -16,7 +16,11 @@
     {% endif %}
     <div>
       <p class="profile-name">{{ current_user.shown_name }}</p>
-      <p class="muted">@{{ current_user.username }} · {{ current_user.email }}</p>
+      {% if is_guest() %}
+        <p class="muted">{{ _("Guest visit") }}</p>
+      {% else %}
+        <p class="muted">@{{ current_user.username }} · {{ current_user.email }}</p>
+      {% endif %}
       {% if current_user.google_id %}<p class="muted">{{ _("Linked to Google") }}</p>{% endif %}
       <p class="muted">{{ _("Member since %(date)s", date=current_user.created_at | date) }}</p>
     </div>
@@ -47,6 +51,8 @@
     </form>
   </div>
 
+  {# A guest has no password: their visit ends when they leave. #}
+  {% if not is_guest() %}
   <div class="card">
     {% if current_user.has_password %}
       <h2>{{ _("Change password") }}</h2>
@@ -65,6 +71,7 @@
       {{ password_form.submit(class="button") }}
     </form>
   </div>
+  {% endif %}
 {% endblock %}
 
 {% block scripts %}

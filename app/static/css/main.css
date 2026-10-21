@@ -3059,3 +3059,27 @@ input[type="radio"] {
         padding-left: 1.6rem;
     }
 }
+
+/* ---------- Guest mode: the bar under the header ---------- */
+.guest-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem 1rem;
+    padding: 0.55rem 1rem;
+    background: color-mix(in srgb, var(--color-primary) 18%, transparent);
+    border-bottom: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+    font-size: 0.92rem;
+    text-align: center;
+}
+.guest-bar p {
+    margin: 0;
+}
+.guest-bar form {
+    display: flex;
+    gap: 0.5rem;
+}
+.auth-greeting .inline-form {
+    margin-top: 0.4rem;
+}

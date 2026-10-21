@@ -79,4 +79,6 @@ def uploaded_file(filename):
     # uploads/ is outside static/, so Flask doesn't serve it automatically.
     # send_from_directory refuses paths like "../config.py", so users can
     # only ever get files that are inside the uploads folder.
-    return send_from_directory(current_app.config["UPLOAD_FOLDER"], filename)
+    # A guest's photos are in their own folder (app/guests.py).
+    from app.guests import upload_folder
+    return send_from_directory(upload_folder(), filename)

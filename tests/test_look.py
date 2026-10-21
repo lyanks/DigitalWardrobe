@@ -6,7 +6,7 @@ def test_landing_page_for_visitors(client):
     page = client.get("/").get_data(as_text=True)
     assert 'class="public landing"' in page
     assert "thoughtfully" in page
-    assert "Get started free" in page
+    assert "Try it as a guest" in page
 
 
 def test_google_button_only_when_configured(app, client):
@@ -29,7 +29,7 @@ def test_logged_in_home_is_not_dark(client):
     register(client)
     page = client.get("/").get_data(as_text=True)
     assert 'class="public' not in page
-    assert "Get started free" not in page
+    assert "Try it as a guest" not in page
 
 
 def test_messages_can_fade_away(client):

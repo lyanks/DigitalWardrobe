@@ -88,10 +88,11 @@
             {% endif %}
             {{ current_user.shown_name }}
           </a>
-          {# Logging out changes state, so it is a POST form, not a link. #}
-          <form action="{{ url_for('auth.logout') }}" method="post" class="inline-form">
+          {# Logging out changes state, so it is a POST form, not a link.
+             A guest "leaves" instead: that deletes their visit. #}
+          <form action="{{ url_for('guest.leave_route') if is_guest() else url_for('auth.logout') }}" method="post" class="inline-form">
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <button type="submit" class="link-button">{{ _("Log out") }}</button>
+            <button type="submit" class="link-button">{{ _("Leave") if is_guest() else _("Log out") }}</button>
           </form>
         </div>
       {% else %}
@@ -103,6 +104,18 @@
       {% endif %}
     </nav>
   </header>
+
+  {# Guests always see this: nothing they do is kept (app/guests.py). #}
+  {% if is_guest() %}
+    <div class="guest-bar" role="note">
+      <p><strong>{{ _("Guest mode.") }}</strong> {{ _("Nothing you do here is saved. It's deleted when you leave or after 1 hour without activity.") }}</p>
+      <form action="{{ url_for('guest.leave_route') }}" method="post" class="inline-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit" name="next" value="register" class="button button-small">{{ _("Create an account") }}</button>
+        <button type="submit" class="button button-small button-outline">{{ _("Leave") }}</button>
+      </form>
+    </div>
+  {% endif %}
 
   {# Messages saved with flash() in a route. They float in the corner
      (.toasts is position: fixed), so they never push the page down, and

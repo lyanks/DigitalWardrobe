@@ -27,12 +27,12 @@ def alice():
 
 def test_english_by_default(client):
     page = client.get("/").get_data(as_text=True)
-    assert '<html lang="en"' in page and "Get started free" in page
+    assert '<html lang="en"' in page and "Try it as a guest" in page
 
 
 def test_a_ukrainian_browser_gets_ukrainian(client):
     page = client.get("/", headers=UA).get_data(as_text=True)
-    assert '<html lang="uk"' in page and "Почати безкоштовно" in page
+    assert '<html lang="uk"' in page and "Спробувати як гість" in page
 
 
 def test_the_switch_wins_over_the_browser_and_returns_to_the_page(client):

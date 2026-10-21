@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "macros/guest.html" import guest_button %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
@@ -65,8 +66,8 @@
       <a href="{{ url_for('wardrobe.create') }}" class="button">{{ _("Add your first item") }}</a>
       <a href="{{ url_for('main.index') }}">{{ _("Back home") }}</a>
     {% else %}
-      <a href="{{ url_for('auth.register') }}" class="button">{{ _("Get started free") }}</a>
-      <a href="{{ url_for('auth.login') }}">{{ _("Log in") }}</a>
+      {{ guest_button("button") }}
+      <a href="{{ url_for('auth.register') }}">{{ _("Sign up with an invite") }}</a>
     {% endif %}
   </section>
 {% endblock %}

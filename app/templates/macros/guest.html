@@ -1,0 +1,8 @@
+{# "Try it as a guest": a POST form (it creates something), so it carries
+   the CSRF token like every other form. #}
+{% macro guest_button(class="button", label=None) %}
+  <form method="post" action="{{ url_for('guest.try_it') }}" class="inline-form">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="{{ class }}">{{ label or _("Try it as a guest") }}</button>
+  </form>
+{% endmacro %}

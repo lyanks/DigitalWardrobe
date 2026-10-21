@@ -11,7 +11,7 @@ def alice():
 def test_visitors_can_read_the_tutorial(client):
     page = client.get("/tutorial").get_data(as_text=True)
     assert "How it works" in page and "Pack a suitcase" in page
-    assert "Get started free" in page
+    assert "Try it as a guest" in page
     assert "See how it works" in client.get("/").get_data(as_text=True)  # landing link
 
 

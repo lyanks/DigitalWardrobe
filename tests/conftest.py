@@ -14,16 +14,25 @@ from seed import seed_categories, seed_options
 def app(tmp_path):
     class Cfg(TestConfig):
         UPLOAD_FOLDER = str(tmp_path / "uploads")  # throwaway folder per test
+        GUEST_FOLDER = str(tmp_path / "guests")
 
     app = create_app(Cfg)
 
     # A real server starts every request with a fresh `g`. The tests share
     # one app context, so drop what the last request kept in it: the
-    # shared lists (app/options.py) and the language (Flask-Babel).
+    # shared lists (app/options.py), the language (Flask-Babel) and the
+    # logged-in user (Flask-Login), which matters when a test uses two
+    # browsers (clients) at once.
+    from flask import g
     from flask_babel import refresh
     from app.options import forget
     app.before_request(forget)
     app.before_request(refresh)
+
+    @app.before_request
+    def forget_user():
+        g.pop("_login_user", None)
+
 
     with app.app_context():
         db.create_all()  # fresh tables in the in-memory database
