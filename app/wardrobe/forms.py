@@ -1,10 +1,10 @@
-from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
 from wtforms import (BooleanField, DecimalField, HiddenField, SelectField, StringField,
                      SubmitField, TextAreaField, URLField)
 from wtforms.validators import URL, DataRequired, Length, NumberRange, Optional
 
 from app.dates import DayMonthYearField
+from app.forms import BaseForm
 from app.wardrobe.choices import COLORS, CURRENCIES, PRIORITIES, SEASONS, STYLES
 
 IMAGE_TYPES = ["jpg", "jpeg", "png", "webp", "gif"]
@@ -14,7 +14,7 @@ def _label(value):
     return value.capitalize()
 
 
-class ItemForm(FlaskForm):
+class ItemForm(BaseForm):
     name = StringField("Name", validators=[DataRequired(), Length(max=100)])
     # coerce=int: the browser sends "3" as text; we want the number 3.
     # The choices come from the database, so the route fills them in.
@@ -58,11 +58,11 @@ class ItemForm(FlaskForm):
 WISH_FIELDS = ("shop_url", "price", "currency", "priority", "image_url")
 
 
-class BoughtForm(FlaskForm):
+class BoughtForm(BaseForm):
     """Only the CSRF token, for the "I bought it" button."""
     submit = SubmitField("I bought it")
 
 
-class DeleteForm(FlaskForm):
+class DeleteForm(BaseForm):
     """An empty form: it only carries the CSRF token for the delete button."""
     submit = SubmitField("Yes, delete it")

@@ -56,6 +56,11 @@ if (title && document.documentElement.classList.contains("landing-intro")) {
     word.style.maxWidth = `${word.scrollWidth}px`;
     word.classList.add("shown");
     await wait(700);
+    // Make it ordinary text again: a normal space instead of the &nbsp;, so
+    // if the word starts a new line (on a phone) it isn't pushed in.
+    word.textContent = word.textContent.trimStart();
+    word.before(" ");
+    word.classList.add("settled");
     document.documentElement.classList.add("landing-done");  // buttons slide up
   }
 

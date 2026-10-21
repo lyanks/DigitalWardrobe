@@ -1,11 +1,11 @@
-from flask_wtf import FlaskForm
 from wtforms import SelectField, SelectMultipleField, StringField, SubmitField
 from wtforms.validators import DataRequired, Length, Optional
 
 from app.dates import DayMonthYearField
+from app.forms import BaseForm
 
 
-class ScheduleForm(FlaskForm):
+class ScheduleForm(BaseForm):
     # The route fills the choices with the user's own outfits.
     outfit_id = SelectField("Outfit", coerce=int, validators=[DataRequired()])
     # Turns "14.10.2026" into a Python date object (see app/dates.py).
@@ -14,7 +14,7 @@ class ScheduleForm(FlaskForm):
     submit = SubmitField("Add to calendar")
 
 
-class LogLookForm(FlaskForm):
+class LogLookForm(BaseForm):
     """Idea #1: what you wore on a day, picked from loose items."""
     # Filled with the user's own item ids by the route, like the outfit builder.
     item_ids = SelectMultipleField("Items", coerce=int)

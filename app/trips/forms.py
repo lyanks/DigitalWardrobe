@@ -1,14 +1,14 @@
-from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired, Length, ValidationError
 
 from app.dates import DayMonthYearField
+from app.forms import BaseForm
 
 # Longer trips are more likely a typo in the year.
 MAX_TRIP_DAYS = 60
 
 
-class TripForm(FlaskForm):
+class TripForm(BaseForm):
     name = StringField("Where to?", validators=[DataRequired(), Length(max=80)],
                        render_kw={"placeholder": "Lviv weekend"})
     start_date = DayMonthYearField("From", validators=[DataRequired()])

@@ -1,5 +1,4 @@
 from flask_login import current_user
-from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
 from wtforms import BooleanField, PasswordField, RadioField, StringField, SubmitField
 from wtforms.validators import (
@@ -8,6 +7,7 @@ from wtforms.validators import (
 
 from app.auth.validators import StrongPassword
 from app.extensions import db
+from app.forms import BaseForm
 from app.models import User
 from app.themes import DEFAULT_THEME, HEX_COLOR, THEMES
 
@@ -23,7 +23,7 @@ USERNAME_RULES = [
 ]
 
 
-class RegistrationForm(FlaskForm):
+class RegistrationForm(BaseForm):
     username = StringField("Username", validators=USERNAME_RULES)
     email = StringField("Email", validators=[DataRequired(), Email(), Length(max=120)])
     password = PasswordField("Password", validators=[DataRequired(), StrongPassword()],
@@ -43,13 +43,13 @@ class RegistrationForm(FlaskForm):
             raise ValidationError("An account with that email already exists.")
 
 
-class LoginForm(FlaskForm):
+class LoginForm(BaseForm):
     login = StringField("Username or email", validators=[DataRequired()])
     password = PasswordField("Password", validators=[DataRequired()])
     submit = SubmitField("Log in")
 
 
-class ProfileForm(FlaskForm):
+class ProfileForm(BaseForm):
     username = StringField("Username", validators=USERNAME_RULES,
                            description="You can log in with this or your email.")
     display_name = StringField("Display name", validators=[Optional(), Length(max=80)])
@@ -65,7 +65,7 @@ class ProfileForm(FlaskForm):
             raise ValidationError("That username is taken.")
 
 
-class ChangePasswordForm(FlaskForm):
+class ChangePasswordForm(BaseForm):
     # Optional here: an account made with Google has no password yet.
     # The route checks it for everyone else.
     current_password = PasswordField("Current password", validators=[Optional()])
@@ -77,7 +77,7 @@ class ChangePasswordForm(FlaskForm):
     submit = SubmitField("Change password")
 
 
-class LookForm(FlaskForm):
+class LookForm(BaseForm):
     """Idea #5: pick a theme and, if you like, your own accent colour."""
     theme = RadioField("Theme", choices=[(key, label) for key, (label, _) in THEMES.items()],
                        default=DEFAULT_THEME)

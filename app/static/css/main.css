@@ -2716,15 +2716,21 @@ input[type="radio"] {
 .landing-intro .hero-title [data-reveal] {
     display: inline-block;
     white-space: nowrap;
-    vertical-align: bottom;
     max-width: 0;
-    overflow: hidden;
+    /* Cut off only left and right while it's folded. "hidden" would also
+       cut the bottom of g and y. */
+    overflow-x: clip;
     opacity: 0;
     transition: max-width 0.45s ease, opacity 0.6s ease 0.3s;
 }
 
 .landing-intro .hero-title [data-reveal].shown {
     opacity: 1;
+}
+
+.landing-intro .hero-title [data-reveal].settled {
+    display: inline;
+    max-width: none;
 }
 
 .type-caret {
@@ -2745,4 +2751,140 @@ input[type="radio"] {
 
 @keyframes caret-blink {
     50% { opacity: 0; }
+}
+
+/* ---------- Tutorial ---------- */
+
+/* The "New here?" banner on the home page. */
+.tutorial-tip {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.25rem;
+    margin-bottom: calc(var(--space) * 1.5);
+    border: 1px solid color-mix(in srgb, var(--color-primary) 45%, transparent);
+    border-radius: var(--radius-lg);
+    background: color-mix(in srgb, var(--color-primary) 10%, var(--color-glass));
+}
+
+.tutorial-tip > div {
+    flex: 1;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.6rem;
+}
+
+.tutorial-tip-close {
+    font-size: 1.3rem;
+    line-height: 1;
+    padding: 0.2rem 0.4rem;
+    color: var(--color-muted);
+}
+
+.tutorial-again {
+    margin: 0 0 var(--space);
+}
+
+.hero-link {
+    align-self: center;
+    margin-left: 0.5rem;
+}
+
+.tutorial-head {
+    margin: var(--space) 0 calc(var(--space) * 2);
+}
+
+.tutorial-head .big-title {
+    margin: 0.25rem 0 0.75rem;
+}
+
+.tutorial-steps {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-glass-border);
+}
+
+/* Number | icon | text, with thin lines between, like the home numbers. */
+.tutorial-step {
+    display: grid;
+    grid-template-columns: 4.5rem 3.5rem minmax(0, 1fr);
+    gap: 1.25rem;
+    align-items: start;
+    padding: calc(var(--space) * 1.5) 0;
+    border-bottom: 1px solid var(--color-glass-border);
+}
+
+.tutorial-number {
+    font-size: 2.6rem;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--color-primary);
+    letter-spacing: -0.03em;
+}
+
+.tutorial-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+    display: grid;
+    place-items: center;
+    border-radius: 1rem;
+    border: 1px solid var(--color-glass-border);
+    background: var(--color-glass);
+}
+
+.tutorial-icon svg {
+    width: 1.75rem;
+    height: 1.75rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.7;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.tutorial-body h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.35rem;
+}
+
+.tutorial-body p {
+    margin: 0 0 0.6rem;
+}
+
+.tutorial-body ul {
+    margin: 0 0 0.75rem;
+    padding-left: 1.1rem;
+    color: var(--color-muted);
+}
+
+.tutorial-body li + li {
+    margin-top: 0.25rem;
+}
+
+.tutorial-end {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1.25rem;
+    margin: calc(var(--space) * 2) 0;
+}
+
+@media (max-width: 600px) {
+    .tutorial-step {
+        grid-template-columns: 3rem minmax(0, 1fr);
+        gap: 0.75rem 1rem;
+    }
+
+    .tutorial-number {
+        font-size: 1.8rem;
+    }
+
+    .tutorial-icon {
+        display: none;
+    }
+
+    .tutorial-tip {
+        flex-wrap: wrap;
+    }
 }

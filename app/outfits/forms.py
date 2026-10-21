@@ -1,13 +1,13 @@
-from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField
 from wtforms import BooleanField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, Optional
 
+from app.forms import BaseForm
 from app.wardrobe.choices import OCCASIONS
 from app.wardrobe.forms import IMAGE_TYPES
 
 
-class OutfitForm(FlaskForm):
+class OutfitForm(BaseForm):
     name = StringField("Name", validators=[DataRequired(), Length(max=100)])
     occasion = SelectField("Occasion", choices=[("", "—")] + [(o, o.capitalize()) for o in OCCASIONS])
     # Several values under one name: the browser sends item_ids=3&item_ids=7...
@@ -23,6 +23,6 @@ class OutfitForm(FlaskForm):
     submit = SubmitField("Save outfit")
 
 
-class DeleteOutfitForm(FlaskForm):
+class DeleteOutfitForm(BaseForm):
     """Only carries the CSRF token for the delete button."""
     submit = SubmitField("Yes, delete it")

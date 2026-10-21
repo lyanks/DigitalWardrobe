@@ -32,6 +32,8 @@ class User(UserMixin, db.Model):
     accent_color = db.Column(db.String(7))  # "#c4a8ff", or None = the theme's own
     # Idea #7: when the setup wizard was finished (or skipped). Empty = not yet.
     onboarded_at = db.Column(db.DateTime(timezone=True))
+    # When they opened the tutorial or closed its banner. Empty = suggest it.
+    tutorial_seen_at = db.Column(db.DateTime(timezone=True))
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
     # One user -> many items. Deleting a user deletes their items too.

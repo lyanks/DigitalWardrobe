@@ -1,8 +1,8 @@
-from flask_wtf import FlaskForm
 from wtforms import SelectMultipleField, SubmitField
 from wtforms.widgets import CheckboxInput, ListWidget
 
 from app.auth.forms import LookForm, ProfileForm
+from app.forms import BaseForm
 from app.goals import GOALS
 
 
@@ -23,7 +23,7 @@ class MultiCheckboxField(SelectMultipleField):
     option_widget = CheckboxInput()
 
 
-class GoalsForm(FlaskForm):
+class GoalsForm(BaseForm):
     """Step 2 (and the profile page): why you use the app. Pick any number."""
     goals = MultiCheckboxField("Why do you use Digital Wardrobe?",
                                choices=list(GOALS.items()))
@@ -35,5 +35,5 @@ class WelcomeLookForm(LookForm):
     submit = SubmitField("Finish")
 
 
-class SkipForm(FlaskForm):
+class SkipForm(BaseForm):
     """Only the CSRF token, for "Skip the setup"."""

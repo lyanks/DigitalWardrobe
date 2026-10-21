@@ -35,6 +35,23 @@
       </div>
     </section>
 
+    {# Suggest the tutorial until it's been opened or this banner closed. #}
+    {% if current_user.tutorial_seen_at is none %}
+      <section class="tutorial-tip">
+        <div>
+          <strong>New here?</strong>
+          <span class="muted">See what the app can do in two minutes.</span>
+        </div>
+        <a href="{{ url_for('tutorial.index') }}" class="button button-small">
+          Show me <span class="arrow" aria-hidden="true">→</span>
+        </a>
+        <form method="post" action="{{ url_for('tutorial.hide') }}" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link-button tutorial-tip-close" aria-label="Don't show this again">×</button>
+        </form>
+      </section>
+    {% endif %}
+
     {# week = [(date, [entries]), ...]: today first, then the next 6 days. #}
     {% set today_entries = week[0][1] %}
     <section class="today-banner">
@@ -149,16 +166,17 @@
       </div>
       <p class="hero-tagline intro-fade">Track every piece, plan outfits, and find new ideas.</p>
       {# landing.js types the [data-type] parts, then fades in "thoughtfully".
-         The &nbsp; lives inside <em>, so while it's folded away there is
-         only one space between "wardrobe," and "organised". #}
+         The &nbsp; lives inside <em>, so while it's folded away there is no
+         stray space after "wardrobe,". <br> keeps "organised." on its own line. #}
       <h1 class="hero-title" data-typing>
-        <span data-type>Your wardrobe,</span><em data-reveal>&nbsp;thoughtfully</em> <span data-type>organised.</span>
+        <span data-type>Your wardrobe,</span><em data-reveal>&nbsp;thoughtfully</em><br><span data-type>organised.</span>
       </h1>
       <div class="hero-actions intro-fade intro-late">
         <a href="{{ url_for('auth.register') }}" class="button">Get started free</a>
         {% if config.GOOGLE_CLIENT_ID %}
           <a href="{{ url_for('auth.google_login') }}" class="button button-outline">Continue with Google</a>
         {% endif %}
+        <a href="{{ url_for('tutorial.index') }}" class="hero-link">See how it works <span aria-hidden="true">→</span></a>
       </div>
     </section>
   {% endif %}

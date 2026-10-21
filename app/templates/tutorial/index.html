@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block body_class %}{{ "" if current_user.is_authenticated else "public" }}{% endblock %}
+
+{# One feature: a number, an icon, a title, a sentence and up to three tips.
+   "endpoint" is where "Open" takes you (only shown when you're logged in). #}
+{% set features = [
+  {"icon": "hanger", "title": "Add your clothes", "endpoint": "wardrobe.create", "open": "Add an item",
+   "text": "Everything starts in your wardrobe: one item for each piece you own.",
+   "tips": ["Take a photo on a white background, and the app cuts the white away.",
+            "Paste a shop link and the name, brand and photo fill themselves in.",
+            "Filter by category, colour and season, or drag cards into your own order."]},
+  {"icon": "outfit", "title": "Put outfits together", "endpoint": "outfits.create", "open": "New outfit",
+   "text": "Pick a top and a bottom (or a dress), add shoes and extras, and save it under a name.",
+   "tips": ["Add a photo of yourself wearing it.",
+            "The app warns you if something is missing, like a second top or no bottom."]},
+  {"icon": "calendar", "title": "Plan the week", "endpoint": "planner.index", "open": "Open the planner",
+   "text": "Drag an outfit onto a day in the planner. Tick it once you've worn it.",
+   "tips": ["Wore something without a saved outfit? Use Log a look.",
+            "Repeating the same combo within a week gets a gentle note."]},
+  {"icon": "washer", "title": "Keep track of the laundry", "endpoint": "wardrobe.index", "open": "Open the wardrobe",
+   "text": "Drag clothes onto the washer in the corner of your wardrobe.",
+   "tips": ["Clothes in the wash look faded, and the planner reminds you about them.",
+            "Press It's clean on the item when it's back."]},
+  {"icon": "suitcase", "title": "Pack a suitcase", "endpoint": "trips.index", "open": "Plan a trip",
+   "text": "Add a trip with its dates. Your suitcase is on one side and your wardrobe on the other: drag clothes in.",
+   "tips": ["Drop a whole outfit to pack all of it at once.",
+            "Tick each piece as it goes in the bag. The trip shows on your calendar."]},
+  {"icon": "chart", "title": "Wishlist and stats", "endpoint": "main.stats", "open": "See your stats",
+   "text": "Save things you'd like to buy, and see what you actually wear.",
+   "tips": ["Stats show your colours and categories, and what you wear most and least.",
+            "Your profile lets you change the theme and the accent colour."]},
+] %}
+
+{% block content %}
+  <section class="tutorial-head">
+    <p class="eyebrow">Tutorial</p>
+    <h1 class="big-title">How it works</h1>
+    <p class="muted">Six things the app does for you, in the order most people use them.</p>
+  </section>
+
+  <ol class="tutorial-steps">
+    {% for feature in features %}
+      <li class="tutorial-step">
+        <span class="tutorial-number" aria-hidden="true">{{ "%02d" | format(loop.index) }}</span>
+        <span class="tutorial-icon" aria-hidden="true">{% include "tutorial/_icons.html" %}</span>
+        <div class="tutorial-body">
+          <h2>{{ feature.title }}</h2>
+          <p>{{ feature.text }}</p>
+          <ul>
+            {% for tip in feature.tips %}<li>{{ tip }}</li>{% endfor %}
+          </ul>
+          {% if current_user.is_authenticated %}
+            <a href="{{ url_for(feature.endpoint) }}">{{ feature.open }} <span aria-hidden="true">→</span></a>
+          {% endif %}
+        </div>
+      </li>
+    {% endfor %}
+  </ol>
+
+  <section class="tutorial-end">
+    {% if current_user.is_authenticated %}
+      <a href="{{ url_for('wardrobe.create') }}" class="button">Add your first item</a>
+      <a href="{{ url_for('main.index') }}">Back home</a>
+    {% else %}
+      <a href="{{ url_for('auth.register') }}" class="button">Get started free</a>
+      <a href="{{ url_for('auth.login') }}">Log in</a>
+    {% endif %}
+  </section>
+{% endblock %}

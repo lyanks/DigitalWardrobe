@@ -63,6 +63,7 @@ def create_app(config_class=Config):
     from app.api.routes import bp as api_bp
     from app.welcome.routes import bp as welcome_bp
     from app.trips.routes import bp as trips_bp
+    from app.tutorial.routes import bp as tutorial_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -71,6 +72,7 @@ def create_app(config_class=Config):
     app.register_blueprint(planner_bp)
     app.register_blueprint(api_bp)
     app.register_blueprint(trips_bp)
+    app.register_blueprint(tutorial_bp)
     app.register_blueprint(welcome_bp)
 
     return app
