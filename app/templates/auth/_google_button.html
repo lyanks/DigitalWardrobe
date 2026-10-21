@@ -1,13 +1,20 @@
 {# Only shown when GOOGLE_CLIENT_ID is set in .env. `config` is Flask's
-   app.config, available in every template. #}
+   app.config, available in every template.
+   On the sign-up page (google_signup) it's a button that sends the sign-up
+   form to /login/google, so the invite code goes along. #}
 {% if config.GOOGLE_CLIENT_ID %}
   <p class="divider"><span>{{ _("or continue with") }}</span></p>
+  {% if google_signup %}
+  <button type="submit" form="signup-form" formaction="{{ url_for('auth.google_login') }}"
+          class="google-round" aria-label="{{ _('Continue with Google') }}" title="{{ _('Continue with Google') }}">
+  {% else %}
   <a href="{{ url_for('auth.google_login') }}" class="google-round" aria-label="{{ _('Continue with Google') }}" title="{{ _('Continue with Google') }}">
+  {% endif %}
     <svg viewBox="0 0 48 48" aria-hidden="true" class="google-logo">
       <path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9.1 3.6l6.8-6.8C35.8 2.4 30.3 0 24 0 14.6 0 6.6 5.4 2.6 13.3l7.9 6.2C12.4 13.6 17.7 9.5 24 9.5z"/>
       <path fill="#4285F4" d="M46.1 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.4c-.5 2.9-2.2 5.3-4.6 6.9l7.3 5.7c4.3-3.9 7-9.7 7-17.1z"/>
       <path fill="#FBBC05" d="M10.5 28.5c-.5-1.4-.8-2.9-.8-4.5s.3-3.1.8-4.5l-7.9-6.2C1 16.6 0 20.2 0 24s1 7.4 2.6 10.7l7.9-6.2z"/>
       <path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.3-5.7c-2.2 1.5-5 2.3-8.6 2.3-6.3 0-11.6-4.2-13.5-9.9l-7.9 6.2C6.6 42.6 14.6 48 24 48z"/>
     </svg>
-  </a>
+  {% if google_signup %}</button>{% else %}</a>{% endif %}
 {% endif %}

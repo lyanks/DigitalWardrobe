@@ -73,6 +73,9 @@
           {{ nav_link("outfits.index", _("Outfits"), request.blueprint == "outfits") }}
           {{ nav_link("planner.index", _("Planner"), request.blueprint in ("planner", "trips")) }}
           {{ nav_link("main.stats", _("Stats"), endpoint == "main.stats") }}
+          {% if is_admin(current_user) %}
+            {{ nav_link("admin.index", _("Admin"), request.blueprint == "admin") }}
+          {% endif %}
         </div>
         <div class="nav-account">
           {{ language_switch() }}

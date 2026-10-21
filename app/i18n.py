@@ -137,6 +137,7 @@ JS_TEXTS = [
     N_("The page had no details we could read. Fill the form in by hand."),
     N_("Something went wrong. Try again, or fill the form in by hand."),
     N_("Show password"), N_("Hide password"),
+    N_("Copied: %(text)s"), N_("Couldn't copy. Select the code and copy it by hand."),
 ]
 
 

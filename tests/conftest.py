@@ -31,9 +31,13 @@ def client(app):
 
 
 def register(client, username="alice", email="alice@example.com", password="Secret123!",
-             skip_setup=True):
+             skip_setup=True, code=None):
+    # Sign-up needs an invite code: make a fresh one unless the test brings its own.
+    if code is None:
+        from app.invites import create_invite
+        code = create_invite().code
     response = client.post("/register", data={
-        "username": username, "email": email,
+        "invite_code": code, "username": username, "email": email,
         "password": password, "confirm": password,
     }, follow_redirects=True)
     if skip_setup:
@@ -41,6 +45,15 @@ def register(client, username="alice", email="alice@example.com", password="Secr
         # quick way, like pressing "Skip the setup".
         client.post("/welcome/skip")
     return response
+
+
+def google_invite(client):
+    """Put an invite code in the session, like the Google button on the sign-up page does."""
+    from app.invites import create_invite
+    code = create_invite().code
+    with client.session_transaction() as session:
+        session["invite_code"] = code
+    return code
 
 
 def login(client, login="alice", password="Secret123!"):

@@ -9,6 +9,7 @@ from wtforms.validators import (
 from app.auth.validators import StrongPassword
 from app.extensions import db
 from app.forms import BaseForm
+from app.invites import find_usable
 from app.models import User
 from app.themes import DEFAULT_THEME, HEX_COLOR, THEMES
 
@@ -24,7 +25,14 @@ USERNAME_RULES = [
 ]
 
 
+# Same words for a wrong, used, turned-off or expired code, so nobody can
+# find out which codes exist by trying.
+INVALID_INVITE = _l("This invite code isn't valid.")
+
+
 class RegistrationForm(BaseForm):
+    invite_code = StringField(_l("Invite code"), validators=[DataRequired()],
+                              description=_l("Sign-up is by invitation only."))
     username = StringField(_l("Username"), validators=USERNAME_RULES)
     email = StringField(_l("Email"), validators=[DataRequired(), Email(), Length(max=120)])
     password = PasswordField(_l("Password"), validators=[DataRequired(), StrongPassword()],
@@ -35,6 +43,10 @@ class RegistrationForm(BaseForm):
     submit = SubmitField(_l("Create account"))
 
     # WTForms calls any method named validate_<fieldname> automatically.
+    def validate_invite_code(self, field):
+        if not find_usable(field.data):
+            raise ValidationError(INVALID_INVITE)
+
     def validate_username(self, field):
         if db.session.scalar(db.select(User).filter_by(username=field.data)):
             raise ValidationError(_l("That username is taken."))

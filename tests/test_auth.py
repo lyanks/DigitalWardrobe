@@ -2,7 +2,7 @@ import io
 
 from app.extensions import db
 from app.models import User
-from tests.conftest import login, logout, make_image, register
+from tests.conftest import google_invite, login, logout, make_image, register
 
 
 def test_register_creates_user_and_logs_in(client):
@@ -209,6 +209,7 @@ def test_google_login_redirects_to_google(client):
 
 def test_google_creates_new_account(client, monkeypatch):
     fake_google(monkeypatch)
+    google_invite(client)
     response = client.get("/login/google/callback", follow_redirects=True)
 
     assert b"Hi, Anna K!" in response.data
@@ -237,6 +238,7 @@ def test_google_username_is_made_unique(client, monkeypatch):
     register(client, "anna", "anna@example.com")
     logout(client)
     fake_google(monkeypatch)  # anna@gmail.com, a different email
+    google_invite(client)
     client.get("/login/google/callback")
     assert db.session.scalar(db.select(User).filter_by(google_id="google-123")).username == "anna2"
 
@@ -250,6 +252,7 @@ def test_google_rejects_unverified_email(client, monkeypatch):
 
 def test_google_user_can_set_a_password(client, monkeypatch):
     fake_google(monkeypatch)
+    google_invite(client)
     client.get("/login/google/callback")
     page = client.get("/profile").data
     assert b"Set a password" in page and b"Current password" not in page
@@ -295,6 +298,7 @@ def test_change_username_rules(client):
 
 def test_google_user_can_rename(client, monkeypatch):
     fake_google(monkeypatch, email="lyanka.k.2004@gmail.com")
+    google_invite(client)
     client.get("/login/google/callback")
     response = client.post("/profile", data={
         "profile-username": "lyanks", "profile-submit": "Save profile",

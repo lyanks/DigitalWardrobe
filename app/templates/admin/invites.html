@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ _("Invite codes") }}</h1>
+  </div>
+
+  <div class="trips-layout">
+    <section class="card">
+      <h2>{{ _("New code") }}</h2>
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        {{ render_field(form.note) }}
+        {{ render_field(form.expires_on) }}
+        {{ form.submit(class="button") }}
+      </form>
+    </section>
+
+    <section>
+      {% for invite in codes %}
+        {% set status = invite.status(today) %}
+        <div class="invite-row invite-{{ status }}">
+          <code class="invite-code">{{ invite.code }}</code>
+          <span class="invite-status">
+            {% if status == "used" %}
+              {% if invite.used_by %}
+                {{ _("Used by %(name)s (%(email)s) on %(date)s", name=invite.used_by.username,
+                     email=invite.used_by.email, date=invite.used_at | date) }}
+              {% else %}
+                {{ _("Used on %(date)s", date=invite.used_at | date) }}
+              {% endif %}
+            {% elif status == "off" %}
+              {{ _("Turned off") }}
+            {% elif status == "expired" %}
+              {{ _("Expired on %(date)s", date=invite.expires_on | date) }}
+            {% else %}
+              {{ _("Waiting") }}{% if invite.expires_on %} · {{ _("works until %(date)s", date=invite.expires_on | date) }}{% endif %}
+            {% endif %}
+          </span>
+          {% if invite.note %}<span class="muted invite-note">{{ invite.note }}</span>{% endif %}
+
+          {% if status == "waiting" %}
+            <div class="actions invite-actions">
+              <button type="button" class="button button-outline button-small" data-copy="{{ invite.code }}">{{ _("Copy") }}</button>
+              <form method="post" action="{{ url_for('admin.turn_off', invite_id=invite.id) }}" class="inline-form"
+                    data-confirm-title="{{ _('Turn off %(code)s?', code=invite.code) }}"
+                    data-confirm="{{ _('Nobody will be able to sign up with it.') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="link-button danger-link">{{ _("Turn off") }}</button>
+              </form>
+            </div>
+          {% endif %}
+        </div>
+      {% else %}
+        <p class="muted">{{ _("No codes yet. Make one to invite someone.") }}</p>
+      {% endfor %}
+    </section>
+  </div>
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/copy.js') }}"></script>
+{% endblock %}

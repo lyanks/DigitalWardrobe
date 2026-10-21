@@ -1454,3 +1454,84 @@ msgstr "“%(name)s” більше не позначено як вдягнут�
 msgid "✓ Worn"
 msgstr "✓ Вдягнуто"
 
+
+msgid "Copied: %(text)s"
+msgstr "Скопійовано: %(text)s"
+
+msgid "Couldn't copy. Select the code and copy it by hand."
+msgstr "Не вдалося скопіювати. Виділи код і скопіюй вручну."
+
+msgid "Who is it for?"
+msgstr "Для кого він?"
+
+msgid "Only you see this."
+msgstr "Це бачиш лише ти."
+
+msgid "Works until"
+msgstr "Діє до"
+
+msgid "Leave empty for no end date."
+msgstr "Залиш порожнім, щоб код діяв без обмежень."
+
+msgid "Make a code"
+msgstr "Створити код"
+
+msgid "New code: %(code)s"
+msgstr "Новий код: %(code)s"
+
+msgid "Invite codes"
+msgstr "Коди запрошення"
+
+msgid "%(code)s is turned off."
+msgstr "Код %(code)s вимкнено."
+
+msgid "This invite code isn't valid."
+msgstr "Цей код запрошення недійсний."
+
+msgid "Invite code"
+msgstr "Код запрошення"
+
+msgid "Sign-up is by invitation only."
+msgstr "Реєстрація лише за запрошенням."
+
+msgid "To make a new account, enter your invite code on the sign-up page first."
+msgstr "Щоб створити акаунт, спершу введи код запрошення на сторінці реєстрації."
+
+msgid "Admin"
+msgstr "Адмін"
+
+msgid "New code"
+msgstr "Новий код"
+
+msgid "Used by %(name)s (%(email)s) on %(date)s"
+msgstr "Використав(ла) %(name)s (%(email)s) %(date)s"
+
+msgid "Used on %(date)s"
+msgstr "Використано %(date)s"
+
+msgid "Turned off"
+msgstr "Вимкнено"
+
+msgid "Expired on %(date)s"
+msgstr "Закінчився %(date)s"
+
+msgid "Waiting"
+msgstr "Чекає"
+
+msgid "works until %(date)s"
+msgstr "діє до %(date)s"
+
+msgid "Copy"
+msgstr "Копіювати"
+
+msgid "Turn off %(code)s?"
+msgstr "Вимкнути %(code)s?"
+
+msgid "Nobody will be able to sign up with it."
+msgstr "Ніхто не зможе зареєструватися з ним."
+
+msgid "Turn off"
+msgstr "Вимкнути"
+
+msgid "No codes yet. Make one to invite someone."
+msgstr "Кодів ще немає. Створи код, щоб когось запросити."

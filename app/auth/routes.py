@@ -2,12 +2,17 @@ import re
 from urllib.parse import urlsplit
 
 from authlib.integrations.base_client import OAuthError
-from flask import Blueprint, abort, current_app, flash, redirect, render_template, request, url_for
+from flask import (
+    Blueprint, abort, current_app, flash, redirect, render_template, request, session, url_for,
+)
 from flask_babel import gettext as _
 from flask_login import current_user, login_required, login_user, logout_user
 
-from app.auth.forms import ChangePasswordForm, LoginForm, LookForm, ProfileForm, RegistrationForm
+from app.auth.forms import (
+    INVALID_INVITE, ChangePasswordForm, LoginForm, LookForm, ProfileForm, RegistrationForm,
+)
 from app.extensions import db, oauth
+from app.invites import find_usable, tidy, use_invite
 from app.models import User
 from app.services.images import InvalidImageError, delete_image, save_image
 from app.themes import THEMES
@@ -28,6 +33,12 @@ def register():
         user = User(username=form.username.data, email=form.email.data.lower())
         user.set_password(form.password.data)
         db.session.add(user)
+        # The account and the used-up code are saved together, or not at all.
+        invite = find_usable(form.invite_code.data)
+        if invite is None or not use_invite(invite, user):
+            db.session.rollback()
+            form.invite_code.errors.append(INVALID_INVITE)
+            return render_template("auth/register.html", title=_("Sign up"), form=form)
         db.session.commit()
 
         login_user(user)
@@ -137,10 +148,18 @@ def profile():
 
 # ---------- Sign in with Google ----------
 
-@bp.route("/login/google")
+@bp.route("/login/google", methods=["GET", "POST"])
 def google_login():
     if not current_app.config["GOOGLE_CLIENT_ID"]:
         abort(404)  # not set up on this computer
+    # The Google button on the sign-up page sends the invite code along
+    # (POST). It waits in the session until Google sends the person back.
+    if request.method == "POST":
+        code = request.form.get("invite_code", "")
+        if not find_usable(code):
+            flash(INVALID_INVITE, "error")
+            return redirect(url_for("auth.register"))
+        session["invite_code"] = tidy(code)
     # Step 1: send the browser to Google's sign-in page. Google will send
     # it back to the callback URL below with a one-time code.
     callback = url_for("auth.google_callback", _external=True)
@@ -165,6 +184,9 @@ def google_callback():
         return redirect(url_for("auth.login"))
 
     user = _find_or_create_google_user(info)
+    if user is None:
+        flash(_("To make a new account, enter your invite code on the sign-up page first."), "error")
+        return redirect(url_for("auth.register"))
     login_user(user)
     flash(_("Hi, %(name)s!", name=user.shown_name), "success")
     return redirect(_after_login(user))
@@ -179,7 +201,10 @@ def _after_login(user):
 
 
 def _find_or_create_google_user(info):
-    """Step 3: match the Google account to one of our users."""
+    """Step 3: match the Google account to one of our users.
+
+    None means it's a new person without a usable invite code.
+    """
     google_id = info["sub"]  # Google's permanent id for this person
     email = info["email"].lower()
 
@@ -195,7 +220,11 @@ def _find_or_create_google_user(info):
         db.session.commit()
         return user
 
-    # Brand new: create an account without a password.
+    # Brand new: only with an invite code (sent from the sign-up page).
+    invite = find_usable(session.pop("invite_code", ""))
+    if invite is None:
+        return None
+    # Create an account without a password.
     user = User(
         username=_free_username(email.split("@")[0]),
         email=email,
@@ -203,6 +232,9 @@ def _find_or_create_google_user(info):
         display_name=(info.get("name") or "")[:80] or None,
     )
     db.session.add(user)
+    if not use_invite(invite, user):
+        db.session.rollback()
+        return None
     db.session.commit()
     return user
 

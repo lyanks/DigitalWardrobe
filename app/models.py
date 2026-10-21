@@ -287,6 +287,35 @@ class ScheduledOutfit(db.Model):
         return f"<ScheduledOutfit {self.outfit_id} on {self.date}>"
 
 
+class InviteCode(db.Model):
+    """A one-time code someone needs to create an account.
+
+    A code is usable while it isn't used, turned off or past its expiry
+    date. When someone signs up with it, used_at and used_by are filled in,
+    so the admin page can show who joined with which code.
+    """
+
+    id = db.Column(db.Integer, primary_key=True)
+    code = db.Column(db.String(20), unique=True, nullable=False, index=True)
+    note = db.Column(db.String(100))  # who it's for, e.g. "for Olena"
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+    expires_on = db.Column(db.Date)  # last day it works; empty = never expires
+    disabled_at = db.Column(db.DateTime(timezone=True))
+    used_at = db.Column(db.DateTime(timezone=True))
+    used_by_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"))
+    used_by = db.relationship("User")
+
+    def status(self, today):
+        """One of "used", "off", "expired", "waiting"."""
+        if self.used_at:
+            return "used"
+        if self.disabled_at:
+            return "off"
+        if self.expires_on and self.expires_on < today:
+            return "expired"
+        return "waiting"
+
+
 class GoalAnswer(db.Model):
     """One tick in "Why do you use Digital Wardrobe?" (setup wizard, step 2).
 

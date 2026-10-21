@@ -1,4 +1,5 @@
-"""Commands you run in the terminal: `flask photos cut-out`, `flask goals`.
+"""Commands you run in the terminal: `flask photos cut-out`, `flask goals`,
+`flask invites create`.
 
 @click.group() makes "photos" a group; each @photos.command() inside it
 is one sub-command. Flask finds them because create_app() registers the
@@ -99,3 +100,16 @@ def goals():
     ).all())
     for key, label in GOALS.items():
         click.echo(f"{counts.get(key, 0):>5}  {label}")
+
+
+@click.group()
+def invites():
+    """Invite codes (the admin page at /admin/invites does the same)."""
+
+
+@invites.command()
+@click.option("--note", help="Who it's for.")
+def create(note):
+    """Make a new invite code and print it."""
+    from app.invites import create_invite
+    click.echo(create_invite(note).code)

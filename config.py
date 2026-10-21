@@ -25,6 +25,11 @@ class Config:
     GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID")
     GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
 
+    # The one account that may open /admin: the account with this email.
+    # Kept in .env, not here, so the address never ends up on GitHub.
+    # Empty = nobody is admin.
+    ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "").strip().lower()
+
     # On a real server (PythonAnywhere) your phone talks HTTPS to a "proxy"
     # in front of the app, and the proxy passes the request on to Flask.
     # BEHIND_PROXY=1 in the server's .env tells Flask to believe the proxy's
@@ -44,3 +49,4 @@ class TestConfig(Config):
     WTF_CSRF_ENABLED = False
     GOOGLE_CLIENT_ID = "test-client-id"
     GOOGLE_CLIENT_SECRET = "test-client-secret"
+    ADMIN_EMAIL = "boss@example.com"

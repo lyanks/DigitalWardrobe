@@ -16,14 +16,18 @@
     <div class="auth-form">
       <h2>{{ _("Sign up") }}</h2>
       {# novalidate: let the server do the checking, so you see Flask-WTF's errors. #}
-      <form method="post" novalidate>
+      <form method="post" novalidate id="signup-form">
         {{ form.hidden_tag() }}  {# hidden CSRF token #}
+        {{ render_field(form.invite_code, autocomplete="off", autocapitalize="characters",
+                        spellcheck="false", placeholder=_("Invite code")) }}
         {{ render_field(form.username, autocomplete="username", placeholder=_("Username")) }}
         {{ render_field(form.email, type="email", autocomplete="email", placeholder=_("Email")) }}
         {{ password_field(form.password, autocomplete="new-password", placeholder=_("Password")) }}
         {{ password_field(form.confirm, autocomplete="new-password", placeholder=_("Repeat password")) }}
         {{ form.submit(class="button button-glow") }}
       </form>
+      {# On this page the Google button sends the form (for the invite code). #}
+      {% set google_signup = True %}
       {% include "auth/_google_button.html" %}
     </div>
   </div>

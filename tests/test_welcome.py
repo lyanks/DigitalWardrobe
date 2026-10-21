@@ -1,7 +1,7 @@
 """Idea #7: the setup wizard after sign-up."""
 from app.extensions import db
 from app.models import GoalAnswer, User
-from tests.conftest import login, logout, register
+from tests.conftest import google_invite, login, logout, register
 from tests.test_auth import fake_google
 
 
@@ -77,6 +77,7 @@ def test_login_goes_to_the_wizard_until_it_is_done(client):
 
 def test_new_google_account_gets_the_wizard(client, monkeypatch):
     fake_google(monkeypatch)
+    google_invite(client)
     response = client.get("/login/google/callback")
     assert response.headers["Location"].endswith("/welcome")
 
