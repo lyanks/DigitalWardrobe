@@ -32,6 +32,12 @@
   {# JavaScript reads this token and sends it with fetch() POSTs (CSRF). #}
   <meta name="csrf-token" content="{{ csrf_token() }}">
   <title>{% block title %}Digital Wardrobe{% endblock %}</title>
+  {# Tab icon (favicon). Modern browsers take the SVG; older ones the PNG/ICO.
+     apple-touch-icon is what a phone shows when the site is saved to the home screen. #}
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.svg') }}" type="image/svg+xml">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon-32.png') }}" type="image/png" sizes="32x32">
+  <link rel="icon" href="{{ url_for('static', filename='img/favicon.ico') }}" sizes="any">
+  <link rel="apple-touch-icon" href="{{ url_for('static', filename='img/apple-touch-icon.png') }}">
   {# Start downloading the font straight away instead of after the CSS. #}
   <link rel="preload" href="{{ url_for('static', filename='fonts/manrope-latin.woff2') }}"
         as="font" type="font/woff2" crossorigin>
@@ -51,7 +57,18 @@
    landing, log in and sign up pages (see "Public pages" in main.css). #}
 <body class="{% block body_class %}{% endblock %}">
   <header class="site-header">
-    <a href="{{ url_for('main.index') }}" class="logo">Digital <span>Wardrobe</span></a>
+    <a href="{{ url_for('main.index') }}" class="logo">
+      {# The logo mark: the tutorial hanger in a rounded tile. Drawn inline (not
+         an <img>) so CSS can colour it with the theme and the user's accent. #}
+      <svg class="logo-mark" viewBox="0 0 32 32" aria-hidden="true">
+        <rect x="0.5" y="0.5" width="31" height="31" rx="8.5"/>
+        <g transform="translate(1.6 4.6) scale(1.2)">
+          <path d="M12 7a2 2 0 1 1 2-2c0 1.2-2 1.6-2 3v1"/>
+          <path d="M12 9 3 15.5c-.8.6-.4 1.5.5 1.5h17c.9 0 1.3-.9.5-1.5L12 9z"/>
+        </g>
+      </svg>
+      <span class="logo-text">Digital <span>Wardrobe</span></span>
+    </a>
 
     {# Phones only: opens and closes the menu (static/js/nav.js). #}
     {% if current_user.is_authenticated %}

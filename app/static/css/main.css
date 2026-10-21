@@ -239,6 +239,9 @@ a:hover {
 }
 
 .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
     color: var(--color-text);
     font-size: 1.1rem;
     font-weight: 800;
@@ -249,8 +252,26 @@ a:hover {
 .logo:hover {
     text-decoration: none;
 }
-.logo span {
+.logo-text span {
     color: var(--color-primary);
+}
+
+/* The hanger tile next to the name (same drawing as static/img/favicon.svg). */
+.logo-mark {
+    width: 2rem;
+    height: 2rem;
+    flex: none;
+}
+.logo-mark rect {
+    fill: var(--color-surface);
+    stroke: var(--color-border);
+}
+.logo-mark g {
+    fill: none;
+    stroke: var(--color-primary);
+    stroke-width: 2.1;
+    stroke-linecap: round;
+    stroke-linejoin: round;
 }
 
 /* The links sit together in a rounded "pill" in the middle. */
@@ -2927,6 +2948,23 @@ input[type="radio"] {
    Sign up is the big button on the landing page anyway. */
 @media (max-width: 480px) {
     .nav-guest .nav-signup {
+        display: none;
+    }
+    /* A smaller logo tile so "Log in" stays on one line. */
+    .logo {
+        gap: 0.45rem;
+    }
+    .logo-mark {
+        width: 1.6rem;
+        height: 1.6rem;
+    }
+    .nav-guest a {
+        white-space: nowrap;
+    }
+}
+/* The narrowest phones: only the name, as before. */
+@media (max-width: 380px) {
+    .logo-mark {
         display: none;
     }
 }
