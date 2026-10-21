@@ -5,6 +5,19 @@
 
 {% block body_class %}{{ "" if current_user.is_authenticated else "public landing" }}{% endblock %}
 
+{% block head %}
+  {% if not current_user.is_authenticated %}
+    {# Runs before the page is drawn, so the hidden-at-first text never
+       flashes. No JavaScript or "reduce motion" on: no animation, the
+       landing is simply there. #}
+    <script>
+      if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+        document.documentElement.classList.add("landing-intro");
+      }
+    </script>
+  {% endif %}
+{% endblock %}
+
 {% block content %}
   {% if current_user.is_authenticated %}
     {# The home page, in the "Plan. Manage. Build" style: a big title,
@@ -134,15 +147,26 @@
         <div class="glow glow-right"></div>
         <div class="glow glow-bottom"></div>
       </div>
-      <p class="hero-tagline">Track every piece, plan outfits, and find new ideas.</p>
-      <h1 class="hero-title">Your wardrobe, <em>thoughtfully</em> organised.</h1>
-      <div class="hero-actions">
+      <p class="hero-tagline intro-fade">Track every piece, plan outfits, and find new ideas.</p>
+      {# landing.js types the [data-type] parts, then fades in "thoughtfully".
+         The &nbsp; lives inside <em>, so while it's folded away there is
+         only one space between "wardrobe," and "organised". #}
+      <h1 class="hero-title" data-typing>
+        <span data-type>Your wardrobe,</span><em data-reveal>&nbsp;thoughtfully</em> <span data-type>organised.</span>
+      </h1>
+      <div class="hero-actions intro-fade intro-late">
         <a href="{{ url_for('auth.register') }}" class="button">Get started free</a>
         {% if config.GOOGLE_CLIENT_ID %}
           <a href="{{ url_for('auth.google_login') }}" class="button button-outline">Continue with Google</a>
         {% endif %}
       </div>
     </section>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  {% if not current_user.is_authenticated %}
+    <script src="{{ url_for('static', filename='js/landing.js') }}" defer></script>
   {% endif %}
 {% endblock %}
 

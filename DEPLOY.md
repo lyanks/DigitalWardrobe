@@ -201,3 +201,48 @@ will be logged out, because the `SECRET_KEY` is different.
 The server's `wardrobe.db` and `uploads/` exist only there. Every so often,
 Files tab > download `wardrobe.db`, or zip both in a console
 (`zip -r backup.zip wardrobe.db uploads`) and download the zip.
+
+---
+
+## Part 4 (optional). Use a domain you own
+
+The free plan only serves `YOURNAME.pythonanywhere.com`. Two ways to bring
+your own domain in (examples use `wardrobe.example.com`):
+
+### Free: forward your domain to the app
+
+At your domain registrar, find **URL forwarding / Redirect** and add:
+
+| From | To | Type |
+| --- | --- | --- |
+| `wardrobe.example.com` | `https://YOURNAME.pythonanywhere.com` | Permanent (301), **not** "masked" or "frame" |
+
+Typing your domain now opens the app, and the address bar then shows the
+pythonanywhere address. Nothing in the app or Google changes.
+
+Don't pick "masked" forwarding: it puts the app inside a frame, and browsers
+then block the login cookie and Google sign-in.
+
+### Paid ($10/month): the app lives on your domain
+
+1. Upgrade the account (Account page).
+2. **Web** tab > **Add a new web app** named `wardrobe.example.com` (a
+   subdomain like `www.` or `wardrobe.`, not the bare `example.com`), with
+   the same settings as Part 1 step 6, and the same WSGI file as step 7.
+   The WSGI file's path will be `/var/www/wardrobe_example_com_wsgi.py`, so
+   change the last line of `deploy/update.sh` to touch that file.
+3. The Web tab shows a value like `webapp-1234.pythonanywhere.com`. At your
+   registrar's **DNS** settings, add a record:
+
+   | Type | Name / Host | Value / Points to |
+   | --- | --- | --- |
+   | CNAME | `wardrobe` | `webapp-1234.pythonanywhere.com` (copy yours) |
+
+   DNS is the internet's phone book: this line says "wardrobe.example.com
+   lives where PythonAnywhere's server is". It can take up to a few hours.
+4. Once the Web tab stops warning about the CNAME: **HTTPS certificate** >
+   **Auto-renewing Let's Encrypt certificate**, then turn on **Force HTTPS**.
+5. Google Cloud Console: add the redirect URI
+   `https://wardrobe.example.com/login/google/callback`.
+6. Optional: delete the old `YOURNAME.pythonanywhere.com` web app, so there
+   is only one copy of the site and one database.

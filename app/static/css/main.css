@@ -2675,3 +2675,74 @@ input[type="radio"] {
 @media (prefers-reduced-motion: reduce) {
     .washer.spin .washer-drum { animation: none; }
 }
+
+/* ---------- Landing intro (landing.js) ----------
+   Only when <html> has .landing-intro, which the page adds before it is
+   drawn and only if "reduce motion" is off. Without it nothing is hidden. */
+.landing-intro .intro-fade {
+    animation: intro-up 0.7s ease-out both;
+}
+
+/* The buttons wait until landing.js says the title is finished. */
+.landing-intro .intro-late {
+    opacity: 0;
+    animation: none;
+}
+
+.landing-intro.landing-done .intro-late {
+    animation: intro-up 0.6s ease-out both;
+}
+
+@keyframes intro-up {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: none; }
+}
+
+/* Not typed yet: in its place, but see-through. */
+.landing-intro .hero-title [data-type] {
+    color: transparent;
+}
+
+.landing-intro .hero-title .typed {
+    color: var(--color-text);
+}
+
+.landing-intro .hero-title .rest {
+    color: transparent;
+}
+
+/* "thoughtfully" starts folded to zero width; landing.js sets max-width
+   to the word's real width, and the gap opens smoothly. */
+.landing-intro .hero-title [data-reveal] {
+    display: inline-block;
+    white-space: nowrap;
+    vertical-align: bottom;
+    max-width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-width 0.45s ease, opacity 0.6s ease 0.3s;
+}
+
+.landing-intro .hero-title [data-reveal].shown {
+    opacity: 1;
+}
+
+.type-caret {
+    display: inline-block;
+    width: 3px;
+    height: 0.9em;
+    margin-left: 2px;
+    vertical-align: -0.05em;
+    background: var(--color-primary);
+    animation: caret-blink 1s steps(1) infinite;
+    transition: opacity 0.3s;
+}
+
+.type-caret.done {
+    opacity: 0;
+    animation: none;
+}
+
+@keyframes caret-blink {
+    50% { opacity: 0; }
+}

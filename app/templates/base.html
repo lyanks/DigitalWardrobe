@@ -24,6 +24,7 @@
   <link rel="preload" href="{{ url_for('static', filename='fonts/manrope-latin.woff2') }}"
         as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+  {% block head %}{% endblock %}
 </head>
 {# Pages can set a body class. "public" switches to the dark look used on the
    landing, log in and sign up pages (see "Public pages" in main.css). #}
