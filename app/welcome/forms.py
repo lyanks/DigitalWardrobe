@@ -25,7 +25,7 @@ class MultiCheckboxField(SelectMultipleField):
 
 
 class GoalsForm(BaseForm):
-    """Step 2 (and the profile page): why you use the app. Pick any number."""
+    """Step 2: why you use the app. Pick any number. Saved anonymously."""
     # The labels are fixed English texts (goals.py); _l() shows each one
     # in the page's language when the checkboxes are drawn.
     goals = MultiCheckboxField(_l("Why do you use Digital Wardrobe?"),

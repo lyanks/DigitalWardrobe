@@ -11,8 +11,7 @@ from app.extensions import db, oauth
 from app.models import User
 from app.services.images import InvalidImageError, delete_image, save_image
 from app.themes import THEMES
-from app.welcome.forms import GoalsForm
-from app.welcome.routes import needs_setup, save_goals
+from app.welcome.routes import needs_setup
 
 bp = Blueprint("auth", __name__)
 
@@ -82,13 +81,6 @@ def profile():
     profile_form = ProfileForm(prefix="profile")
     password_form = ChangePasswordForm(prefix="pw")
     look_form = LookForm(prefix="look")
-    goals_form = GoalsForm(prefix="goals")
-
-    if goals_form.submit.data and goals_form.validate_on_submit():
-        save_goals(current_user, goals_form.goals.data)
-        db.session.commit()
-        flash(_("Saved."), "success")
-        return redirect(url_for("auth.profile"))
 
     if look_form.submit.data and look_form.validate_on_submit():
         current_user.theme = look_form.theme.data
@@ -132,7 +124,6 @@ def profile():
         # Pre-fill the form with what is already saved.
         profile_form.username.data = current_user.username
         profile_form.display_name.data = current_user.display_name
-        goals_form.goals.data = current_user.goal_keys
         look_form.theme.data = current_user.theme
         look_form.use_theme_accent.data = current_user.accent_color is None
         look_form.accent_color.data = current_user.accent_color or "#c4a8ff"
@@ -140,7 +131,6 @@ def profile():
     return render_template(
         "auth/profile.html", title=_("Profile"),
         profile_form=profile_form, password_form=password_form, look_form=look_form,
-        goals_form=goals_form,
         themes=THEMES,
     )
 

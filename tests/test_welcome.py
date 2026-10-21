@@ -1,12 +1,18 @@
 """Idea #7: the setup wizard after sign-up."""
 from app.extensions import db
-from app.models import User, UserGoal
+from app.models import GoalAnswer, User
 from tests.conftest import login, logout, register
 from tests.test_auth import fake_google
 
 
 def alice():
     return db.session.scalar(db.select(User).filter_by(username="alice"))
+
+
+def goal_counts():
+    rows = db.session.execute(
+        db.select(GoalAnswer.goal, db.func.count()).group_by(GoalAnswer.goal)).all()
+    return dict(rows)
 
 
 def test_sign_up_opens_the_wizard(client):
@@ -27,7 +33,7 @@ def test_walk_through_all_three_steps(client):
     assert "All set!" in page
     user = db.session.scalar(db.select(User).filter_by(username="alice_k"))
     assert user.display_name == "Alice"
-    assert sorted(user.goal_keys) == ["buy_less", "track"]
+    assert goal_counts() == {"buy_less": 1, "track": 1}
     assert user.theme == "linen"
     assert user.onboarded_at is not None
 
@@ -50,7 +56,7 @@ def test_username_rules_still_apply(client):
 def test_unknown_goals_are_refused(client):
     register(client, skip_setup=False)
     client.post("/welcome/2", data={"goals": ["become_famous"]})
-    assert alice().goal_keys == []
+    assert goal_counts() == {}
 
 
 def test_skip_the_whole_setup(client):
@@ -75,13 +81,27 @@ def test_new_google_account_gets_the_wizard(client, monkeypatch):
     assert response.headers["Location"].endswith("/welcome")
 
 
-def test_goals_can_be_changed_on_the_profile(client):
+def test_goals_are_anonymous_and_counted_once(client):
+    register(client, skip_setup=False)
+    client.post("/welcome/2", data={"goals": ["faster"]})
+    client.post("/welcome/2", data={"goals": ["faster", "plan"]})   # went back, Next again
+    assert goal_counts() == {"faster": 1}
+    assert not hasattr(alice(), "goals")
+
+
+def test_goals_are_not_on_the_profile(client):
     register(client)
-    client.post("/profile", data={"goals-goals": ["faster"], "goals-submit": "Save"})
-    assert alice().goal_keys == ["faster"]
-    client.post("/profile", data={"goals-submit": "Save"})   # nothing ticked
-    assert alice().goal_keys == []
-    assert db.session.scalar(db.select(db.func.count()).select_from(UserGoal)) == 0
+    page = client.get("/profile").get_data(as_text=True)
+    assert "Why you use the app" not in page
+    assert "Get dressed faster" not in page
+
+
+def test_flask_goals_prints_the_counts(app, client):
+    register(client, skip_setup=False)
+    client.post("/welcome/2", data={"goals": ["plan", "track"]})
+    output = app.test_cli_runner().invoke(args=["goals"]).output
+    assert "    1  Plan outfits ahead" in output
+    assert "    0  Get dressed faster" in output
 
 
 def test_wizard_needs_login_and_real_steps(client):

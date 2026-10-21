@@ -134,8 +134,8 @@ msgstr "Усі кольори"
 msgid "All its items were deleted."
 msgstr "Усі його речі видалено."
 
-msgid "All set! You can change any of this on your profile page."
-msgstr "Готово! Усе це можна змінити на сторінці профілю."
+msgid "All set! You can change your name and look on your profile page."
+msgstr "Готово! Ім'я та вигляд можна змінити на сторінці профілю."
 
 msgid "Already have one?"
 msgstr "Уже маєш акаунт?"
@@ -899,9 +899,6 @@ msgstr "Зберігай речі, які хочеш купити, і дивис
 msgid "Saved the outfit “%(name)s”."
 msgstr "Образ “%(name)s” збережено."
 
-msgid "Saved."
-msgstr "Збережено."
-
 msgid "Saving…"
 msgstr "Зберігаю…"
 
@@ -1149,9 +1146,6 @@ msgstr "Куди?"
 
 msgid "Why do you use Digital Wardrobe?"
 msgstr "Навіщо тобі Digital Wardrobe?"
-
-msgid "Why you use the app"
-msgstr "Навіщо тобі застосунок"
 
 msgid "Wishlist"
 msgstr "Бажання"

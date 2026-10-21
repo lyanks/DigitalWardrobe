@@ -1,4 +1,4 @@
-"""Commands you run in the terminal: `flask photos cut-out` and friends.
+"""Commands you run in the terminal: `flask photos cut-out`, `flask goals`.
 
 @click.group() makes "photos" a group; each @photos.command() inside it
 is one sub-command. Flask finds them because create_app() registers the
@@ -13,7 +13,8 @@ import click
 from PIL import Image
 
 from app.extensions import db
-from app.models import Item
+from app.goals import GOALS
+from app.models import GoalAnswer, Item
 from app.services.images import cut_out_white, write_image
 
 ORIGINALS = "items/originals"
@@ -88,3 +89,13 @@ def restore(item_ids):
         click.echo(f"#{item.id} {item.name}: original back")
     db.session.commit()
     click.echo(f"Done: {done} photo(s) restored.")
+
+
+@click.command()
+def goals():
+    """How many people picked each reason in the setup wizard."""
+    counts = dict(db.session.execute(
+        db.select(GoalAnswer.goal, db.func.count()).group_by(GoalAnswer.goal)
+    ).all())
+    for key, label in GOALS.items():
+        click.echo(f"{counts.get(key, 0):>5}  {label}")

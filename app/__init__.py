@@ -66,9 +66,10 @@ def create_app(config_class=Config):
     app.jinja_env.globals["LANGUAGES"] = i18n.LANGUAGES
     app.jinja_env.globals["current_language"] = lambda: str(flask_babel.get_locale())
 
-    # Terminal commands: flask photos cut-out / restore (app/commands.py).
-    from app.commands import photos
+    # Terminal commands: flask photos cut-out / restore, flask goals (app/commands.py).
+    from app.commands import goals, photos
     app.cli.add_command(photos)
+    app.cli.add_command(goals)
 
     # Import models so SQLAlchemy and Flask-Migrate know about the tables.
     from app import models  # noqa: F401

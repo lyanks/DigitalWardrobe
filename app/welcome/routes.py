@@ -2,16 +2,19 @@
 
 Three steps: 1 name, 2 why you use the app, 3 theme. Each step has "Skip",
 and "Skip the setup" ends it at once. Finishing (or skipping) fills in
-User.onboarded_at, so the wizard never shows up again. Everything can be
-changed later on the profile page.
+User.onboarded_at, so the wizard never shows up again. Name and look can
+be changed later on the profile page.
+
+Step 2 is anonymous: the answers are counted (GoalAnswer) but not saved
+on the user, so it isn't on the profile page.
 """
-from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, session, url_for
 from flask_babel import gettext as _
 from flask_babel import lazy_gettext as _l
 from flask_login import current_user, login_required
 
 from app.extensions import db
-from app.models import UserGoal, utcnow
+from app.models import GoalAnswer, utcnow
 from app.themes import THEMES
 from app.welcome.forms import GoalsForm, NameForm, SkipForm, WelcomeLookForm
 
@@ -79,7 +82,7 @@ def _next(number):
 def _finish():
     current_user.onboarded_at = utcnow()
     db.session.commit()
-    flash(_("All set! You can change any of this on your profile page."), "success")
+    flash(_("All set! You can change your name and look on your profile page."), "success")
     return redirect(url_for("main.index"))
 
 
@@ -90,9 +93,17 @@ def _save_name(form):
     current_user.display_name = form.display_name.data or None
 
 
-def save_goals(user, keys):
-    """Replace the user's goals with these keys. Also used by the profile page."""
-    user.goals = [UserGoal(goal=key) for key in keys]
+def _save_goals(form):
+    """Add one anonymous row per ticked reason.
+
+    The session cookie (in the browser, not in the database) remembers who
+    already answered, so going back to step 2 and pressing Next again
+    doesn't count anyone twice.
+    """
+    if session.get("goals_answered") == current_user.id:
+        return
+    db.session.add_all(GoalAnswer(goal=key) for key in form.goals.data)
+    session["goals_answered"] = current_user.id
 
 
 def _save_look(form):
@@ -104,7 +115,7 @@ def _save_look(form):
 
 SAVERS = {
     1: _save_name,
-    2: lambda form: save_goals(current_user, form.goals.data),
+    2: _save_goals,
     3: _save_look,
 }
 
@@ -113,9 +124,7 @@ def _prefill(number, form):
     if number == 1:
         form.username.data = current_user.username
         form.display_name.data = current_user.display_name
-    elif number == 2:
-        form.goals.data = current_user.goal_keys
-    else:
+    elif number == 3:
         form.theme.data = current_user.theme
         form.use_theme_accent.data = current_user.accent_color is None
         form.accent_color.data = current_user.accent_color or "#c4a8ff"

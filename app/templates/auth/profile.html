@@ -37,15 +37,6 @@
   </div>
 
   <div class="card">
-    <h2>{{ _("Why you use the app") }}</h2>
-    <form method="post" novalidate>
-      {{ goals_form.hidden_tag() }}
-      {{ goals_form.goals(class="goal-list") }}
-      {{ goals_form.submit(class="button", value=_("Save")) }}
-    </form>
-  </div>
-
-  <div class="card">
     <h2>{{ _("Look") }}</h2>
     {# Clicking a theme or colour shows it at once (theme_preview.js);
        "Save look" keeps it. #}

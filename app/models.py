@@ -48,15 +48,9 @@ class User(UserMixin, db.Model):
     schedule = db.relationship(
         "ScheduledOutfit", back_populates="owner", cascade="all, delete-orphan",
     )
-    # Idea #7: why they use the app. A list of UserGoal rows.
-    goals = db.relationship("UserGoal", cascade="all, delete-orphan")
     # Idea #1: what they actually wore, day by day.
     wear_logs = db.relationship("WearLog", back_populates="owner", cascade="all, delete-orphan")
     trips = db.relationship("Trip", back_populates="owner", cascade="all, delete-orphan")
-
-    @property
-    def goal_keys(self):
-        return [goal.goal for goal in self.goals]
 
     def set_password(self, password):
         # Store a salted one-way hash, never the password itself.
@@ -293,16 +287,17 @@ class ScheduledOutfit(db.Model):
         return f"<ScheduledOutfit {self.outfit_id} on {self.date}>"
 
 
-class UserGoal(db.Model):
-    """One reason a user picked in the setup wizard, e.g. "buy_less".
+class GoalAnswer(db.Model):
+    """One tick in "Why do you use Digital Wardrobe?" (setup wizard, step 2).
 
-    A user can pick several, so they get their own small table (one user ->
-    many rows) instead of one column. That also makes them easy to count:
-    "how many people use the app to buy less?" is one GROUP BY.
+    Anonymous on purpose: no user_id and no time, so nobody can tell who
+    picked what. It's only for counting: "how many people want to buy
+    less?" is one GROUP BY (see `flask goals`). Someone who ticks two
+    reasons adds two rows.
     """
 
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
-    goal = db.Column(db.String(20), primary_key=True)  # a key of app/goals.py GOALS
+    id = db.Column(db.Integer, primary_key=True)
+    goal = db.Column(db.String(20), nullable=False, index=True)  # a key of app/goals.py GOALS
 
 
 class WearLog(db.Model):
