@@ -85,12 +85,17 @@ SECRET_KEY=the-long-random-string-from-above
 BEHIND_PROXY=1
 GOOGLE_CLIENT_ID=same-as-on-your-computer
 GOOGLE_CLIENT_SECRET=same-as-on-your-computer
+ADMIN_EMAIL=the-email-you-will-sign-up-with
 ```
 
 Save with Ctrl+O, Enter, then Ctrl+X.
 
-- `SECRET_KEY` signs the login cookie. A new one here means nobody can forge
-  a login, and it is different from your computer's, which is fine.
+- `SECRET_KEY` signs the login cookie (and the guest id of "Try as guest").
+  A new one here means nobody can forge a login, and it is different from
+  your computer's, which is fine. With `BEHIND_PROXY=1` the app refuses to
+  start without it, so you can't forget it.
+- `ADMIN_EMAIL` is you: the account with this email gets the Admin page
+  (invite codes, the shared option lists).
 - `BEHIND_PROXY=1` is explained in `config.py`: it makes Flask build
   `https://` links, which Google insists on.
 
@@ -98,10 +103,16 @@ Save with Ctrl+O, Enter, then Ctrl+X.
 
 ```bash
 flask db upgrade     # builds wardrobe.db from the migrations
-python seed.py       # adds the clothing categories
+python seed.py       # adds the categories, colours, seasons, styles, occasions
+flask invites create --note me    # prints a code like WARD-7KQ2-M9XD
 ```
 
-(Want your existing clothes online instead of starting empty? See Part 3.)
+Sign-up needs an invite code, and on an empty server nobody can make one on
+the Admin page yet, so the last line makes the first code for you. Copy it;
+you will use it in step 10.
+
+(Want your existing account and clothes online instead of starting empty?
+Do Part 3 instead of the invite line: your account comes along.)
 
 ### 6. Create the website
 
@@ -145,14 +156,33 @@ Google only sends people back to addresses you have approved.
    `https://YOURNAME.pythonanywhere.com/login/google/callback`
 3. Keep the `http://127.0.0.1:5000/...` ones too, so login still works on
    your computer. Save. It can take a few minutes to start working.
-4. If the consent screen is still in **Testing**, only the Google accounts
-   listed under **Test users** can log in. That is fine for just you.
+4. **Google Auth Platform > Audience**: while it says **Testing**, only
+   the Google accounts under **Test users** can use the Google button. Add
+   your friends' Gmail addresses there (up to 100). They can always sign up
+   with an email and password instead, without this. When you open the site
+   to everyone, press **Publish app** here. The app only asks for name and
+   email, so Google doesn't need to review it.
 
 ### 10. Put it on your phone
 
-Open the address in your phone's browser, log in, then
+Open the address in your phone's browser, **Sign up** with the email from
+`ADMIN_EMAIL` and the invite code from step 5 (or log in, if you did
+Part 3). Then
 **Share > Add to Home Screen** (iPhone) or **menu > Add to Home screen** (Android).
 It now opens like an app.
+
+### 11. Invite your friends
+
+1. Open **Admin > Invite codes** on the site and make one code per friend
+   (the note says who it is for, so you can see who joined).
+2. Send each friend the address and their code. Each code works once.
+3. Anyone can also press **Try it as a guest** on the home page: they get a
+   sample wardrobe in a separate throwaway database, deleted 1 hour after
+   their last click. Nothing they do there touches real accounts. Handy for
+   a friend who just wants a look, or for someone reading your CV.
+
+For your CV, the address `https://YOURNAME.pythonanywhere.com` plus the
+GitHub link is enough; guest mode means nobody needs an invite to see it.
 
 ---
 

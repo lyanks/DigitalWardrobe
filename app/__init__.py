@@ -2,7 +2,7 @@ import os
 
 from flask import Flask
 
-from config import Config
+from config import DEV_SECRET_KEY, Config
 from app.extensions import babel, csrf, db, login_manager, migrate, oauth
 
 
@@ -12,6 +12,10 @@ def create_app(config_class=Config):
     app.config.from_object(config_class)
 
     if app.config["BEHIND_PROXY"]:
+        # On the server a known SECRET_KEY would let anyone fake a login
+        # cookie, so stop right here instead of running unsafely.
+        if app.config["SECRET_KEY"] == DEV_SECRET_KEY:
+            raise RuntimeError("SECRET_KEY is missing from the server's .env (see DEPLOY.md, step 4).")
         # Read the X-Forwarded-Proto / X-Forwarded-Host headers the proxy
         # adds (one proxy, so trust one hop). See BEHIND_PROXY in config.py.
         from werkzeug.middleware.proxy_fix import ProxyFix

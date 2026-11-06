@@ -3,10 +3,13 @@ import os
 # The folder this file lives in = the project root.
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
+# Only good enough on your own computer. The server refuses to start with it.
+DEV_SECRET_KEY = "dev-only-change-me"
+
 
 class Config:
     # Flask uses SECRET_KEY to sign cookies (sessions, login, CSRF).
-    SECRET_KEY = os.environ.get("SECRET_KEY", "dev-only-change-me")
+    SECRET_KEY = os.environ.get("SECRET_KEY", DEV_SECRET_KEY)
 
     # Where the database lives. SQLite = one file in the project root.
     # Later, set DATABASE_URL to a PostgreSQL URL and nothing else changes.
