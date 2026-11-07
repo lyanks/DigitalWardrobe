@@ -589,3 +589,23 @@ class AiUsage(db.Model):
 
     def __repr__(self):
         return f"<AiUsage user {self.user_id} on {self.day}: {self.count}>"
+
+
+class Feedback(db.Model):
+    """An idea for the app, sent with "Send an idea" (app/feedback/).
+
+    Only the admin reads them, on /admin/feedback. Deleting the account
+    keeps the idea; it just loses its author (SET NULL).
+    """
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="SET NULL"), index=True)
+    text = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+    # When the admin marked it done (built, answered or not doing it).
+    done_at = db.Column(db.DateTime(timezone=True))
+
+    author = db.relationship("User")
+
+    def __repr__(self):
+        return f"<Feedback {self.id} from user {self.user_id}>"

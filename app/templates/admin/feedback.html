@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  {% set active = "feedback" %}{% include "admin/_nav.html" %}
+  <div class="page-head">
+    <h1>{{ _("User ideas") }}</h1>
+  </div>
+
+  {% for row in rows %}
+    <article class="feedback-row{{ ' feedback-done' if row.done_at }}">
+      <p class="feedback-text">{{ row.text }}</p>
+      <p class="muted feedback-meta">
+        {% if row.author %}{{ row.author.shown_name }} · {{ row.author.email }}{% else %}{{ _("Deleted account") }}{% endif %}
+        · {{ row.created_at | date }}
+        {% if row.done_at %} · {{ _("Done on %(date)s", date=row.done_at | date) }}{% endif %}
+      </p>
+      <div class="actions">
+        <form method="post" action="{{ url_for('admin.feedback_done', feedback_id=row.id) }}" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="button button-outline button-small">{{ _("Mark as new") if row.done_at else _("Mark as done") }}</button>
+        </form>
+        <form method="post" action="{{ url_for('admin.feedback_delete', feedback_id=row.id) }}" class="inline-form"
+              data-confirm-title="{{ _('Delete this idea?') }}" data-confirm="{{ _('It will be gone for good.') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="link-button danger-link">{{ _("Delete") }}</button>
+        </form>
+      </div>
+    </article>
+  {% else %}
+    <p class="muted">{{ _("No ideas yet. Users send them from their profile page.") }}</p>
+  {% endfor %}
+{% endblock %}

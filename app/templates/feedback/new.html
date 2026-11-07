@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ _("Send an idea") }}</h1>
+  </div>
+
+  <div class="card feedback-card">
+    <p class="muted">{{ _("Missing a feature, found something confusing, or have a wish? Write it here. Every idea is read.") }}</p>
+    {% if is_guest() %}
+      <p>{{ _("Guests can't send ideas, because a guest visit is deleted when it ends. Create an account to send one.") }}</p>
+    {% else %}
+      <form method="post" novalidate>
+        {{ form.hidden_tag() }}
+        {{ render_field(form.text, rows=6, maxlength=2000) }}
+        {{ form.submit(class="button") }}
+      </form>
+    {% endif %}
+  </div>
+{% endblock %}

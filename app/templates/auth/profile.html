@@ -26,7 +26,10 @@
     </div>
   </div>
 
-  <p class="tutorial-again"><a href="{{ url_for('tutorial.index') }}">{{ _("How the app works") }} <span aria-hidden="true">→</span></a></p>
+  <p class="tutorial-again">
+    <a href="{{ url_for('tutorial.index') }}">{{ _("How the app works") }} <span aria-hidden="true">→</span></a>
+    <a href="{{ url_for('feedback.new') }}" class="hero-link">{{ _("Send an idea") }} <span aria-hidden="true">→</span></a>
+  </p>
 
   <div class="card">
     <h2>{{ _("Edit profile") }}</h2>

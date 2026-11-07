@@ -19,7 +19,9 @@ from app.extensions import db
 from app.goals import GOALS
 from app.i18n import tr
 from app.invites import create_invite
-from app.models import OWNED, Category, GoalAnswer, InviteCode, Item, Option, Outfit, User, utcnow
+from app.models import (
+    OWNED, Category, Feedback, GoalAnswer, InviteCode, Item, Option, Outfit, User, utcnow,
+)
 from app.services.stats import breakdown
 
 bp = Blueprint("admin", __name__, url_prefix="/admin")
@@ -76,6 +78,41 @@ def invites():
     ).all()
     return render_template("admin/invites.html", title=_("Invite codes"), form=form,
                            codes=codes, today=date.today())
+
+
+# ---------- Ideas users sent (app/feedback/) ----------
+
+@bp.route("/feedback")
+def feedback():
+    """New ideas first, then the done ones; newest first in each group."""
+    rows = db.session.scalars(
+        db.select(Feedback).order_by(Feedback.done_at.is_not(None), Feedback.created_at.desc())
+    ).all()
+    return render_template("admin/feedback.html", title=_("User ideas"), rows=rows)
+
+
+def _get_feedback(feedback_id):
+    row = db.session.get(Feedback, feedback_id)
+    if row is None:
+        abort(404)
+    return row
+
+
+@bp.route("/feedback/<int:feedback_id>/done", methods=["POST"])
+def feedback_done(feedback_id):
+    """Marks it done, or new again if it was done."""
+    row = _get_feedback(feedback_id)
+    row.done_at = None if row.done_at else utcnow()
+    db.session.commit()
+    return redirect(url_for("admin.feedback"))
+
+
+@bp.route("/feedback/<int:feedback_id>/delete", methods=["POST"])
+def feedback_delete(feedback_id):
+    db.session.delete(_get_feedback(feedback_id))
+    db.session.commit()
+    flash(_("Idea deleted."), "info")
+    return redirect(url_for("admin.feedback"))
 
 
 @bp.route("/invites/<int:invite_id>/off", methods=["POST"])

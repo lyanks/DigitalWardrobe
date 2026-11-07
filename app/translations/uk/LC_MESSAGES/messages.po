@@ -2067,3 +2067,49 @@ msgstr "%(name)s нарешті частіше в ділі."
 
 msgid "You wore this combination this week."
 msgstr "Це поєднання вже було цього тижня."
+
+# --- Send an idea (feedback/, admin/feedback.html) ---
+msgid "Send an idea"
+msgstr "Надіслати ідею"
+
+msgid "Your idea"
+msgstr "Твоя ідея"
+
+msgid "What would make the app better for you? Up to 2000 characters."
+msgstr "Що зробило б застосунок кращим для тебе? До 2000 символів."
+
+msgid "Send"
+msgstr "Надіслати"
+
+msgid "That's a lot of ideas for one day. Please send the rest tomorrow."
+msgstr "Це багато ідей як на один день. Решту надішли, будь ласка, завтра."
+
+msgid "Thank you! Your idea was sent."
+msgstr "Дякую! Твою ідею надіслано."
+
+msgid "Missing a feature, found something confusing, or have a wish? Write it here. Every idea is read."
+msgstr "Бракує якоїсь функції, щось незрозуміло чи є побажання? Напиши тут. Кожну ідею прочитають."
+
+msgid "Guests can't send ideas, because a guest visit is deleted when it ends. Create an account to send one."
+msgstr "Гості не можуть надсилати ідеї, бо гостьовий візит видаляється після завершення. Створи акаунт, щоб надіслати ідею."
+
+msgid "User ideas"
+msgstr "Ідеї користувачів"
+
+msgid "Deleted account"
+msgstr "Видалений акаунт"
+
+msgid "Done on %(date)s"
+msgstr "Готово %(date)s"
+
+msgid "Mark as new"
+msgstr "Позначити як нову"
+
+msgid "Mark as done"
+msgstr "Позначити як готову"
+
+msgid "It will be gone for good."
+msgstr "Її буде видалено назавжди."
+
+msgid "No ideas yet. Users send them from their profile page."
+msgstr "Ідей поки немає. Користувачі надсилають їх зі сторінки профілю."
