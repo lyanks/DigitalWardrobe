@@ -49,7 +49,14 @@
           <button type="button" class="button button-outline button-small" data-undo disabled>{{ _("Undo") }}</button>
           <button type="button" class="button button-outline button-small" data-reset>{{ _("Start over") }}</button>
           <button type="button" class="button button-outline button-small" data-whole>{{ _("Keep whole photo") }}</button>
+          {# Zoom for fine edges. On a phone: pinch with two fingers. #}
+          <div class="zoom-buttons">
+            <button type="button" class="button button-outline button-small" data-zoom-out disabled aria-label="{{ _('Zoom out') }}">&minus;</button>
+            <button type="button" class="button button-outline button-small" data-zoom-in aria-label="{{ _('Zoom in') }}">+</button>
+            <button type="button" class="button button-outline button-small" data-zoom-fit disabled>{{ _("Fit") }}</button>
+          </div>
         </div>
+        <p class="field-hint">{{ _("Pinch with two fingers to zoom in, and move both fingers to slide the photo.") }}</p>
         <p class="photo-status muted" role="status" aria-live="polite" data-cutout-status></p>
         {% if ai_enabled %}
           <div class="ai-row">

@@ -131,11 +131,14 @@ def toggle_worn(entry_id):
 def delete(entry_id):
     entry = get_own_entry_or_404(entry_id)
     day = entry.date
+    # Read the name now: after the commit the entry is deleted and detached
+    # from the session, so entry.outfit can't be loaded any more.
+    name = entry.outfit.name
     # If it was marked worn, take those wears back off the items first.
     entry.set_worn(False)
     db.session.delete(entry)
     db.session.commit()
-    flash(_("Removed “%(name)s” from %(day)s %(date)s.", name=entry.outfit.name,
+    flash(_("Removed “%(name)s” from %(day)s %(date)s.", name=name,
             day=weekday(day), date=format_date(day)), "info")
     return _back_to_month(day)
 

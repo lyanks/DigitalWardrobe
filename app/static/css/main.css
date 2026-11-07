@@ -3419,6 +3419,8 @@ input[type="radio"] {
     margin-bottom: calc(var(--space) * 1.25);
 }
 .photo-stage {
+    overflow: hidden;       /* a zoomed-in photo stays inside the frame */
+    touch-action: none;     /* two fingers zoom the photo, not the page */
     display: flex;
     justify-content: center;
     padding: var(--space);
@@ -3433,6 +3435,7 @@ input[type="radio"] {
 }
 .photo-canvas {
     display: block;
+    transform-origin: 0 0;  /* zoom (photo_review.js) scales from the top left corner */
     max-width: 100%;
     max-height: 420px;
     width: auto;
@@ -3493,6 +3496,13 @@ input[type="radio"] {
 }
 .ai-row .button {
     margin-top: 0.6rem;
+}
+.zoom-buttons {
+    display: inline-flex;
+    gap: 0.35rem;
+}
+.zoom-buttons .button {
+    min-width: 2.4rem;
 }
 .photo-tools .button:disabled {
     opacity: 0.45;

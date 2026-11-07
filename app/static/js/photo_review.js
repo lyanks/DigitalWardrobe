@@ -129,23 +129,129 @@ if (review) {
     render();
   }
 
+  // ---------- zoom: two fingers, a trackpad pinch, or the + and - buttons ----------
+  // The canvas is moved and scaled with a CSS transform. pointFrom() reads
+  // the canvas's position on screen, which includes the transform, so the
+  // brush still lands under your finger at any zoom.
+  const MAX_ZOOM = 6;
+  let zoom = 1;
+  let shiftX = 0;
+  let shiftY = 0;
+  const pointers = new Map();  // pointerId -> {x, y} for every finger on the photo
+  let pinch = null;            // where the two-finger gesture started
+  let pinched = false;         // stays true until every finger is lifted
+
+  function applyZoom() {
+    if (zoom <= 1) {
+      zoom = 1;
+      shiftX = shiftY = 0;  // fully zoomed out: back in the middle
+    }
+    canvas.style.transform = `translate(${shiftX}px, ${shiftY}px) scale(${zoom})`;
+    review.querySelector("[data-zoom-out]").disabled = zoom === 1;
+    review.querySelector("[data-zoom-fit]").disabled = zoom === 1;
+  }
+
+  // Zoom to `newZoom`, keeping the screen point (x, y) where it is:
+  // the spot between your fingers stays between your fingers.
+  function zoomAt(newZoom, x, y) {
+    const box = canvas.getBoundingClientRect();
+    const left = box.left - shiftX;  // where the canvas would be without the transform
+    const top = box.top - shiftY;
+    const spotX = (x - box.left) / zoom;  // the spot, in unzoomed canvas pixels
+    const spotY = (y - box.top) / zoom;
+    zoom = Math.min(MAX_ZOOM, Math.max(1, newZoom));
+    shiftX = x - left - spotX * zoom;
+    shiftY = y - top - spotY * zoom;
+    applyZoom();
+  }
+
+  function resetZoom() {
+    zoom = 1;
+    applyZoom();
+  }
+
+  function middleOf(a, b) {
+    return { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2, gap: Math.hypot(a.x - b.x, a.y - b.y) };
+  }
+
+  function stageCentre() {
+    const box = canvas.parentElement.getBoundingClientRect();
+    return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+  }
+  review.querySelector("[data-zoom-in]").addEventListener("click", () => {
+    const c = stageCentre();
+    zoomAt(zoom * 1.5, c.x, c.y);
+  });
+  review.querySelector("[data-zoom-out]").addEventListener("click", () => {
+    const c = stageCentre();
+    zoomAt(zoom / 1.5, c.x, c.y);
+  });
+  review.querySelector("[data-zoom-fit]").addEventListener("click", resetZoom);
+
+  // A trackpad pinch arrives as a mouse wheel with the Ctrl key held.
+  // A plain wheel still scrolls the page.
+  canvas.parentElement.addEventListener("wheel", (event) => {
+    if (!active || !event.ctrlKey) return;
+    event.preventDefault();
+    zoomAt(zoom * Math.exp(-event.deltaY / 200), event.clientX, event.clientY);
+  }, { passive: false });
+
+  // ---------- the brush ----------
   // Pointer events cover mouse, finger and pen with the same code.
+  // One finger paints. A second finger turns it into a pinch: the stroke
+  // the first finger started is taken back, and the two fingers zoom and move.
   canvas.addEventListener("pointerdown", (event) => {
     if (!active) return;
     canvas.setPointerCapture(event.pointerId);
+    pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    if (pointers.size === 2) {
+      if (drawing) {
+        // Undo the dot the first finger painted a moment ago.
+        const previous = history.pop();
+        if (previous) setMask(previous);
+        undoButton.disabled = history.length === 0;
+        render();
+      }
+      drawing = false;
+      pinched = true;
+      const [a, b] = pointers.values();
+      pinch = { ...middleOf(a, b), zoom };
+      return;
+    }
+    if (pointers.size > 2 || pinched) return;
     remember();
     drawing = true;
     last = pointFrom(event);
     paint(last, last);  // a single tap still paints a dot
   });
   canvas.addEventListener("pointermove", (event) => {
+    if (pointers.has(event.pointerId)) {
+      pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+    }
+    if (pinch && pointers.size >= 2) {
+      const [a, b] = pointers.values();
+      const now = middleOf(a, b);
+      // Scale by how much the fingers spread, around where they are now;
+      // moving both fingers together slides the photo.
+      zoomAt(pinch.zoom * (now.gap / pinch.gap), pinch.x, pinch.y);
+      shiftX += now.x - pinch.x;
+      shiftY += now.y - pinch.y;
+      applyZoom();
+      pinch = { ...now, zoom };
+      return;
+    }
     if (!drawing) return;
     const point = pointFrom(event);
     paint(last, point);
     last = point;
   });
   for (const name of ["pointerup", "pointercancel"]) {
-    canvas.addEventListener(name, () => { drawing = false; });
+    canvas.addEventListener(name, (event) => {
+      pointers.delete(event.pointerId);
+      drawing = false;
+      if (pointers.size < 2) pinch = null;
+      if (pointers.size === 0) pinched = false;
+    });
   }
 
   review.querySelectorAll("[data-brush]").forEach((button) => {
@@ -240,6 +346,7 @@ if (review) {
     } catch {
       return;  // the browser can't read it: the server will say why on Save
     }
+    resetZoom();
     fillMask();
     startMask = null;
     history = [];

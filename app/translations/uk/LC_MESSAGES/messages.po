@@ -2113,3 +2113,15 @@ msgstr "Її буде видалено назавжди."
 
 msgid "No ideas yet. Users send them from their profile page."
 msgstr "Ідей поки немає. Користувачі надсилають їх зі сторінки профілю."
+
+msgid "Zoom out"
+msgstr "Зменшити"
+
+msgid "Zoom in"
+msgstr "Збільшити"
+
+msgid "Fit"
+msgstr "Вмістити"
+
+msgid "Pinch with two fingers to zoom in, and move both fingers to slide the photo."
+msgstr "Розведи два пальці, щоб збільшити, і веди обома, щоб посунути фото."
