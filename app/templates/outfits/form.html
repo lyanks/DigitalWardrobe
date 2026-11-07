@@ -2,6 +2,7 @@
 {% from "macros/forms.html" import render_field %}
 {% from "macros/picker.html" import item_picker %}
 {% from "macros/board.html" import board_editor %}
+{% from "macros/idea.html" import idea_picture %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
@@ -26,6 +27,26 @@
            scroll the clothes. outfit_board.js does the dragging. #}
         <div class="builder-side">
           {{ board_editor(groups, spots, defaults) }}
+          {# Your saved ideas, as small picture buttons: pick the one this
+             outfit recreates. The picked one shows bigger (outfit_board.js). #}
+          {% if ideas %}
+            <fieldset class="inspiration">
+              <legend>{{ _("Inspiration") }}</legend>
+              <div class="inspiration-strip">
+                <label class="inspiration-option inspiration-none">
+                  <input type="radio" name="idea_id" value="0" {{ "checked" if not form.idea_id.data }}>
+                  <span>{{ _("None") }}</span>
+                </label>
+                {% for idea in ideas %}
+                  <label class="inspiration-option">
+                    <input type="radio" name="idea_id" value="{{ idea.id }}" {{ "checked" if form.idea_id.data == idea.id }}>
+                    {{ idea_picture(idea) }}
+                  </label>
+                {% endfor %}
+              </div>
+              <img class="inspiration-preview" alt="" hidden>
+            </fieldset>
+          {% endif %}
           {# Filled in by outfit_builder.js; stays hidden without JavaScript. #}
           <div class="builder-preview" hidden>
             <p class="preview-verdict" role="status" aria-live="polite"></p>

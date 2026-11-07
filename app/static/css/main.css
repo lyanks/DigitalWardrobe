@@ -304,6 +304,19 @@ a:hover {
 .nav-links a:hover {
     color: var(--color-text);
 }
+.nav a,
+.nav button {
+    white-space: nowrap;            /* "Log out" on one line, never two */
+}
+/* Seven or eight links: a little tighter on mid-size screens, before the
+   phone menu takes over at 980px. */
+@media (max-width: 1240px) {
+    .nav-links a { padding: 0.4rem 0.6rem; }
+}
+@media (max-width: 1040px) {
+    .nav-links a { padding: 0.35rem 0.45rem; font-size: 0.9rem; }
+    .nav-links { gap: 0; }
+}
 /* The page you're on: white and bold on a faint highlight. */
 .nav-links a[aria-current="page"] {
     color: var(--color-text);
@@ -368,9 +381,10 @@ a:hover {
     fill: none;
 }
 
-/* Phones: the nav folds into a menu that drops down under the header
-   when you press the button (static/js/nav.js adds .open). */
-@media (max-width: 860px) {
+/* Phones (and narrow windows): the nav folds into a menu that drops down
+   under the header when you press the button (static/js/nav.js adds .open).
+   980px: below that, the links (8 for the admin) and the account don't fit in one row. */
+@media (max-width: 980px) {
     .nav-toggle {
         display: inline-flex;
         align-items: center;
@@ -1169,6 +1183,124 @@ a:hover {
 .board-mini {
     border: 0;
     border-radius: 0;
+}
+
+/* Inspiration on the outfit form: small picture buttons under the board. */
+.inspiration {
+    margin: var(--space) 0 0;
+    padding: 0;
+    border: 0;
+}
+.inspiration legend {
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+.inspiration-strip {
+    display: flex;
+    gap: 0.5rem;
+    overflow-x: auto;               /* many ideas: scroll sideways */
+    padding-bottom: 0.25rem;
+}
+.inspiration-option {
+    flex: 0 0 64px;
+    height: 80px;
+    border: 2px solid transparent;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--color-photo-bg);
+    cursor: pointer;
+}
+.inspiration-option input {
+    position: absolute;
+    opacity: 0;                     /* hidden, but still works with the keyboard */
+}
+.inspiration-option img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.inspiration-option:has(input:checked) {
+    border-color: var(--color-primary);
+}
+.inspiration-option:has(input:focus-visible) {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 2px;
+}
+.inspiration-none {
+    display: grid;
+    place-items: center;
+    color: var(--color-muted);
+    font-size: 0.8rem;
+}
+.inspiration-preview {
+    display: block;
+    width: 100%;
+    max-height: 360px;
+    margin-top: 0.75rem;
+    object-fit: contain;
+    border-radius: var(--radius);
+}
+.inspiration-preview[hidden] {
+    display: none;
+}
+
+/* "Inspired by" on the outfit page. */
+.outfit-idea {
+    width: min(100%, 260px);
+    margin: 0;
+}
+.outfit-idea img {
+    display: block;
+    width: 100%;
+    border-radius: var(--radius);
+}
+.outfit-idea figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+}
+
+/* ===== Ideas: saved pins, laid out like a Pinterest board =====
+   CSS columns fill top to bottom, then the next column, so pictures of
+   different heights fit together without gaps (a "masonry" layout). */
+
+.idea-board {
+    columns: 4 220px;               /* up to 4 columns, each at least 220px */
+    column-gap: var(--space);
+}
+.idea-card {
+    break-inside: avoid;            /* never split a card over two columns */
+    margin: 0 0 var(--space);
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    background: var(--color-glass);
+}
+.idea-photo {
+    display: block;
+    width: 100%;
+    height: auto;
+}
+.idea-card figcaption {
+    display: grid;
+    gap: 0.35rem;
+    padding: 0.75rem;
+    font-size: 0.9rem;
+}
+.idea-title {
+    font-weight: 600;
+}
+.idea-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+}
+.idea-actions form {
+    margin-left: auto;
+}
+.idea-add .actions {
+    margin-top: 0;
 }
 
 /* ---------- Phase 4: planner ---------- */
@@ -2143,31 +2275,6 @@ body.landing {
 }
 .autofill + .field {
     margin-top: var(--space);
-}
-
-
-/* ===== "Cut out with AI" on the item form (js/cutout.js) ===== */
-
-.ai-cutout {
-    margin: 0 0 var(--space);
-}
-.cutout-status {
-    margin: 0.5rem 0 0;
-    font-size: 0.9rem;
-}
-.cutout-status:empty {
-    display: none;
-}
-.cutout-preview {                   /* a chequered tile shows what became see-through */
-    display: block;
-    width: 200px;
-    height: 200px;
-    margin-top: 0.75rem;
-    object-fit: contain;
-    border-radius: var(--radius);
-    background:
-        repeating-conic-gradient(rgba(255, 255, 255, 0.08) 0 25%, transparent 0 50%) 0 0 / 20px 20px,
-        var(--color-photo-bg);
 }
 
 

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "wardrobe/_card.html" import item_card %}
 {% from "macros/board.html" import board %}
+{% from "macros/idea.html" import idea_picture %}
 
 {% block title %}{{ outfit.name }} · Digital Wardrobe{% endblock %}
 
@@ -37,6 +38,18 @@
     {% if outfit.image_path %}
       <img src="{{ url_for('main.uploaded_file', filename=outfit.image_path) }}"
            alt="{{ outfit.name }}" class="outfit-photo">
+    {% endif %}
+    {% if outfit.idea %}
+      <figure class="outfit-idea">
+        {{ idea_picture(outfit.idea) }}
+        <figcaption>
+          {% if outfit.idea.source_url %}
+            <a href="{{ outfit.idea.source_url }}" target="_blank" rel="noopener noreferrer">{{ _("Inspired by this pin") }}</a>
+          {% else %}
+            <a href="{{ url_for('ideas.index') }}">{{ _("Inspired by this idea") }}</a>
+          {% endif %}
+        </figcaption>
+      </figure>
     {% endif %}
   </div>
 

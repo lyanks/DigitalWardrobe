@@ -78,7 +78,6 @@ def test_upload_cuts_out_a_plain_background_by_default(client, app):
     register(client)
     page = client.get("/items/new").get_data(as_text=True)
     assert '<input checked id="remove_background"' in page  # ticked on a new item
-    assert "data-cutout" in page  # the "Cut out with AI" box
     add_item(client, name="Shirt", photo=upload(product_photo("grey")), remove_background="y")
     path = get_item("Shirt").image_path
     assert path.endswith(".png")

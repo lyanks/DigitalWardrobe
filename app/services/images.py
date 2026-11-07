@@ -62,7 +62,7 @@ def cut_out_background(image, tolerance=BACKGROUND_TOLERANCE):
     3. Everything the bucket reached becomes see-through.
 
     None means "leave the photo as it is": the border isn't one plain
-    colour (a busy background, use the AI button in the browser instead),
+    colour (a busy background: a room, a street),
     or the bucket ate almost everything (a white shirt on white).
     """
     rgb = image.convert("RGB")

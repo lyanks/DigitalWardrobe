@@ -1003,8 +1003,8 @@ msgstr "Стиль"
 msgid "Suitcase"
 msgstr "Валіза"
 
-msgid "Take a photo on a plain background, and the app cuts it away. For a busy one, press “Cut out with AI”."
-msgstr "Сфотографуй річ на однотонному тлі, і застосунок сам його прибере. Для строкатого тла натисни «Вирізати з ШІ»."
+msgid "Take a photo on a plain background, and the app cuts it away."
+msgstr "Сфотографуй річ на однотонному тлі, і застосунок сам його прибере."
 
 msgid "Take out"
 msgstr "Вийняти"
@@ -1758,38 +1758,16 @@ msgstr "Вихідні"
 msgid "Office"
 msgstr "Офіс"
 
-msgid "Cut out with AI"
-msgstr "Вирізати з ШІ"
 
-msgid "The cut-out"
-msgstr "Вирізана річ"
 
-msgid "Use this"
-msgstr "Використати"
 
-msgid "Keep the original"
-msgstr "Залишити оригінал"
 
-msgid "Downloading the AI model (only the first time): %(percent)s"
-msgstr "Завантажую модель ШІ (лише першого разу): %(percent)s"
 
-msgid "Cutting out…"
-msgstr "Вирізаю…"
 
-msgid "Choose a photo first."
-msgstr "Спершу вибери фото."
 
-msgid "Loading the AI tool…"
-msgstr "Завантажую інструмент ШІ…"
 
-msgid "Done. Use it, or keep the original."
-msgstr "Готово. Використай або залиш оригінал."
 
-msgid "The AI cut-out didn't work in this browser. The photo will be saved as it is."
-msgstr "У цьому браузері вирізання з ШІ не спрацювало. Фото збережеться як є."
 
-msgid "The cut-out will be saved when you press Save."
-msgstr "Вирізане фото збережеться, коли натиснеш «Зберегти»."
 
 msgid "Pull to resize"
 msgstr "Потягни, щоб змінити розмір"
@@ -1811,3 +1789,57 @@ msgstr "Перетягуй, щоб рухати, тягни за кут, щоб 
 
 msgid "In this outfit"
 msgstr "У цьому образі"
+
+msgid "Ideas"
+msgstr "Ідеї"
+
+msgid "Pinterest link"
+msgstr "Посилання з Pinterest"
+
+msgid "Or a picture"
+msgstr "Або картинка"
+
+msgid "Save idea"
+msgstr "Зберегти ідею"
+
+msgid "Paste a pin link or choose a picture."
+msgstr "Встав посилання на пін або вибери картинку."
+
+msgid "Idea saved."
+msgstr "Ідею збережено."
+
+msgid "Idea deleted."
+msgstr "Ідею видалено."
+
+msgid "or"
+msgstr "або"
+
+msgid "What do you like about it?"
+msgstr "Що тобі тут подобається?"
+
+msgid "Open the pin"
+msgstr "Відкрити пін"
+
+msgid "Outfits made after it stay."
+msgstr "Образи, створені за нею, залишаться."
+
+msgid "Delete this idea?"
+msgstr "Видалити цю ідею?"
+
+msgid "Outfits you'd like to recreate. On Pinterest, press Share and Copy link, then paste it above."
+msgstr "Образи, які хочеш повторити. У Pinterest натисни «Поділитися» і «Копіювати посилання», а тоді встав його вище."
+
+msgid "Couldn't find a picture on that page. Save the picture and upload it instead."
+msgstr "На цій сторінці не знайшлося картинки. Збережи картинку й завантаж її замість посилання."
+
+msgid "Inspiration"
+msgstr "Натхнення"
+
+msgid "None"
+msgstr "Без"
+
+msgid "Inspired by this pin"
+msgstr "Натхнення з цього піна"
+
+msgid "Inspired by this idea"
+msgstr "Натхнення з цієї ідеї"

@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "macros/forms.html" import render_field %}
+{% from "macros/idea.html" import idea_picture %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ _("Ideas") }}</h1>
+  </div>
+
+  {# Paste a pin link, or upload a picture (a screenshot works too). #}
+  <div class="card idea-add">
+    <form method="post" enctype="multipart/form-data" novalidate>
+      {{ form.hidden_tag() }}
+      {{ render_field(form.link, placeholder="https://pin.it/… " ~ _("or") ~ " https://www.pinterest.com/pin/…") }}
+      <div class="field-row">
+        {{ render_field(form.photo, accept="image/*") }}
+        {{ render_field(form.note, rows=1, placeholder=_("What do you like about it?")) }}
+      </div>
+      <div class="actions">{{ form.submit(class="button") }}</div>
+    </form>
+  </div>
+
+  {% if ideas %}
+    {# CSS columns: each picture keeps its own height, like on Pinterest. #}
+    <div class="idea-board">
+      {% for idea in ideas %}
+        <figure class="idea-card">
+          {{ idea_picture(idea) }}
+          <figcaption>
+            {% if idea.title %}<span class="idea-title">{{ idea.title }}</span>{% endif %}
+            {% if idea.note %}<span class="idea-note muted">{{ idea.note }}</span>{% endif %}
+            <span class="idea-actions">
+              {% if idea.source_url %}
+                <a href="{{ idea.source_url }}" target="_blank" rel="noopener noreferrer">{{ _("Open the pin") }}</a>
+              {% endif %}
+              {% if idea.outfits %}
+                <span class="muted">{{ ngettext("%(num)d outfit", "%(num)d outfits", idea.outfits | length) }}</span>
+              {% endif %}
+              {# A small POST form: deleting never happens on a plain link
+                 click. confirm.js asks first. #}
+              <form method="post" action="{{ url_for('ideas.delete', idea_id=idea.id) }}"
+                    data-confirm="{{ _('Outfits made after it stay.') }}" data-confirm-title="{{ _('Delete this idea?') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="link-button danger-link">{{ _("Delete") }}</button>
+              </form>
+            </span>
+          </figcaption>
+        </figure>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card empty-state">
+      <p>{{ _("Outfits you'd like to recreate. On Pinterest, press Share and Copy link, then paste it above.") }}</p>
+    </div>
+  {% endif %}
+{% endblock %}

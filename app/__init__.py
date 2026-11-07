@@ -96,6 +96,7 @@ def create_app(config_class=Config):
     from app.trips.routes import bp as trips_bp
     from app.tutorial.routes import bp as tutorial_bp
     from app.admin.routes import bp as admin_bp
+    from app.ideas.routes import bp as ideas_bp
 
     app.register_blueprint(main_bp)
     app.register_blueprint(auth_bp)
@@ -107,6 +108,7 @@ def create_app(config_class=Config):
     app.register_blueprint(tutorial_bp)
     app.register_blueprint(welcome_bp)
     app.register_blueprint(admin_bp)
+    app.register_blueprint(ideas_bp)
 
     # {% if is_admin(current_user) %} shows the Admin link only to you.
     from app.admin.access import is_admin

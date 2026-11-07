@@ -159,5 +159,24 @@ if (editor) {
   picker.addEventListener("change", (event) => {
     if (event.target.name === "item_ids") showTicked();
   });
+
+  // Inspiration: the picked idea shows bigger under the strip, so you can
+  // look at it while you arrange the board.
+  const preview = editor.parentElement.querySelector(".inspiration-preview");
+  function showIdea() {
+    const picked = editor.parentElement.querySelector('input[name="idea_id"]:checked');
+    const picture = picked && picked.closest("label").querySelector("img");
+    preview.hidden = !picture;
+    if (picture) {
+      preview.referrerPolicy = "no-referrer"; // like the small picture (macros/idea.html)
+      preview.src = picture.src;
+    }
+  }
+  if (preview) {
+    editor.parentElement.addEventListener("change", (event) => {
+      if (event.target.name === "idea_id") showIdea();
+    });
+    showIdea();
+  }
   showTicked(); // the edit page starts with some items ticked
 }

@@ -22,6 +22,10 @@ class OutfitForm(BaseForm):
     # The board layout as JSON, written by outfit_board.js on every move.
     # Checked and clamped by services/outfit_board.parse_layout().
     layout = HiddenField()
+    # Which saved idea (a pin) this outfit recreates; 0 = none. The template
+    # draws it as small picture buttons. validate_choice=False because the
+    # route checks it itself: only your own ideas count (see _save_if_valid).
+    idea_id = SelectField(_l("Inspiration"), coerce=int, default=0, validate_choice=False)
     photo = FileField(_l("Photo of the outfit"), description=_l("Optional: a picture of you wearing it."),
                       validators=[FileAllowed(IMAGE_TYPES, _l("Images only (jpg, png, webp, gif)."))])
     remove_photo = BooleanField(_l("Remove the current photo"))

@@ -88,6 +88,7 @@
           {{ nav_link("wardrobe.index", _("Wardrobe"), request.blueprint == "wardrobe" and not on_wishlist) }}
           {{ nav_link("wardrobe.wishlist", _("Wishlist"), on_wishlist) }}
           {{ nav_link("outfits.index", _("Outfits"), request.blueprint == "outfits") }}
+          {{ nav_link("ideas.index", _("Ideas"), request.blueprint == "ideas") }}
           {{ nav_link("planner.index", _("Planner"), request.blueprint in ("planner", "trips")) }}
           {{ nav_link("main.stats", _("Stats"), endpoint == "main.stats") }}
           {% if is_admin(current_user) %}

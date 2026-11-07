@@ -56,7 +56,7 @@ def _render_form(title, form, groups, outfit):
     sent = parse_layout(form.layout.data, {item.id for item in items}) if form.is_submitted() else None
     spots, defaults = editor_spots(items, outfit.item_links if outfit else [], sent)
     return render_template("outfits/form.html", title=title, form=form, groups=groups, outfit=outfit,
-                           spots=spots, defaults=defaults)
+                           spots=spots, defaults=defaults, ideas=current_user.ideas)
 
 
 def _save_if_valid(form, outfit):
@@ -90,6 +90,9 @@ def _save_if_valid(form, outfit):
     outfit.name = form.name.data.strip()
     outfit.occasion = form.occasion.data or None
     outfit.notes = (form.notes.data or "").strip() or None
+    # Only one of your own ideas; anything else (0, someone else's) = none.
+    my_ideas = {idea.id for idea in current_user.ideas}
+    outfit.idea_id = form.idea_id.data if form.idea_id.data in my_ideas else None
     # Keep the links that already exist, add new ones for newly ticked
     # items. Links left out of the list are deleted (delete-orphan).
     existing = {link.item_id: link for link in outfit.item_links}

@@ -1,0 +1,12 @@
+{# An idea's picture: our own copy if we have one, else straight from the
+   web. referrerpolicy="no-referrer": the other site isn't told which page
+   of ours shows it (some sites refuse pictures shown on other sites). #}
+{% macro idea_picture(idea, class="idea-photo") %}
+  {% if idea.image_path %}
+    <img src="{{ url_for('main.uploaded_file', filename=idea.image_path) }}" alt="{{ idea.title or '' }}"
+         class="{{ class }}" loading="lazy">
+  {% elif idea.image_url %}
+    <img src="{{ idea.image_url }}" alt="{{ idea.title or '' }}" class="{{ class }}"
+         loading="lazy" referrerpolicy="no-referrer">
+  {% endif %}
+{% endmacro %}

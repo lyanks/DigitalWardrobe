@@ -51,6 +51,9 @@ class User(UserMixin, db.Model):
     # Idea #1: what they actually wore, day by day.
     wear_logs = db.relationship("WearLog", back_populates="owner", cascade="all, delete-orphan")
     trips = db.relationship("Trip", back_populates="owner", cascade="all, delete-orphan")
+    # Saved inspiration (Pinterest pins and other pictures), newest first.
+    ideas = db.relationship("Idea", back_populates="owner", cascade="all, delete-orphan",
+                            order_by="Idea.created_at.desc()")
 
     def set_password(self, password):
         # Store a salted one-way hash, never the password itself.
@@ -199,6 +202,8 @@ class Outfit(db.Model):
     notes = db.Column(db.Text)
     # Optional photo of you wearing the whole outfit.
     image_path = db.Column(db.String(255))
+    # Optional: the saved idea (a pin) this outfit recreates.
+    idea_id = db.Column(db.Integer, db.ForeignKey("idea.id"), index=True)
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
     owner = db.relationship("User", back_populates="outfits")
@@ -217,6 +222,7 @@ class Outfit(db.Model):
     # days in the log (you did wear the clothes), SQLAlchemy just empties
     # their outfit_id.
     wear_logs = db.relationship("WearLog", back_populates="outfit")
+    idea = db.relationship("Idea", back_populates="outfits")
 
     @property
     def items(self):
@@ -465,3 +471,30 @@ class TripItem(db.Model):
 
     trip = db.relationship("Trip", back_populates="item_links")
     item = db.relationship("Item", back_populates="trip_links")
+
+
+class Idea(db.Model):
+    """A saved inspiration picture: a Pinterest pin, or any photo you upload.
+
+    The picture is copied to uploads/ideas/ (image_path) when the server
+    can download it. If it can't (PythonAnywhere's free plan only reaches
+    allow-listed sites), image_url keeps the picture's web address and the
+    page shows it straight from there.
+    """
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False, index=True)
+    source_url = db.Column(db.String(500))   # the pin (or page) it came from
+    image_url = db.Column(db.String(1000))   # the picture on the web
+    image_path = db.Column(db.String(255))   # our own copy in uploads/
+    title = db.Column(db.String(200))
+    note = db.Column(db.Text)
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    owner = db.relationship("User", back_populates="ideas")
+    # Outfits made after this idea. No cascade: deleting the idea keeps the
+    # outfits, SQLAlchemy just empties their idea_id.
+    outfits = db.relationship("Outfit", back_populates="idea")
+
+    def __repr__(self):
+        return f"<Idea {self.id} of user {self.user_id}>"
