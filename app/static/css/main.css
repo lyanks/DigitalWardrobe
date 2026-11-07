@@ -3612,3 +3612,38 @@ input[type="radio"] {
 .feedback-done {
     opacity: 0.6;
 }
+
+/* --- Make a pin with my clothes (ideas/suggest.html) --- */
+.pin-match {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: var(--space);
+    align-items: start;
+}
+.pin-match-pin {
+    margin: 0;
+}
+.pin-match-pin img {
+    width: 100%;
+    border-radius: var(--radius);
+}
+.pin-match-look > * + * {
+    margin-top: 0.75rem;
+}
+.pin-match-look .board {
+    width: 100%;
+}
+.suggest-votes {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.weather-line {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+}
+.ai-note {
+    font-size: 0.85rem;
+}

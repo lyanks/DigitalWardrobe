@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% from "macros/board.html" import board %}
+{% from "macros/idea.html" import idea_picture %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ _("Make it with my clothes") }}</h1>
+    <a href="{{ url_for('ideas.index') }}" class="button button-outline">{{ _("Ideas") }}</a>
+  </div>
+
+  <div class="pin-match">
+    <figure class="card pin-match-pin">
+      {{ idea_picture(idea) }}
+      {% if idea.title %}<figcaption class="muted">{{ idea.title }}</figcaption>{% endif %}
+    </figure>
+
+    <section class="card pin-match-look">
+      {% if items %}
+        {{ board(pieces, "board-mini") }}
+        <ul class="suggest-items">
+          {% for item in items %}<li>{{ item.name }}</li>{% endfor %}
+        </ul>
+      {% else %}
+        <p>{{ _("Nothing in your wardrobe matches this look yet.") }}</p>
+      {% endif %}
+      {% if note %}<p>{{ note }}</p>{% endif %}
+      {% if missing %}
+        <p class="muted">{{ _("To match it fully you'd need:") }} {{ missing | join(", ") }}</p>
+      {% endif %}
+      {% for problem in problems %}<p class="field-error">{{ problem }}</p>{% endfor %}
+
+      <div class="suggest-votes">
+        {% if items and not problems %}
+          <form method="post" action="{{ url_for('outfits.save_suggestion') }}" class="suggest-save">
+            {{ form.csrf_token }}
+            {{ form.item_ids(value=items | map(attribute="id") | join(",")) }}
+            {{ form.idea_id(value=idea.id) }}
+            {{ form.name(value=idea.title or _("From my pin"), **{"aria-label": _("Name")}) }}
+            {{ form.submit(class="button button-small") }}
+          </form>
+        {% endif %}
+        <form method="post" action="{{ url_for('ideas.suggest', idea_id=idea.id) }}" class="inline-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="button button-outline button-small">{{ _("Try again") }}</button>
+        </form>
+      </div>
+      <p class="muted ai-note">{{ _("Picked by AI from your clothes. It can be wrong; change anything you like after saving.") }}</p>
+    </section>
+  </div>
+{% endblock %}

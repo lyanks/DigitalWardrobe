@@ -11,7 +11,21 @@
 
   {# A plain GET form: the choices end up in the address, so a look can be
      reloaded or bookmarked. Pressing the button again shuffles. #}
-  <form method="get" class="card suggest-filters">
+  <form method="get" class="card suggest-filters" data-weather-form>
+    {# Filled by static/js/weather.js from Open-Meteo (free, no key). The
+       browser asks for the weather itself, so the server never needs to
+       reach Open-Meteo, and only the two numbers are sent here. #}
+    <input type="hidden" name="temp" value="{{ weather.temp if weather else '' }}" data-weather-temp>
+    <input type="hidden" name="rain" value="{{ weather.rain if weather else '' }}" data-weather-rain>
+    <div class="weather-line">
+      {% if weather %}
+        <span>{{ _("Today feels like %(temp)s °C, %(rain)s%% chance of rain.", temp=weather.temp | round | int, rain=weather.rain | round | int) }}</span>
+        <button type="button" class="link-button" data-weather-off>{{ _("Ignore the weather") }}</button>
+      {% else %}
+        <button type="button" class="button button-outline button-small" data-weather-on>{{ _("Use today's weather") }}</button>
+      {% endif %}
+      <span class="muted" data-weather-status role="status"></span>
+    </div>
     <fieldset>
       <legend>{{ _("Season") }}</legend>
       <div class="chips">
@@ -59,6 +73,22 @@
               {% for reason in look.reasons[:3] %}<li>{{ reason }}</li>{% endfor %}
             </ul>
           {% endif %}
+          <div class="suggest-votes">
+            {# "Wear it" logs it for today; "Not for me" pushes looks like it down.
+               Both teach the suggestions what you like (SuggestionVote). #}
+            <form method="post" action="{{ url_for('outfits.wear_suggestion') }}" class="inline-form">
+              {{ vote_form.csrf_token }}
+              <input type="hidden" name="item_ids" value="{{ look.item_ids | join(',') }}">
+              <input type="hidden" name="back" value="{{ back }}">
+              <button type="submit" class="button button-small">{{ _("Wear it today") }}</button>
+            </form>
+            <form method="post" action="{{ url_for('outfits.skip_suggestion') }}" class="inline-form">
+              {{ vote_form.csrf_token }}
+              <input type="hidden" name="item_ids" value="{{ look.item_ids | join(',') }}">
+              <input type="hidden" name="back" value="{{ back }}">
+              <button type="submit" class="button button-outline button-small">{{ _("Not for me") }}</button>
+            </form>
+          </div>
           <form method="post" action="{{ url_for('outfits.save_suggestion') }}" class="suggest-save">
             {{ form.csrf_token }}
             {{ form.item_ids(value=look.item_ids | join(",")) }}
@@ -78,4 +108,8 @@
       {% endif %}
     </div>
   {% endif %}
+{% endblock %}
+
+{% block scripts %}
+  <script src="{{ url_for('static', filename='js/weather.js') }}"></script>
 {% endblock %}

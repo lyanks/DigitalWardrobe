@@ -65,10 +65,13 @@ def _client():
                                timeout=30.0, max_retries=1)
 
 
-def ask_claude(prompt, schema, image_bytes=None, media_type="image/jpeg", max_tokens=2048):
+def ask_claude(prompt, schema, image_bytes=None, media_type="image/jpeg", max_tokens=2048,
+               image_url=None):
     """Ask Claude and return its answer as a dict shaped like `schema`.
 
     image_bytes: an optional picture (JPEG/PNG bytes) to look at.
+    image_url: or a picture on the web. Anthropic downloads it, not our
+    server, so it works even for sites PythonAnywhere doesn't allow.
     Raises AiError with a friendly message if anything fails.
     """
     import anthropic
@@ -84,6 +87,8 @@ def ask_claude(prompt, schema, image_bytes=None, media_type="image/jpeg", max_to
             "source": {"type": "base64", "media_type": media_type,
                        "data": base64.standard_b64encode(image_bytes).decode("ascii")},
         })
+    elif image_url:
+        content.append({"type": "image", "source": {"type": "url", "url": image_url}})
     content.append({"type": "text", "text": prompt})
 
     try:

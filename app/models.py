@@ -58,6 +58,7 @@ class User(UserMixin, db.Model):
     # Saved inspiration (Pinterest pins and other pictures), newest first.
     ideas = db.relationship("Idea", back_populates="owner", cascade="all, delete-orphan",
                             order_by="Idea.created_at.desc()")
+    suggestion_votes = db.relationship("SuggestionVote", cascade="all, delete-orphan")
 
     def set_password(self, password):
         # Store a salted one-way hash, never the password itself.
@@ -609,3 +610,32 @@ class Feedback(db.Model):
 
     def __repr__(self):
         return f"<Feedback {self.id} from user {self.user_id}>"
+
+
+class SuggestionVote(db.Model):
+    """What you did with a suggested look: wore or saved it (liked), or
+    pressed "Not for me". services/suggest.py learns from these.
+
+    item_ids is the look as text, "3,7,12" (sorted): a vote is about the
+    combination, and a deleted item simply never matches again.
+    """
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id", ondelete="CASCADE"), nullable=False, index=True)
+    item_ids = db.Column(db.String(200), nullable=False)
+    liked = db.Column(db.Boolean, nullable=False)
+    created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
+
+    @property
+    def id_set(self):
+        return {int(part) for part in self.item_ids.split(",") if part.isdigit()}
+
+    @classmethod
+    def add(cls, user_id, items, liked):
+        ids = ",".join(str(item_id) for item_id in sorted(item.id for item in items))
+        vote = cls(user_id=user_id, item_ids=ids, liked=liked)
+        db.session.add(vote)
+        return vote
+
+    def __repr__(self):
+        return f"<SuggestionVote {self.item_ids} {'+' if self.liked else '-'}>"

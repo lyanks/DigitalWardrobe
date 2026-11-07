@@ -19,7 +19,7 @@ only add a few points; they never hide anything.
 """
 import random
 from dataclasses import dataclass, field
-from itertools import product
+from itertools import combinations, product
 
 from flask_babel import gettext as _
 
@@ -66,6 +66,14 @@ BODY_SHAPES = {
 # Slots near the face: the undertone rule looks at these.
 FACE_SLOTS = {"top", "full", "outer"}
 COLD_SEASONS = {"autumn", "winter"}
+
+# Live weather (static/js/weather.js asks Open-Meteo in the browser).
+# Feels-like temperature in degrees C: below JACKET a layer goes on top,
+# from NO_JACKET up it stays at home, in between the season decides.
+JACKET_BELOW = 16
+NO_JACKET_FROM = 22
+RAIN_LIKELY = 50  # % chance of rain
+LIGHT_SHOES = {"white", "beige", "light blue", "pink", "yellow"}
 
 # The biggest wardrobe still gets an answer fast: at most this many
 # top + bottom pairs are scored (a random sample of them).
@@ -177,6 +185,50 @@ def recent_points(items, recent):
     return 0, []
 
 
+def rain_points(items, weather):
+    """Rain likely: light shoes get dirty, so darker ones win."""
+    if not weather or weather.get("rain", 0) < RAIN_LIKELY:
+        return 0, []
+    shoes = [item for item in items if _slot(item) == "feet"]
+    if any(item.color in LIGHT_SHOES for item in shoes):
+        return -2, []
+    if shoes:
+        return 1, [_("Rain is likely: darker shoes.")]
+    return 0, []
+
+
+def _pairs(ids):
+    """{(1, 3), (1, 7), (3, 7)} for ids {1, 3, 7}: every two pieces together."""
+    return set(combinations(sorted(ids), 2))
+
+
+def learned_points(items, votes):
+    """Learn from "Wear it" and "Not for me" (SuggestionVote rows).
+
+    votes: [(set of item ids, liked), ...]. Each pair of pieces you liked
+    together earns a point; each pair you turned down loses more, and the
+    exact look you turned down is pushed far down. No machine learning:
+    just counting, so you can read why a look moved up or down.
+    """
+    if not votes:
+        return 0, []
+    ids = {item.id for item in items}
+    pairs = _pairs(ids)
+    combo = combo_ids(items)
+    points = 0.0
+    for voted, liked in votes:
+        shared = len(pairs & _pairs(voted))
+        if liked:
+            points += shared
+        else:
+            points -= 1.5 * shared
+            if combo and combo <= voted:
+                points -= 6
+    points = max(-10, min(points, 4))  # one strong opinion can't take over
+    reasons = [_("Close to looks you chose before.")] if points >= 2 else []
+    return points, reasons
+
+
 def score(items, profile):
     """Add up every rule. profile: a dict made by suggest() below."""
     total, reasons = 0.0, []
@@ -187,6 +239,8 @@ def score(items, profile):
         mood_points(items, profile["moods"]),
         freshness_points(items, profile["median_worn"]),
         recent_points(items, profile["recent"]),
+        rain_points(items, profile["weather"]),
+        learned_points(items, profile["votes"]),
     ):
         total += points
         reasons.extend(why)
@@ -205,13 +259,27 @@ def _best_addition(base, choices, profile):
     return best
 
 
+def needs_jacket(season, weather):
+    """Real weather wins over the calendar."""
+    feels = (weather or {}).get("temp")
+    if feels is None:
+        return season in COLD_SEASONS
+    if feels < JACKET_BELOW:
+        return True
+    if feels >= NO_JACKET_FROM:
+        return False
+    return season in COLD_SEASONS
+
+
 def suggest(items, season, moods=(), undertone=None, body_shape=None, recent=(),
-            count=3, rng=None):
+            weather=None, votes=(), count=3, rng=None):
     """Up to `count` Suggestions, best first.
 
     items: the user's owned clothes. Ones in the wash or out of season
-    are skipped here. rng: a random.Random, so "Shuffle" gives other
-    looks and the tests can fix the seed.
+    are skipped here. weather: {"temp": feels-like C, "rain": % chance}
+    or None. votes: [(item ids, liked), ...] from SuggestionVote.
+    rng: a random.Random, so "Shuffle" gives other looks and the tests
+    can fix the seed.
     """
     rng = rng or random.Random()
     usable = [item for item in items if not item.in_wash and item.fits_season(season)]
@@ -221,7 +289,9 @@ def suggest(items, season, moods=(), undertone=None, body_shape=None, recent=(),
 
     worn = sorted(item.times_worn for item in usable) or [0]
     profile = {"undertone": undertone, "body_shape": body_shape, "moods": set(moods),
-               "median_worn": worn[len(worn) // 2], "recent": list(recent)}
+               "median_worn": worn[len(worn) // 2], "recent": list(recent),
+               "weather": weather, "votes": list(votes)}
+    jacket = needs_jacket(season, weather)
 
     bases = [[top, bottom] for top, bottom in product(by_slot.get("top", []), by_slot.get("bottom", []))]
     if len(bases) > MAX_CANDIDATES:
@@ -242,7 +312,7 @@ def suggest(items, season, moods=(), undertone=None, body_shape=None, recent=(),
         if key_ids & used:
             continue  # one look per top, bottom and dress
         look = list(base)
-        if season in COLD_SEASONS and by_slot.get("outer"):
+        if jacket and by_slot.get("outer"):
             look.append(_best_addition(look, by_slot["outer"], profile))
         if by_slot.get("feet"):
             look.append(_best_addition(look, by_slot["feet"], profile))

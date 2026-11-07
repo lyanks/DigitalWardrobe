@@ -35,6 +35,12 @@
               {% if idea.source_url %}
                 <a href="{{ idea.source_url }}" target="_blank" rel="noopener noreferrer">{{ _("Open the pin") }}</a>
               {% endif %}
+              {% if ai_enabled %}
+                <form method="post" action="{{ url_for('ideas.suggest', idea_id=idea.id) }}" class="inline-form">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <button type="submit" class="link-button">{{ _("Make it with my clothes") }}</button>
+                </form>
+              {% endif %}
               {% if idea.outfits %}
                 <span class="muted">{{ ngettext("%(num)d outfit", "%(num)d outfits", idea.outfits | length) }}</span>
               {% endif %}

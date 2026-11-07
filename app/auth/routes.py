@@ -3,7 +3,8 @@ from urllib.parse import urlsplit
 
 from authlib.integrations.base_client import OAuthError
 from flask import (
-    Blueprint, abort, current_app, flash, redirect, render_template, request, session, url_for,
+    Blueprint, abort, current_app, flash, redirect, render_template, request, send_file, session,
+    url_for,
 )
 from flask_babel import gettext as _
 from flask_login import current_user, login_required, login_user, logout_user
@@ -160,6 +161,18 @@ def profile():
         suggest_form=suggest_form,
         themes=THEMES,
     )
+
+
+@bp.route("/profile/export")
+@login_required
+def export():
+    """Download my data: a zip with data.json and your photos (services/export.py)."""
+    import io
+    from datetime import date
+    from app.services.export import build_zip
+    name = f"digital-wardrobe-{date.today():%d.%m.%Y}.zip"
+    return send_file(io.BytesIO(build_zip(current_user)), mimetype="application/zip",
+                     as_attachment=True, download_name=name)
 
 
 # ---------- Sign in with Google ----------

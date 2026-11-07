@@ -100,3 +100,43 @@ def test_mood_wins(wardrobe):
 
 def test_empty_wardrobe():
     assert suggest([], "summer") == []
+
+
+# ---------- weather and learning ----------
+
+def test_weather_decides_the_jacket():
+    from app.services.suggest import needs_jacket
+    assert needs_jacket("summer", {"temp": 9})          # cold summer day: jacket
+    assert not needs_jacket("winter", {"temp": 24})     # warm winter day: none
+    assert needs_jacket("autumn", {"temp": 18})         # in between: the season decides
+    assert not needs_jacket("spring", None)
+
+
+def test_warm_day_leaves_the_coat_at_home(wardrobe):
+    for look in suggest(wardrobe, "autumn", weather={"temp": 25, "rain": 0}, rng=random.Random(6)):
+        assert 6 not in look.item_ids
+
+
+def test_rain_prefers_dark_shoes(wardrobe):
+    from app.services.suggest import rain_points
+    white = fake(8, "white boots", "white")
+    assert rain_points([white], {"temp": 10, "rain": 80})[0] < 0
+    assert rain_points([wardrobe[6]], {"temp": 10, "rain": 80})[0] > 0
+    assert rain_points([white], {"temp": 10, "rain": 10})[0] == 0
+
+
+def test_learning_from_votes(wardrobe):
+    from app.services.suggest import learned_points
+    tee, jeans, shirt = wardrobe[0], wardrobe[2], wardrobe[1]
+    liked = [({1, 3, 7}, True)]
+    disliked = [({1, 3, 7}, False)]
+    assert learned_points([tee, jeans], liked)[0] > 0
+    assert learned_points([tee, jeans], disliked)[0] < -5     # the same look, turned down
+    assert learned_points([shirt, wardrobe[3]], disliked)[0] == 0  # nothing shared
+
+
+def test_not_for_me_changes_the_top_look(wardrobe):
+    first = suggest(wardrobe, "autumn", rng=random.Random(7))[0]
+    votes = [(set(first.item_ids), False)]
+    again = suggest(wardrobe, "autumn", votes=votes, rng=random.Random(7))[0]
+    assert set(again.item_ids) != set(first.item_ids)

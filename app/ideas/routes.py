@@ -8,13 +8,19 @@ recreate (the "Inspiration" choice on the outfit form).
 import io
 
 from flask import Blueprint, abort, flash, redirect, render_template, url_for
+from flask_babel import get_locale
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
 from werkzeug.datastructures import FileStorage
 
 from app.extensions import db
 from app.ideas.forms import DeleteIdeaForm, IdeaForm
-from app.models import Idea
+from app.models import Idea, Item
+from app.outfits.forms import SaveSuggestionForm
+from app.services import ai
+from app.services.outfit_board import place
+from app.services.outfit_rules import outfit_problems, sort_by_slot
+from app.services.pin_match import match_pin
 from app.services.images import InvalidImageError, delete_image, save_image
 from app.services.pins import fetch_pin
 from app.services.product_page import FetchError, download_image
@@ -84,7 +90,38 @@ def index():
             db.session.commit()
             flash(_("Idea saved."), "success")
             return redirect(url_for("ideas.index"))
-    return render_template("ideas/index.html", title=_("Ideas"), form=form, ideas=current_user.ideas)
+    return render_template("ideas/index.html", title=_("Ideas"), form=form, ideas=current_user.ideas,
+                           ai_enabled=ai.is_enabled())
+
+
+@bp.route("/<int:idea_id>/suggest", methods=["POST"])
+def suggest(idea_id):
+    """"Make it with my clothes": Claude picks pieces from your wardrobe.
+
+    A POST, not a link: each press costs a little money and counts
+    towards the daily AI limit (ai.use_quota).
+    """
+    idea = get_own_idea_or_404(idea_id)
+    items = db.session.scalars(Item.owned_by(current_user.id)).all()
+    if not items:
+        flash(_("Add a few clothes first: at least a top and a bottom, or a dress."), "info")
+        return redirect(url_for("ideas.index"))
+    try:
+        ai.use_quota(current_user.id)
+        language = "Ukrainian" if str(get_locale()) == "uk" else "English"
+        answer = match_pin(idea, items, language)
+    except ai.AiError as error:
+        flash(str(error), "error")
+        return redirect(url_for("ideas.index"))
+
+    # Trust, but check: only your own clothes, each once, head to toe.
+    mine = {item.id: item for item in items}
+    picked = sort_by_slot([mine[i] for i in dict.fromkeys(answer["item_ids"]) if i in mine])
+    return render_template(
+        "ideas/suggest.html", title=_("Make it with my clothes"), idea=idea, items=picked,
+        pieces=[(item, place(item)) for item in picked], problems=outfit_problems(picked),
+        note=answer["note"], missing=answer["missing"], form=SaveSuggestionForm(),
+    )
 
 
 @bp.route("/<int:idea_id>/delete", methods=["POST"])

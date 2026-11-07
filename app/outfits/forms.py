@@ -53,4 +53,13 @@ class SaveSuggestionForm(BaseForm):
     """"Save as outfit" under a suggested look. item_ids = "3,7,12"."""
     name = StringField(_l("Name"), validators=[DataRequired(), Length(max=100)])
     item_ids = HiddenField(validators=[DataRequired()])
+    # The pin this look was made from, if any (AI suggestions from Ideas).
+    idea_id = HiddenField()
     submit = SubmitField(_l("Save as outfit"))
+
+
+class VoteForm(BaseForm):
+    """"Wear it" and "Not for me" under a suggested look."""
+    item_ids = HiddenField(validators=[DataRequired()])
+    # Where to go back to: the same suggestions page, with its season and moods.
+    back = HiddenField()

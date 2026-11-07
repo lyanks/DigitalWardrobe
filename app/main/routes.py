@@ -1,3 +1,4 @@
+import os
 from datetime import date, timedelta
 
 from flask import (
@@ -82,3 +83,18 @@ def uploaded_file(filename):
     # A guest's photos are in their own folder (app/guests.py).
     from app.guests import upload_folder
     return send_from_directory(upload_folder(), filename)
+
+
+@bp.route("/sw.js")
+def service_worker():
+    """The service worker (static/js/sw.js), served from the site's root.
+
+    A service worker only looks after pages at or below its own address,
+    so /static/js/sw.js could only handle /static/... From /sw.js it
+    handles the whole site. no-cache: phones pick up a new version quickly.
+    """
+    response = send_from_directory(os.path.join(current_app.root_path, "static", "js"), "sw.js",
+                                   mimetype="text/javascript")
+    response.headers["Cache-Control"] = "no-cache"
+    return response
+

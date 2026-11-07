@@ -6,8 +6,8 @@ from flask_login import current_user, login_required
 
 from app import options
 from app.extensions import db
-from app.models import Category, Item, Outfit, OutfitItem
-from app.outfits.forms import DeleteOutfitForm, OutfitForm, SaveSuggestionForm
+from app.models import Category, Item, Outfit, OutfitItem, SuggestionVote, WearLog, utcnow
+from app.outfits.forms import DeleteOutfitForm, OutfitForm, SaveSuggestionForm, VoteForm
 from app.services.combo_check import WINDOW_DAYS, worn_between
 from app.services.images import InvalidImageError, delete_image, save_image
 from app.services.outfit_board import apply_layout, editor_spots, parse_layout, place
@@ -135,28 +135,62 @@ def create():
 
 # ---------- Suggest a look (services/suggest.py) ----------
 
+# How far back "Wear it" and "Not for me" still count.
+VOTE_MEMORY_DAYS = 120
+
+
+def _number(name, low, high):
+    """A number from the address (?temp=9.5), or None if missing or silly."""
+    try:
+        value = float(request.args.get(name, ""))
+    except ValueError:
+        return None
+    return value if low <= value <= high else None
+
+
+def my_votes():
+    since = utcnow() - timedelta(days=VOTE_MEMORY_DAYS)
+    rows = db.session.scalars(
+        db.select(SuggestionVote).where(SuggestionVote.user_id == current_user.id,
+                                        SuggestionVote.created_at >= since)
+    ).all()
+    return [(row.id_set, row.liked) for row in rows]
+
+
+def items_from_ids(text):
+    """"3,7,12" -> your own items with those ids. Anyone else's aren't found."""
+    wanted = {int(part) for part in (text or "").split(",") if part.strip().isdigit()}
+    return db.session.scalars(Item.owned_by(current_user.id).where(Item.id.in_(wanted))).all()
+
+
 @bp.route("/suggest")
 def suggest_look():
-    """Three looks from your own clothes. ?season=winter&mood=classy&mood=home"""
+    """Three looks from your own clothes.
+
+    ?season=winter&mood=classy&mood=home, plus ?temp=9&rain=70 when the
+    browser found today's weather (static/js/weather.js).
+    """
     seasons = [value for value in options.values("season") if value != "all"]
     moods = options.values("mood")
     season = request.args.get("season")
     if season not in seasons:
         season = season_of(date.today())
     picked_moods = [mood for mood in request.args.getlist("mood") if mood in moods]
+    temp = _number("temp", -60, 60)
+    weather = None if temp is None else {"temp": temp, "rain": _number("rain", 0, 100) or 0}
 
     items = db.session.scalars(Item.owned_by(current_user.id)).all()
     today = date.today()
     recent = worn_between(current_user.id, today - timedelta(days=WINDOW_DAYS), today - timedelta(days=1))
     looks = suggest(items, season, picked_moods, current_user.undertone, current_user.body_shape,
-                    recent.values())
+                    recent.values(), weather=weather, votes=my_votes())
     # Each look as a board, with every piece in its usual spot.
     boards = [[(item, place(item)) for item in look.items] for look in looks]
-    form = SaveSuggestionForm()
     return render_template(
         "outfits/suggest.html", title=_("Suggest a look"), looks=list(zip(looks, boards)),
-        seasons=seasons, season=season, moods=moods, picked_moods=picked_moods, form=form,
-        item_count=len(items),
+        seasons=seasons, season=season, moods=moods, picked_moods=picked_moods,
+        form=SaveSuggestionForm(), vote_form=VoteForm(), weather=weather,
+        item_count=len(items), back=request.full_path,
     )
 
 
@@ -164,19 +198,54 @@ def suggest_look():
 def save_suggestion():
     form = SaveSuggestionForm()
     if form.validate_on_submit():
-        wanted = {int(part) for part in form.item_ids.data.split(",") if part.strip().isdigit()}
-        # Only your own clothes: someone else's ids simply aren't found.
-        items = db.session.scalars(Item.owned_by(current_user.id).where(Item.id.in_(wanted))).all()
+        items = items_from_ids(form.item_ids.data)
         if items and not outfit_problems(items):
-            outfit = Outfit(user_id=current_user.id, name=form.name.data)
+            # Made from one of your pins? Only your own ideas count.
+            my_ideas = {idea.id for idea in current_user.ideas}
+            idea_id = int(form.idea_id.data) if (form.idea_id.data or "").isdigit() else None
+            outfit = Outfit(user_id=current_user.id, name=form.name.data,
+                            idea_id=idea_id if idea_id in my_ideas else None)
             outfit.item_links = [OutfitItem(item=item, position=number)
                                  for number, item in enumerate(sort_by_slot(items))]
+            SuggestionVote.add(current_user.id, items, liked=True)
             db.session.add(outfit)
             db.session.commit()
             flash(_("Saved the outfit “%(name)s”.", name=outfit.name), "success")
             return redirect(url_for("outfits.detail", outfit_id=outfit.id))
     flash(_("That look couldn't be saved. Try another one."), "error")
     return redirect(url_for("outfits.suggest_look"))
+
+
+def _back(form):
+    """Back to the suggestions you were looking at, never to another site."""
+    back = form.back.data or ""
+    return back if back.startswith("/outfits/suggest") else url_for("outfits.suggest_look")
+
+
+@bp.route("/suggest/wear", methods=["POST"])
+def wear_suggestion():
+    """"Wear it": log the look as worn today, and remember that you liked it."""
+    form = VoteForm()
+    items = items_from_ids(form.item_ids.data) if form.validate_on_submit() else []
+    if items and not outfit_problems(items):
+        WearLog.record(current_user.id, date.today(), sort_by_slot(items))
+        SuggestionVote.add(current_user.id, items, liked=True)
+        db.session.commit()
+        flash(_("Logged as worn today. Suggestions will remember you liked it."), "success")
+        return redirect(url_for("planner.log_look"))
+    return redirect(_back(form))
+
+
+@bp.route("/suggest/skip", methods=["POST"])
+def skip_suggestion():
+    """"Not for me": this look (and looks like it) move down from now on."""
+    form = VoteForm()
+    items = items_from_ids(form.item_ids.data) if form.validate_on_submit() else []
+    if items:
+        SuggestionVote.add(current_user.id, items, liked=False)
+        db.session.commit()
+        flash(_("Got it. You'll see fewer looks like that."), "info")
+    return redirect(_back(form))
 
 
 # ---------- Read: one outfit ----------

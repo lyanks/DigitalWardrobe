@@ -127,6 +127,12 @@ def month_year(day):
 # The scripts can't call _(), so base.html puts these into the page as
 # JSON and the scripts use t("..."), which looks the English text up.
 JS_TEXTS = [
+    # weather.js (Suggest a look)
+    N_("Checking the weather…"),
+    N_("Couldn't get the weather. Try again later."),
+    N_("This browser can't share your location."),
+    N_("Finding where you are…"),
+    N_("No location, so no weather. Seasons still work."),
     N_("Couldn't save that. Try again."),
     N_("Couldn't save that."),
     N_("Couldn't reach the server. Try again."),

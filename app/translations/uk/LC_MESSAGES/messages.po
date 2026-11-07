@@ -2125,3 +2125,76 @@ msgstr "Вмістити"
 
 msgid "Pinch with two fingers to zoom in, and move both fingers to slide the photo."
 msgstr "Розведи два пальці, щоб збільшити, і веди обома, щоб посунути фото."
+
+# --- Weather, learning, pin AI, my data ---
+msgid "Make it with my clothes"
+msgstr "Зібрати з моїх речей"
+
+msgid "Logged as worn today. Suggestions will remember you liked it."
+msgstr "Записано як вдягнене сьогодні. Добірки запам'ятають, що тобі сподобалось."
+
+msgid "Got it. You'll see fewer looks like that."
+msgstr "Зрозуміло. Таких образів буде менше."
+
+msgid "This idea has no picture."
+msgstr "У цієї ідеї немає картинки."
+
+msgid "Rain is likely: darker shoes."
+msgstr "Ймовірний дощ: темніше взуття."
+
+msgid "Close to looks you chose before."
+msgstr "Схоже на образи, які тобі вже подобались."
+
+msgid "Your data"
+msgstr "Твої дані"
+
+msgid "Your clothes, outfits, plans and photos are stored only on this site, never sold or shared. Download a copy any time: a zip with a data file and all your photos."
+msgstr "Твої речі, образи, плани й фото зберігаються лише на цьому сайті, їх ніхто не продає й не передає. Завантаж копію будь-коли: zip-файл із даними та всіма фото."
+
+msgid "Download my data"
+msgstr "Завантажити мої дані"
+
+msgid "Nothing in your wardrobe matches this look yet."
+msgstr "У гардеробі поки немає нічого схожого на цей образ."
+
+msgid "To match it fully you'd need:"
+msgstr "Щоб повторити повністю, бракує:"
+
+msgid "From my pin"
+msgstr "З мого піна"
+
+msgid "Try again"
+msgstr "Спробувати ще"
+
+msgid "Picked by AI from your clothes. It can be wrong; change anything you like after saving."
+msgstr "Підібрано ШІ з твоїх речей. Може помилятися: після збереження зміни що завгодно."
+
+msgid "Today feels like %(temp)s °C, %(rain)s%% chance of rain."
+msgstr "Сьогодні відчувається як %(temp)s °C, ймовірність дощу %(rain)s%%."
+
+msgid "Ignore the weather"
+msgstr "Не враховувати погоду"
+
+msgid "Use today's weather"
+msgstr "Врахувати сьогоднішню погоду"
+
+msgid "Wear it today"
+msgstr "Вдягну сьогодні"
+
+msgid "Not for me"
+msgstr "Не моє"
+
+msgid "Checking the weather…"
+msgstr "Дивлюся погоду…"
+
+msgid "Couldn't get the weather. Try again later."
+msgstr "Не вдалося дізнатися погоду. Спробуй пізніше."
+
+msgid "This browser can't share your location."
+msgstr "Цей браузер не може передати твоє місцезнаходження."
+
+msgid "Finding where you are…"
+msgstr "Визначаю, де ти…"
+
+msgid "No location, so no weather. Seasons still work."
+msgstr "Без місцезнаходження погоди немає, але сезони працюють."
