@@ -8,6 +8,7 @@ from app.extensions import db
 from app.models import Category, Item, Outfit, OutfitItem
 from app.outfits.forms import DeleteOutfitForm, OutfitForm
 from app.services.images import InvalidImageError, delete_image, save_image
+from app.services.outfit_board import apply_layout, editor_spots, parse_layout
 from app.services.outfit_rules import outfit_problems, sort_by_slot
 
 bp = Blueprint("outfits", __name__, url_prefix="/outfits")
@@ -48,6 +49,16 @@ def _prepare_form(form):
     return groups
 
 
+def _render_form(title, form, groups, outfit):
+    """The outfit form page, with every item's place on the board."""
+    items = [item for _, items in groups for item in items]
+    # After a form error, keep the pieces where you had just put them.
+    sent = parse_layout(form.layout.data, {item.id for item in items}) if form.is_submitted() else None
+    spots, defaults = editor_spots(items, outfit.item_links if outfit else [], sent)
+    return render_template("outfits/form.html", title=title, form=form, groups=groups, outfit=outfit,
+                           spots=spots, defaults=defaults)
+
+
 def _save_if_valid(form, outfit):
     """Validate the form and the outfit rules; save and return True if all is well."""
     if not form.validate_on_submit():
@@ -85,6 +96,8 @@ def _save_if_valid(form, outfit):
     outfit.item_links = [existing.get(item.id) or OutfitItem(item=item) for item in sort_by_slot(items)]
     for number, link in enumerate(outfit.item_links):
         link.position = number
+    # Where each piece sits on the board (sent by outfit_board.js).
+    apply_layout(outfit.item_links, parse_layout(form.layout.data, {item.id for item in items}))
     db.session.add(outfit)
     db.session.commit()
     return True
@@ -111,7 +124,7 @@ def create():
     if _save_if_valid(form, outfit):
         flash(_("Saved the outfit “%(name)s”.", name=outfit.name), "success")
         return redirect(url_for("outfits.detail", outfit_id=outfit.id))
-    return render_template("outfits/form.html", title=_("New outfit"), form=form, groups=groups, outfit=None)
+    return _render_form(_("New outfit"), form, groups, None)
 
 
 # ---------- Read: one outfit ----------
@@ -147,7 +160,7 @@ def edit(outfit_id):
     if _save_if_valid(form, outfit):
         flash(_("Outfit saved."), "success")
         return redirect(url_for("outfits.detail", outfit_id=outfit.id))
-    return render_template("outfits/form.html", title=_("Edit %(name)s", name=outfit.name), form=form, groups=groups, outfit=outfit)
+    return _render_form(_("Edit %(name)s", name=outfit.name), form, groups, outfit)
 
 
 # ---------- Delete (two steps, like items) ----------

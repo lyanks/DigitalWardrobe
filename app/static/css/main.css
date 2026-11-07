@@ -975,35 +975,6 @@ a:hover {
     box-shadow: var(--shadow);
 }
 
-/* Collage of the outfit's first items: 2 x 2, or fewer tiles if the
-   outfit is smaller (the count-N class says how many there are). */
-.outfit-thumbs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: 1fr 1fr;
-    gap: 2px;
-    aspect-ratio: 1;
-    overflow: hidden;
-    background: var(--color-border);
-}
-
-.outfit-thumbs.count-1 { grid-template-columns: 1fr; grid-template-rows: 1fr; }
-.outfit-thumbs.count-2 { grid-template-rows: 1fr; }
-.outfit-thumbs.count-3 > :first-child { grid-row: span 2; }
-
-.outfit-thumbs img,
-.outfit-thumbs span {
-    width: 100%;
-    height: 100%;
-    min-height: 0;
-    object-fit: contain;
-    background: var(--color-photo-bg);
-    font-size: 0.8rem;
-}
-.outfit-thumbs span {
-    background: var(--color-placeholder);  /* an item without a photo */
-}
-
 /* The item picker in the outfit builder. */
 .picker {
     border: 0;
@@ -1066,6 +1037,138 @@ a:hover {
     max-height: 520px;
     margin-bottom: var(--space);
     border-radius: var(--radius);
+}
+
+/* ===== Outfit board: clothes laid out like a Pinterest collage =====
+   macros/board.html draws it, outfit_board.js makes it draggable. Every
+   piece is absolutely positioned in % of the board (left, top, width), so
+   the board can be any size and the layout stays the same. */
+
+.board {
+    position: relative;             /* the pieces are placed inside this box */
+    aspect-ratio: 4 / 5;            /* a portrait "pin" */
+    overflow: hidden;
+    border: 1px solid var(--color-glass-border);
+    border-radius: var(--radius-lg);
+    background:
+        radial-gradient(circle at 30% 15%, color-mix(in srgb, var(--color-primary) 12%, transparent), transparent 60%),
+        var(--color-photo-bg);
+}
+.board-piece {
+    position: absolute;
+}
+.board-piece[hidden] {
+    display: none;
+}
+.board-piece img {
+    display: block;
+    width: 100%;
+    height: auto;                   /* the height follows the photo */
+    pointer-events: none;           /* the piece gets the drag, not the image */
+    user-select: none;
+    filter: drop-shadow(0 6px 14px rgb(0 0 0 / 0.35));  /* follows a cut-out's outline */
+}
+.board-empty {                      /* an item without a photo */
+    display: block;
+    padding: 0.5rem;
+    border-radius: 8px;
+    background: var(--color-placeholder);
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    text-align: center;
+}
+
+/* The editor on the outfit form. */
+.board-editor .board-piece {
+    cursor: grab;
+    touch-action: none;             /* a finger drags the piece, not the page */
+}
+.board-editor .board-piece:active {
+    cursor: grabbing;
+}
+.board-piece.selected,
+.board-piece:focus-visible {
+    outline: 2px dashed var(--color-primary);
+    outline-offset: 3px;
+}
+.board-handle {                     /* the resize dot, bottom-right */
+    display: none;
+    position: absolute;
+    right: -8px;
+    bottom: -8px;
+    width: 18px;
+    height: 18px;
+    border: 2px solid var(--color-bg);
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: nwse-resize;
+}
+.board-piece.selected .board-handle {
+    display: block;
+}
+@media (pointer: coarse) {          /* a finger needs a bigger target */
+    .board-handle { width: 26px; height: 26px; right: -12px; bottom: -12px; }
+}
+.board-hint {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    margin: 0;
+    padding: 2rem;
+    color: var(--color-muted);
+    text-align: center;
+}
+.board-hint[hidden] {
+    display: none;
+}
+.board-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+/* Outfit form: board on the left, clothes on the right; stacked on a phone. */
+.builder {
+    display: grid;
+    gap: calc(var(--space) * 1.5);
+    margin-bottom: var(--space);
+}
+@media (min-width: 860px) {
+    .builder {
+        grid-template-columns: minmax(300px, 420px) 1fr;
+        align-items: start;
+    }
+    .builder-side {
+        position: sticky;           /* stays in view while you scroll the clothes */
+        top: var(--space);
+    }
+}
+.builder .builder-preview {
+    position: static;
+    margin: 0.75rem 0 0;
+}
+
+/* The outfit page: the board next to your own photo of the outfit. */
+.outfit-show {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--space);
+    margin-bottom: var(--space);
+}
+.outfit-show .board {
+    width: min(100%, 440px);
+}
+.outfit-show .outfit-photo {
+    margin-bottom: 0;
+}
+
+/* The small board on an outfit card. */
+.board-mini {
+    border: 0;
+    border-radius: 0;
 }
 
 /* ---------- Phase 4: planner ---------- */

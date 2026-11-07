@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% from "macros/forms.html" import render_field %}
 {% from "macros/picker.html" import item_picker %}
+{% from "macros/board.html" import board_editor %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
@@ -20,24 +21,30 @@
         {{ render_field(form.occasion) }}
       </div>
 
-      {# Filled in by outfit_builder.js; stays hidden without JavaScript. #}
-      <div class="builder-preview" hidden>
-        <div class="preview-strip"></div>
-        <p class="preview-verdict" role="status" aria-live="polite"></p>
-        <p class="preview-combo" hidden></p>
+      <div class="builder">
+        {# Left (top on a phone): the board. It stays in view while you
+           scroll the clothes. outfit_board.js does the dragging. #}
+        <div class="builder-side">
+          {{ board_editor(groups, spots, defaults) }}
+          {# Filled in by outfit_builder.js; stays hidden without JavaScript. #}
+          <div class="builder-preview" hidden>
+            <p class="preview-verdict" role="status" aria-live="polite"></p>
+            <p class="preview-combo" hidden></p>
+          </div>
+        </div>
+
+        {# The item picker: macros/picker.html. #}
+        <fieldset class="picker{% if form.item_ids.errors %} has-error{% endif %}"
+                  data-check-url="{{ url_for('api.check_outfit') }}">
+          <legend>{{ _("Pick the items") }}</legend>
+          <p class="field-hint">{{ _("A top and a bottom, or a dress. Add shoes, a jacket and any accessories you like.") }}</p>
+          {% for error in form.item_ids.errors %}
+            <p class="field-error">{{ error }}</p>
+          {% endfor %}
+
+          {{ item_picker(groups, form.item_ids.data) }}
+        </fieldset>
       </div>
-
-      {# The item picker: macros/picker.html. #}
-      <fieldset class="picker{% if form.item_ids.errors %} has-error{% endif %}"
-                data-check-url="{{ url_for('api.check_outfit') }}">
-        <legend>{{ _("Pick the items") }}</legend>
-        <p class="field-hint">{{ _("A top and a bottom, or a dress. Add shoes, a jacket and any accessories you like.") }}</p>
-        {% for error in form.item_ids.errors %}
-          <p class="field-error">{{ error }}</p>
-        {% endfor %}
-
-        {{ item_picker(groups, form.item_ids.data) }}
-      </fieldset>
 
       {% if outfit and outfit.image_path %}
         <img src="{{ url_for('main.uploaded_file', filename=outfit.image_path) }}"
@@ -60,4 +67,5 @@
 
 {% block scripts %}
   <script src="{{ url_for('static', filename='js/outfit_builder.js') }}" defer></script>
+  <script src="{{ url_for('static', filename='js/outfit_board.js') }}" defer></script>
 {% endblock %}

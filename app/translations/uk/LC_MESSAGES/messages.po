@@ -1790,3 +1790,24 @@ msgstr "У цьому браузері вирізання з ШІ не спра�
 
 msgid "The cut-out will be saved when you press Save."
 msgstr "Вирізане фото збережеться, коли натиснеш «Зберегти»."
+
+msgid "Pull to resize"
+msgstr "Потягни, щоб змінити розмір"
+
+msgid "Tick clothes and they appear here."
+msgstr "Відміть одяг, і він з’явиться тут."
+
+msgid "Bring to front"
+msgstr "Наперед"
+
+msgid "Send to back"
+msgstr "Назад"
+
+msgid "Reset"
+msgstr "Скинути"
+
+msgid "Drag to move, pull the corner to resize. Keyboard: arrows move, + and − resize."
+msgstr "Перетягуй, щоб рухати, тягни за кут, щоб змінити розмір. Клавіатура: стрілки рухають, + і − змінюють розмір."
+
+msgid "In this outfit"
+msgstr "У цьому образі"

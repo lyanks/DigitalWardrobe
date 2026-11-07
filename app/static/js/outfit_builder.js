@@ -1,5 +1,6 @@
 // The outfit builder, live: every time you tick or untick an item,
-//  - the preview strip shows the ticked items, and
+//  - the preview strip shows the ticked items ("Log a look"; the outfit
+//    form shows them on the board instead, see outfit_board.js), and
 //  - we ask Flask (POST /api/outfits/check) whether the outfit is complete,
 //    and show the answer under the preview,
 //  - plus idea #1: whether you wore the same combo in the last week.
@@ -20,6 +21,9 @@ if (picker) {
   const tickedBoxes = () => [...picker.querySelectorAll('input[name="item_ids"]:checked')];
 
   function drawPreview(boxes) {
+    // The outfit form has the board instead (outfit_board.js); only
+    // "Log a look" still has this strip of small photos.
+    if (!strip) return;
     // Copy each ticked card's picture into the strip. cloneNode makes a
     // copy, so the original stays in the picker.
     strip.replaceChildren(

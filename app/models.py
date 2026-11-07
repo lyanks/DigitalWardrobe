@@ -222,6 +222,12 @@ class Outfit(db.Model):
     def items(self):
         return [link.item for link in self.item_links]
 
+    @property
+    def board(self):
+        """[(item, position), ...] for the outfit board, back to front."""
+        from app.services.outfit_board import board_pieces  # here, to avoid a circular import
+        return board_pieces(self.item_links)
+
     def __repr__(self):
         return f"<Outfit {self.name!r} of user {self.user_id}>"
 
@@ -239,6 +245,14 @@ class OutfitItem(db.Model):
     item_id = db.Column(db.Integer, db.ForeignKey("item.id"), primary_key=True, index=True)
     # Where the item is shown in the outfit (top to bottom). Smaller = earlier.
     position = db.Column(db.Integer, nullable=False, default=0)
+    # Its place on the outfit board (services/outfit_board.py), in % of the
+    # board: x and y are the left and top edge, width is the picture's width
+    # (its height follows the photo). layer: higher numbers sit on top.
+    # Empty (None) = never arranged: the board puts it in its slot's spot.
+    board_x = db.Column(db.Float)
+    board_y = db.Column(db.Float)
+    board_width = db.Column(db.Float)
+    board_layer = db.Column(db.Integer)
 
     outfit = db.relationship("Outfit", back_populates="item_links")
     item = db.relationship("Item", back_populates="outfit_links")

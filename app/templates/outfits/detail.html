@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% from "wardrobe/_card.html" import item_card %}
+{% from "macros/board.html" import board %}
 
 {% block title %}{{ outfit.name }} · Digital Wardrobe{% endblock %}
 
@@ -30,11 +31,16 @@
 
   {% if outfit.notes %}<p class="notes">{{ outfit.notes }}</p>{% endif %}
 
-  {% if outfit.image_path %}
-    <img src="{{ url_for('main.uploaded_file', filename=outfit.image_path) }}"
-         alt="{{ outfit.name }}" class="outfit-photo">
-  {% endif %}
+  {# The board as you arranged it, and your own photo if there is one. #}
+  <div class="outfit-show">
+    {% if outfit.items %}{{ board(outfit.board) }}{% endif %}
+    {% if outfit.image_path %}
+      <img src="{{ url_for('main.uploaded_file', filename=outfit.image_path) }}"
+           alt="{{ outfit.name }}" class="outfit-photo">
+    {% endif %}
+  </div>
 
+  <h2>{{ _("In this outfit") }}</h2>
   <div class="item-grid">
     {% for item in outfit.items %}{{ item_card(item) }}{% endfor %}
   </div>

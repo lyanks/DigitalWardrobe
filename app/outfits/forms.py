@@ -1,6 +1,6 @@
 from flask_babel import lazy_gettext as _l
 from flask_wtf.file import FileAllowed, FileField
-from wtforms import BooleanField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField
+from wtforms import BooleanField, HiddenField, SelectField, SelectMultipleField, StringField, SubmitField, TextAreaField
 from wtforms.validators import DataRequired, Length, Optional
 
 from app.forms import BaseForm
@@ -19,6 +19,9 @@ class OutfitForm(BaseForm):
     # else's item into your outfit by editing the page.
     # The template draws these as photo checkboxes grouped by category.
     item_ids = SelectMultipleField(_l("Items"), coerce=int)
+    # The board layout as JSON, written by outfit_board.js on every move.
+    # Checked and clamped by services/outfit_board.parse_layout().
+    layout = HiddenField()
     photo = FileField(_l("Photo of the outfit"), description=_l("Optional: a picture of you wearing it."),
                       validators=[FileAllowed(IMAGE_TYPES, _l("Images only (jpg, png, webp, gif)."))])
     remove_photo = BooleanField(_l("Remove the current photo"))

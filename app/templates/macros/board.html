@@ -1,0 +1,54 @@
+{# The outfit board: clothes laid out like a Pinterest collage.
+   Positions come from services/outfit_board.py, in % of the board, so it
+   looks the same at any size. CSS: "Outfit board" in main.css. #}
+
+{# Read-only, for the outfit page and the outfit cards.
+   pieces = [(item, {"x", "y", "width", "layer"}), ...] (Outfit.board). #}
+{% macro board(pieces, extra_class="") %}
+  <div class="board {{ extra_class }}">
+    {% for item, spot in pieces %}
+      <div class="board-piece" style="left: {{ spot.x }}%; top: {{ spot.y }}%; width: {{ spot.width }}%; z-index: {{ spot.layer }}">
+        {% if item.image_path %}
+          <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}" alt="{{ item.name }}" loading="lazy">
+        {% else %}
+          <span class="board-empty">{{ item.name }}</span>
+        {% endif %}
+      </div>
+    {% endfor %}
+  </div>
+{% endmacro %}
+
+
+{# The editor on the outfit form. One hidden piece per item in your
+   wardrobe; outfit_board.js shows the ticked ones and lets you move them.
+   data-default is the item's first spot, for the Reset button. It's in
+   single quotes because tojson writes double quotes (and turns any ' in
+   the data into \u0027, so it can't end the attribute early). #}
+{% macro board_editor(groups, spots, defaults) %}
+  <div class="board-editor" data-board-editor>
+    <div class="board" data-board>
+      {% for category, items in groups %}
+        {% for item in items %}
+          {% set spot = spots[item.id] %}
+          <div class="board-piece" data-item-id="{{ item.id }}" data-default='{{ defaults[item.id] | tojson }}'
+               tabindex="0" role="button" aria-label="{{ item.name }}" hidden
+               style="left: {{ spot.x }}%; top: {{ spot.y }}%; width: {{ spot.width }}%; z-index: {{ spot.layer }}">
+            {% if item.image_path %}
+              <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}" alt="" draggable="false" loading="lazy">
+            {% else %}
+              <span class="board-empty">{{ item.name }}</span>
+            {% endif %}
+            <span class="board-handle" title="{{ _('Pull to resize') }}"></span>
+          </div>
+        {% endfor %}
+      {% endfor %}
+      <p class="board-hint">{{ _("Tick clothes and they appear here.") }}</p>
+    </div>
+    <div class="board-tools">
+      <button type="button" class="button button-outline button-small" data-board-front disabled>{{ _("Bring to front") }}</button>
+      <button type="button" class="button button-outline button-small" data-board-back disabled>{{ _("Send to back") }}</button>
+      <button type="button" class="button button-outline button-small" data-board-reset>{{ _("Reset") }}</button>
+    </div>
+    <p class="field-hint">{{ _("Drag to move, pull the corner to resize. Keyboard: arrows move, + and − resize.") }}</p>
+  </div>
+{% endmacro %}
