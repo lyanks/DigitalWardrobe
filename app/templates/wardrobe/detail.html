@@ -29,8 +29,11 @@
           <span class="swatch" style="--swatch: {{ colors[item.color] }}"></span>
           {{ item.color | tr | capitalize }}
         </dd>
-        <dt>{{ _("Season") }}</dt><dd>{{ item.season | tr | capitalize }}</dd>
-        {% if item.style %}<dt>{{ _("Style") }}</dt><dd>{{ item.style | tr | capitalize }}</dd>{% endif %}
+        <dt>{{ _("Season") }}</dt>
+        <dd>{% if item.seasons %}{{ item.seasons | map("tr") | map("capitalize") | join(", ") }}{% else %}{{ _("All year") }}{% endif %}</dd>
+        {# map("tr") runs the tr filter on every word of the list. #}
+        {% if item.styles %}<dt>{{ _("Style") }}</dt><dd>{{ item.styles | map("tr") | map("capitalize") | join(", ") }}</dd>{% endif %}
+        {% if item.moods %}<dt>{{ _("Mood") }}</dt><dd>{{ item.moods | map("tr") | map("capitalize") | join(", ") }}</dd>{% endif %}
         {% if item.brand %}<dt>{{ _("Brand") }}</dt><dd>{{ item.brand }}</dd>{% endif %}
         {% if item.size %}<dt>{{ _("Size") }}</dt><dd>{{ item.size }}</dd>{% endif %}
         {% if item.price is not none %}

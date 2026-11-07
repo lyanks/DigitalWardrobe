@@ -29,3 +29,25 @@
     {% endfor %}
   </div>
 {% endmacro %}
+
+{# Several choices as pills you tap on and off (season, style, mood).
+   Each pill is a real checkbox hidden behind its label, so the form works
+   without JavaScript and the browser sends every ticked value. #}
+{% macro render_chips(field) %}
+  <fieldset class="chips-field{% if field.errors %} has-error{% endif %}" data-chips="{{ field.name }}">
+    <legend>{{ field.label.text }}</legend>
+    <div class="chips">
+      {% for value, label in field.choices %}
+        <label class="chip">
+          <input type="checkbox" name="{{ field.name }}" value="{{ value }}"
+                 {{ "checked" if field.data and value in field.data }}>
+          <span>{{ label }}</span>
+        </label>
+      {% endfor %}
+    </div>
+    {% if field.description %}<p class="field-hint">{{ field.description }}</p>{% endif %}
+    {% for error in field.errors %}
+      <p class="field-error">{{ error }}</p>
+    {% endfor %}
+  </fieldset>
+{% endmacro %}

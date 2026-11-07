@@ -1,8 +1,8 @@
 from flask_babel import lazy_gettext as _l
 from flask_babel.speaklater import LazyString
 from flask_wtf.file import FileAllowed, FileField
-from wtforms import (BooleanField, DecimalField, HiddenField, SelectField, StringField,
-                     SubmitField, TextAreaField, URLField)
+from wtforms import (BooleanField, DecimalField, HiddenField, SelectField,
+                     SelectMultipleField, StringField, SubmitField, TextAreaField, URLField)
 from wtforms.validators import URL, DataRequired, Length, NumberRange, Optional
 
 from app.dates import DayMonthYearField
@@ -30,8 +30,14 @@ class ItemForm(BaseForm):
     # so __init__ below fills them in for each request.
     category_id = SelectField(_l("Category"), coerce=int, validators=[DataRequired()])
     color = SelectField(_l("Color"))
-    season = SelectField(_l("Season"), default="all")
-    style = SelectField(_l("Style"))
+    # Several choices each, shown as chips (macros/forms.html, render_chips).
+    # The browser sends one "seasons=winter" pair per ticked chip;
+    # SelectMultipleField collects them into a list: ["winter", "autumn"].
+    # Nothing ticked = all seasons / no style / no mood.
+    seasons = SelectMultipleField(_l("Season"), validators=[Optional()],
+                                  description=_l("None picked = all year."))
+    styles = SelectMultipleField(_l("Style"), validators=[Optional()])
+    moods = SelectMultipleField(_l("Mood"), validators=[Optional()])
     brand = StringField(_l("Brand"), validators=[Optional(), Length(max=60)])
     size = StringField(_l("Size"), validators=[Optional(), Length(max=20)])
     purchase_date = DayMonthYearField(_l("Bought on"), validators=[Optional()])
@@ -83,10 +89,12 @@ class ItemForm(BaseForm):
         self.category_id.choices = [(c.id, tr(c.name)) for c in categories]
         self.color.choices = [(c, _label(c)) for c in
                               keep_current(options.values("color"), getattr(item, "color", None))]
-        self.season.choices = [(s, _label(s)) for s in
-                               keep_current(options.values("season"), getattr(item, "season", None))]
-        self.style.choices = [("", "—")] + [(s, _label(s)) for s in
-                                            keep_current(options.values("style"), getattr(item, "style", None))]
+        for kind, field in (("season", self.seasons), ("style", self.styles), ("mood", self.moods)):
+            values = options.values(kind)
+            for current in (item.tag_values(kind) if item else []):
+                keep_current(values, current)
+            # "all" isn't a chip: picking no season means all of them.
+            field.choices = [(v, _label(v)) for v in values if not (kind == "season" and v == "all")]
 
 
 WISH_FIELDS = ("shop_url", "price", "currency", "priority", "image_url")

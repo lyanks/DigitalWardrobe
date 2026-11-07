@@ -4,16 +4,20 @@ A normal route answers with a whole HTML page and the browser loads it.
 These answer with a little JSON instead; the page stays where it is and
 JavaScript updates just the part that changed.
 """
+import io
 from datetime import date
 
-from flask import Blueprint, jsonify, render_template, request
+from flask import Blueprint, jsonify, render_template, request, send_file
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
 from app.dates import format_date, parse_date
 from app.extensions import db
 from app.models import Item, Outfit
+from app.services import ai
+from app.services.autotag import suggest_details
 from app.services.combo_check import check_combo
+from app.services.images import InvalidImageError, cut_out_preview
 from app.services.laundry import wash_notice
 from app.services.outfit_rules import outfit_problems
 from app.services.planner import ScheduleError, schedule_outfit
@@ -109,3 +113,61 @@ def fetch_product_info():
         return jsonify(fetch_product(url))
     except FetchError as error:
         return _error(str(error), 422)
+
+
+# ---------- Adding a photo: cut-out preview and AI details ----------
+# photo_review.js calls both as soon as you pick a photo, before anything
+# is saved. Both read the photo from a normal file upload (multipart form).
+
+def _uploaded_photo():
+    photo = request.files.get("photo")
+    return photo if photo and photo.filename else None
+
+
+@bp.route("/photos/cutout", methods=["POST"])
+def cutout_preview():
+    """photo -> the same photo with its plain background made see-through (PNG).
+
+    Nothing is saved: the browser shows it in the brush editor, you fix
+    the edges, and the result comes back with the form when you press Save.
+    422 = the background isn't plain enough to cut out this way.
+    """
+    photo = _uploaded_photo()
+    if photo is None:
+        return _error(_("Pick a photo first."), 400)
+    try:
+        cut = cut_out_preview(photo)
+    except InvalidImageError as error:
+        return _error(str(error), 400)
+    if cut is None:
+        return _error(_("The background is too busy to remove by itself. "
+                        "Use the brush to erase it, or keep the photo as it is."), 422)
+    out = io.BytesIO()
+    cut.save(out, "PNG")
+    out.seek(0)
+    return send_file(out, mimetype="image/png")
+
+
+@bp.route("/photos/details", methods=["POST"])
+def photo_details():
+    """photo -> {"name", "category_id", "color", "seasons", "styles", "moods", "brand"}.
+
+    The AI looks at the photo and picks from our own lists (services/autotag.py).
+    429 = today's limit is used up, 503 = AI is off or didn't answer.
+    """
+    if not ai.is_enabled():
+        return _error(_("AI suggestions are switched off on this server."), 503)
+    photo = _uploaded_photo()
+    if photo is None:
+        return _error(_("Pick a photo first."), 400)
+    image_bytes = photo.read()
+    try:
+        ai.use_quota(current_user.id)
+    except ai.AiError as error:
+        return _error(str(error), 429)
+    try:
+        return jsonify(suggest_details(image_bytes))
+    except ai.AiError as error:
+        return _error(str(error), 503)
+    except OSError:  # Pillow couldn't read it (UnidentifiedImageError is an OSError)
+        return _error(_("That file is not a readable image."), 400)

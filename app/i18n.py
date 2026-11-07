@@ -83,7 +83,9 @@ DATA_WORDS = [
     N_("all"), N_("spring"), N_("summer"), N_("autumn"), N_("winter"),
     # styles
     N_("casual"), N_("formal"), N_("business"), N_("sporty"), N_("streetwear"), N_("classic"),
-    N_("party"), N_("home"),
+    N_("party"), N_("home"), N_("minimalist"), N_("vintage"),
+    # moods
+    N_("comfortable"), N_("classy"), N_("elegant"),
     # occasions (the ones not already above)
     N_("work"), N_("date"), N_("sport"), N_("travel"),
     # wishlist priorities
@@ -150,6 +152,14 @@ JS_TEXTS = [
     N_("Something went wrong. Try again, or fill the form in by hand."),
     N_("Show password"), N_("Hide password"),
     N_("Copied: %(text)s"), N_("Couldn't copy. Select the code and copy it by hand."),
+    # photo review (photo_review.js)
+    N_("Something went wrong. Try again."),
+    N_("Removing the background…"),
+    N_("Background removed. Drag over the photo to erase more, or switch to Restore."),
+    N_("Looking at the photo…"),
+    N_("category"), N_("colour"), N_("season"), N_("style"), N_("mood"), N_("brand"),
+    N_("Suggested from the photo: %(fields)s. Check them before saving."),
+    N_("The details are already filled in, so nothing was changed."),
 ]
 
 

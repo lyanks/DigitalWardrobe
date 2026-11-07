@@ -147,6 +147,23 @@ def save_image(file_storage, subfolder, max_size=1200, remove_background=False):
     return write_image(cut, subfolder) if cut else write_image(image.convert("RGB"), subfolder)
 
 
+def cut_out_preview(file_storage, max_size=1200):
+    """For the brush editor: the cut-out as an RGBA image, not saved.
+
+    None if the background isn't plain. Raises InvalidImageError for a
+    file that isn't an image. Same size rules as save_image, so what you
+    edit in the browser is exactly what gets saved.
+    """
+    try:
+        image = ImageOps.exif_transpose(Image.open(file_storage.stream))
+    except (UnidentifiedImageError, OSError) as error:
+        raise InvalidImageError(_("That file is not a readable image.")) from error
+    image.thumbnail((max_size, max_size))
+    if _has_see_through_parts(image):
+        return image.convert("RGBA")  # already cut out
+    return cut_out_background(image)
+
+
 def _has_see_through_parts(image):
     """True if any pixel of the image is (partly) transparent."""
     if image.mode not in ("RGBA", "LA", "P"):

@@ -11,6 +11,7 @@ from werkzeug.datastructures import FileStorage
 from app.extensions import db
 from app.i18n import tr
 from app.models import OWNED, WISHLIST, Category, Item
+from app.services import ai
 from app.services.images import InvalidImageError, delete_image, save_image
 from app.services.product_page import FetchError, download_image
 from app.services.stats import last_worn_date
@@ -95,6 +96,7 @@ def index():
     category_id = request.args.get("category", type=int)
     color = request.args.get("color", "")
     season = request.args.get("season", "")
+    mood = request.args.get("mood", "")
     text = request.args.get("q", "").strip()
     sort = request.args.get("sort", "custom")
     if sort not in SORT_OPTIONS:
@@ -111,8 +113,11 @@ def index():
     if color in colors:
         query = query.filter_by(color=color)
     if season in seasons and season != "all":
-        # An "all seasons" item also fits a winter search.
-        query = query.where(Item.season.in_([season, "all"]))
+        # An "all seasons" item (no season picked) also fits a winter search.
+        query = query.where(Item.in_season(season))
+    moods = options.values("mood", include_hidden=True)
+    if mood in moods:
+        query = query.where(Item.tagged("mood", mood))
     if wash == "in":
         query = query.where(Item.washing_since.is_not(None))
     elif wash == "clean":
@@ -129,8 +134,8 @@ def index():
     )
     return render_template(
         "wardrobe/index.html", title=_("Wardrobe"), items=items, total=total,
-        categories=_category_choices(), colors=colors, seasons=seasons,
-        filters={"category": category_id, "color": color, "season": season, "q": text,
+        categories=_category_choices(), colors=colors, seasons=seasons, moods=moods,
+        filters={"category": category_id, "color": color, "season": season, "mood": mood, "q": text,
                  "wash": wash if wash in ("in", "clean") else ""},
         sort=sort, sort_options=SORT_OPTIONS, washing=_washing_count(),
     )
@@ -197,7 +202,8 @@ def create():
             flash(_("Added “%(name)s” to your wardrobe.", name=item.name), "success")
             return redirect(url_for("wardrobe.detail", item_id=item.id))
 
-    return render_template("wardrobe/form.html", title=_("Add item"), form=form, item=None)
+    return render_template("wardrobe/form.html", title=_("Add item"), form=form, item=None,
+                           ai_enabled=ai.is_enabled())
 
 
 def _first_position():
@@ -247,7 +253,8 @@ def create_wish():
             flash(_("Added “%(name)s” to your wishlist.", name=item.name), "success")
             return redirect(url_for("wardrobe.detail", item_id=item.id))
 
-    return render_template("wardrobe/form.html", title=_("Add a wish"), form=form, item=None)
+    return render_template("wardrobe/form.html", title=_("Add a wish"), form=form, item=None,
+                           ai_enabled=ai.is_enabled())
 
 
 @bp.route("/<int:item_id>/bought", methods=["POST"])
@@ -349,7 +356,8 @@ def edit(item_id):
             flash(_("Changes saved."), "success")
             return redirect(url_for("wardrobe.detail", item_id=item.id))
 
-    return render_template("wardrobe/form.html", title=_("Edit %(name)s", name=item.name), form=form, item=item)
+    return render_template("wardrobe/form.html", title=_("Edit %(name)s", name=item.name), form=form,
+                           item=item, ai_enabled=ai.is_enabled())
 
 
 # ---------- Delete (two steps) ----------
@@ -398,8 +406,12 @@ def _fill_item_from_form(item, form):
     item.name = form.name.data.strip()
     item.category_id = form.category_id.data
     item.color = form.color.data
-    item.season = form.season.data
-    item.style = form.style.data or None
+    seasons = form.seasons.data or []
+    if {value for value, _label in form.seasons.choices} <= set(seasons):
+        seasons = []  # every season ticked is the same as "all year"
+    item.set_tags("season", seasons)
+    item.set_tags("style", form.styles.data or [])
+    item.set_tags("mood", form.moods.data or [])
     item.brand = (form.brand.data or "").strip() or None
     item.size = (form.size.data or "").strip() or None
     item.notes = (form.notes.data or "").strip() or None

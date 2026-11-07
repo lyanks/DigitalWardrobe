@@ -1,4 +1,4 @@
-"""The shared lists: categories, colours, seasons, styles and occasions.
+"""The shared lists: categories, colours, seasons, styles, moods and occasions.
 
 They live in the database (Category and Option), so the admin can change
 them on /admin/options. Everything else asks this module instead of
@@ -13,7 +13,9 @@ from flask import g
 from app.extensions import db
 
 # kind -> the column that stores it, filled in by uses() below.
-KINDS = ("color", "season", "style", "occasion")
+KINDS = ("color", "season", "style", "mood", "occasion")
+# Kinds an item can have several of (stored in ItemTag, not on Item).
+TAG_KINDS = ("season", "style", "mood")
 SLOTS = ("top", "bottom", "full", "outer", "feet", "accessory")
 GREY = "#9a9a9a"
 
@@ -75,17 +77,27 @@ def ukrainian_names():
 
 def uses(kind, value):
     """How many items (or outfits, for occasions) use this value."""
-    from app.models import Item, Outfit
-    column = {"color": Item.color, "season": Item.season, "style": Item.style,
-              "occasion": Outfit.occasion}[kind]
+    from app.models import Item, ItemTag, Outfit
+    if kind in TAG_KINDS:
+        return db.session.scalar(db.select(db.func.count()).select_from(ItemTag)
+                                 .filter_by(kind=kind, value=value))
+    column = {"color": Item.color, "occasion": Outfit.occasion}[kind]
     return db.session.scalar(db.select(db.func.count()).where(column == value))
 
 
 def rename(kind, old, new):
     """Change the value on every item (or outfit) that has the old one."""
-    from app.models import Item, Outfit
-    model, column = {"color": (Item, "color"), "season": (Item, "season"),
-                     "style": (Item, "style"), "occasion": (Outfit, "occasion")}[kind]
+    from app.models import Item, ItemTag, Outfit
+    if kind in TAG_KINDS:
+        # An item tagged with both the old and the new word would end up
+        # with the new one twice (not allowed): drop its old tag first.
+        has_new = db.select(ItemTag.item_id).filter_by(kind=kind, value=new)
+        db.session.execute(db.delete(ItemTag).where(
+            ItemTag.kind == kind, ItemTag.value == old, ItemTag.item_id.in_(has_new)))
+        db.session.execute(db.update(ItemTag).where(
+            ItemTag.kind == kind, ItemTag.value == old).values(value=new))
+        return
+    model, column = {"color": (Item, "color"), "occasion": (Outfit, "occasion")}[kind]
     db.session.execute(
         db.update(model).where(getattr(model, column) == old).values({column: new})
     )

@@ -31,6 +31,12 @@
         <option value="{{ name }}" {{ "selected" if filters.season == name }}>{{ name | tr | capitalize }}</option>
       {% endfor %}
     </select>
+    <select name="mood">
+      <option value="">{{ _("Any mood") }}</option>
+      {% for name in moods %}
+        <option value="{{ name }}" {{ "selected" if filters.mood == name }}>{{ name | tr | capitalize }}</option>
+      {% endfor %}
+    </select>
     <select name="wash" aria-label="{{ _('Laundry') }}">
       <option value="">{{ _("Clean or in the wash") }}</option>
       <option value="clean" {{ "selected" if filters.wash == "clean" }}>{{ _("Clean only") }}</option>

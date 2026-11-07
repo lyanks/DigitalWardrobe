@@ -1843,3 +1843,115 @@ msgstr "Натхнення з цього піна"
 
 msgid "Inspired by this idea"
 msgstr "Натхнення з цієї ідеї"
+
+msgid "None picked = all year."
+msgstr "Нічого не вибрано = на весь рік."
+
+msgid "Mood"
+msgstr "Настрій"
+
+msgid "Moods"
+msgstr "Настрої"
+
+msgid "Any mood"
+msgstr "Будь-який настрій"
+
+msgid "All year"
+msgstr "Цілий рік"
+
+msgid "Your photo. Drag over it to erase or restore."
+msgstr "Твоє фото. Проведи по ньому, щоб стерти або повернути."
+
+msgid "Brush"
+msgstr "Пензель"
+
+msgid "Erase"
+msgstr "Стерти"
+
+msgid "Restore"
+msgstr "Повернути"
+
+msgid "Undo"
+msgstr "Скасувати"
+
+msgid "Start over"
+msgstr "Почати знову"
+
+msgid "Keep whole photo"
+msgstr "Залишити все фото"
+
+msgid "Suggest details again"
+msgstr "Запропонувати ще раз"
+
+msgid "Pick a photo first."
+msgstr "Спершу вибери фото."
+
+msgid "The background is too busy to remove by itself. Use the brush to erase it, or keep the photo as it is."
+msgstr "Тло надто строкате, щоб прибрати його автоматично. Зітри його пензлем або залиш фото як є."
+
+msgid "AI suggestions are switched off on this server."
+msgstr "Підказки ШІ на цьому сервері вимкнені."
+
+msgid "That's all the AI help for today. It's back tomorrow."
+msgstr "На сьогодні підказки ШІ закінчились. Завтра знову будуть."
+
+msgid "The AI is busy right now. Try again in a minute."
+msgstr "ШІ зараз зайнятий. Спробуй за хвилину."
+
+msgid "Couldn't reach the AI. Try again."
+msgstr "Не вдалося зв’язатися з ШІ. Спробуй ще раз."
+
+msgid "The AI couldn't answer. Try again later."
+msgstr "ШІ не зміг відповісти. Спробуй пізніше."
+
+msgid "minimalist"
+msgstr "мінімалізм"
+
+msgid "vintage"
+msgstr "вінтаж"
+
+msgid "comfortable"
+msgstr "зручний"
+
+msgid "classy"
+msgstr "стильний"
+
+msgid "elegant"
+msgstr "елегантний"
+
+msgid "Something went wrong. Try again."
+msgstr "Щось пішло не так. Спробуй ще раз."
+
+msgid "Removing the background…"
+msgstr "Прибираю тло…"
+
+msgid "Background removed. Drag over the photo to erase more, or switch to Restore."
+msgstr "Тло прибрано. Проведи по фото, щоб стерти більше, або перемкнись на «Повернути»."
+
+msgid "Looking at the photo…"
+msgstr "Розглядаю фото…"
+
+msgid "category"
+msgstr "категорія"
+
+msgid "colour"
+msgstr "колір"
+
+msgid "season"
+msgstr "сезон"
+
+msgid "style"
+msgstr "стиль"
+
+msgid "mood"
+msgstr "настрій"
+
+msgid "brand"
+msgstr "бренд"
+
+#, python-format
+msgid "Suggested from the photo: %(fields)s. Check them before saving."
+msgstr "Підказано за фото: %(fields)s. Перевір перед збереженням."
+
+msgid "The details are already filled in, so nothing was changed."
+msgstr "Усе вже заповнено, тож нічого не змінено."

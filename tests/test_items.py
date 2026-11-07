@@ -14,7 +14,7 @@ def category_id(name):
 def add_item(client, **fields):
     data = {
         "name": "Blue jeans", "category_id": category_id("Bottoms"),
-        "color": "blue", "season": "all", "style": "",
+        "color": "blue",
     }
     data.update(fields)
     return client.post("/items/new", data=data,
@@ -43,7 +43,7 @@ def test_add_item_with_all_fields_and_photo(client, app):
     register(client)
     response = add_item(
         client, name="Linen shirt", category_id=category_id("Tops"), color="white",
-        season="summer", style="casual", brand="Uniqlo", size="M",
+        seasons=["summer"], styles=["casual"], moods=["comfortable", "home"], brand="Uniqlo", size="M",
         purchase_date="01.05.2026", notes="Wash cold",
         photo=make_image("IMG_1234.png", size=(3000, 2000)),
     )
@@ -52,7 +52,8 @@ def test_add_item_with_all_fields_and_photo(client, app):
     item = get_item("Linen shirt")
     assert item.owner.username == "alice"
     assert item.category.slot == "top"
-    assert (item.color, item.season, item.style) == ("white", "summer", "casual")
+    assert (item.color, item.seasons, item.styles) == ("white", ["summer"], ["casual"])
+    assert item.moods == ["comfortable", "home"]
     assert item.purchase_date == date(2026, 5, 1)
     assert item.times_worn == 0
 
@@ -102,10 +103,11 @@ def test_list_and_detail(client):
 
 def test_filters(client):
     register(client)
-    add_item(client, name="Blue jeans", season="all")
+    add_item(client, name="Blue jeans")  # no season = all year
     add_item(client, name="Wool coat", category_id=category_id("Outerwear"),
-             color="grey", season="winter", brand="Zara")
-    add_item(client, name="Shorts", color="beige", season="summer")
+             color="grey", seasons=["winter", "autumn"], brand="Zara",
+             moods=["classy"])
+    add_item(client, name="Shorts", color="beige", seasons=["summer"], moods=["home"])
 
     def names(query):
         page = client.get("/items" + query).data.decode()
@@ -115,6 +117,8 @@ def test_filters(client):
     assert names(f"?category={category_id('Bottoms')}") == {"Blue jeans", "Shorts"}
     # "all season" items also match a season filter.
     assert names("?season=winter") == {"Blue jeans", "Wool coat"}
+    assert names("?season=autumn") == {"Blue jeans", "Wool coat"}
+    assert names("?mood=home") == {"Shorts"}
     assert names("?q=zara") == {"Wool coat"}  # brand, case-insensitive
     assert names("?q=JEANS&color=blue") == {"Blue jeans"}
     assert names("?color=sparkly") == {"Blue jeans", "Wool coat", "Shorts"}  # ignored
@@ -141,12 +145,13 @@ def test_edit_item(client):
 
     response = client.post(f"/items/{item.id}/edit", data={
         "name": "Dark jeans", "category_id": item.category_id, "color": "navy",
-        "season": "autumn", "style": "", "remove_photo": "y",
+        "seasons": ["autumn"], "moods": ["elegant"], "remove_photo": "y",
     }, follow_redirects=True)
 
     assert b"Changes saved." in response.data
     db.session.refresh(item)
-    assert (item.name, item.color, item.season) == ("Dark jeans", "navy", "autumn")
+    assert (item.name, item.color, item.seasons) == ("Dark jeans", "navy", ["autumn"])
+    assert item.moods == ["elegant"]
     assert item.image_path is None
     assert client.get(f"/uploads/{old_photo}").status_code == 404  # file deleted
 

@@ -33,6 +33,16 @@ class Config:
     # Empty = nobody is admin.
     ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "").strip().lower()
 
+    # AI help (photo -> details). Get a key at console.anthropic.com and put
+    # it in .env. Empty = the AI buttons are hidden and nothing is sent.
+    ANTHROPIC_API_KEY = os.environ.get("ANTHROPIC_API_KEY", "").strip()
+    # The cheapest Claude model is plenty for tagging. To try a smarter one,
+    # set AI_MODEL=claude-sonnet-5-5 in .env (about 20 times the price).
+    AI_MODEL = os.environ.get("AI_MODEL", "claude-haiku-5-5")
+    # Requests per person per day, so nobody can run up the bill.
+    AI_DAILY_LIMIT = int(os.environ.get("AI_DAILY_LIMIT", "30"))
+    AI_GUEST_DAILY_LIMIT = 5
+
     # On a real server (PythonAnywhere) your phone talks HTTPS to a "proxy"
     # in front of the app, and the proxy passes the request on to Flask.
     # BEHIND_PROXY=1 in the server's .env tells Flask to believe the proxy's
@@ -53,3 +63,5 @@ class TestConfig(Config):
     GOOGLE_CLIENT_ID = "test-client-id"
     GOOGLE_CLIENT_SECRET = "test-client-secret"
     ADMIN_EMAIL = "boss@example.com"
+    # Tests never talk to the real AI: they swap ask_claude for a fake.
+    ANTHROPIC_API_KEY = "test-key"

@@ -226,19 +226,21 @@ def _add_samples(guest_db, user_id, categories):
 
     # The names are saved in the language the guest has right now.
     samples = [
-        (_("White T-shirt"), "Tops", "white", "casual", 12),
-        (_("Striped shirt"), "Tops", "navy", "classic", 5),
-        (_("Blue jeans"), "Bottoms", "blue", "casual", 15),
-        (_("Black trousers"), "Bottoms", "black", "business", 7),
-        (_("Beige trench coat"), "Outerwear", "beige", "classic", 4),
-        (_("White sneakers"), "Shoes", "white", "sporty", 18),
-        (_("Black boots"), "Shoes", "black", "classic", 6),
-        (_("Red scarf"), "Accessories", "red", "casual", 0),
+        (_("White T-shirt"), "Tops", "white", "casual", "comfortable", 12),
+        (_("Striped shirt"), "Tops", "navy", "classic", "classy", 5),
+        (_("Blue jeans"), "Bottoms", "blue", "casual", "comfortable", 15),
+        (_("Black trousers"), "Bottoms", "black", "business", "classy", 7),
+        (_("Beige trench coat"), "Outerwear", "beige", "classic", "elegant", 4),
+        (_("White sneakers"), "Shoes", "white", "sporty", "comfortable", 18),
+        (_("Black boots"), "Shoes", "black", "classic", "classy", 6),
+        (_("Red scarf"), "Accessories", "red", "casual", "", 0),
     ]
     items = []
-    for position, (name, cat, color, style, worn) in enumerate(samples):
+    for position, (name, cat, color, style, mood, worn) in enumerate(samples):
         item = Item(user_id=user_id, category_id=category(cat), name=name, color=color,
-                    style=style, season="all", times_worn=worn, position=position)
+                    times_worn=worn, position=position)
+        item.set_tags("style", [style])
+        item.set_tags("mood", [mood] if mood else [])
         guest_db.add(item)
         items.append(item)
     items[1].washing_since = date.today()  # one in the wash, to show laundry

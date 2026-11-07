@@ -96,6 +96,7 @@ KIND_LABELS = {
     "color": _l("Colors"),
     "season": _l("Seasons"),
     "style": _l("Styles"),
+    "mood": _l("Moods"),
     "occasion": _l("Occasions"),
 }
 # "All seasons" is how the season filter works, so it can't change.

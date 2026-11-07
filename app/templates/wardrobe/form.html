@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% from "macros/forms.html" import render_field %}
+{% from "macros/forms.html" import render_chips, render_field %}
 
 {% block title %}{{ title }} · Digital Wardrobe{% endblock %}
 
@@ -19,15 +19,54 @@
           <img class="autofill-photo photo-preview" alt="{{ _('Photo from the shop') }}" hidden>
         </div>
       {% endif %}
+      {# Photo first: pick one and photo_review.js shows it in a brush editor
+         (erase or bring back parts of the cut-out) and asks the AI to fill
+         in the details below. Without JavaScript it's a plain file input. #}
+      {% if item and item.image_path %}
+        <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
+             alt="{{ _('Current photo') }}" class="photo-preview" data-current-photo>
+      {% endif %}
+      {{ render_field(form.photo, accept="image/*") }}
+      <div class="field checkbox" data-remove-background>{{ form.remove_background() }} {{ form.remove_background.label }}</div>
+      {% if form.remove_photo %}
+        <div class="field checkbox">{{ form.remove_photo() }} {{ form.remove_photo.label }}</div>
+      {% endif %}
+      <section class="photo-review" hidden
+               data-cutout-url="{{ url_for('api.cutout_preview') }}"
+               {% if ai_enabled %}data-details-url="{{ url_for('api.photo_details') }}"{% endif %}>
+        <div class="photo-stage">
+          <canvas class="photo-canvas" aria-label="{{ _('Your photo. Drag over it to erase or restore.') }}"></canvas>
+        </div>
+        <div class="photo-tools" role="toolbar" aria-label="{{ _('Brush') }}">
+          <div class="segmented">
+            <button type="button" class="is-active" data-brush="erase" aria-pressed="true">{{ _("Erase") }}</button>
+            <button type="button" data-brush="restore" aria-pressed="false">{{ _("Restore") }}</button>
+          </div>
+          <label class="brush-size">
+            <span>{{ _("Brush") }}</span>
+            <input type="range" min="4" max="80" value="24" data-brush-size>
+          </label>
+          <button type="button" class="button button-outline button-small" data-undo disabled>{{ _("Undo") }}</button>
+          <button type="button" class="button button-outline button-small" data-reset>{{ _("Start over") }}</button>
+          <button type="button" class="button button-outline button-small" data-whole>{{ _("Keep whole photo") }}</button>
+        </div>
+        <p class="photo-status muted" role="status" aria-live="polite" data-cutout-status></p>
+        {% if ai_enabled %}
+          <div class="ai-row">
+            <p class="photo-status muted" role="status" aria-live="polite" data-ai-status></p>
+            <button type="button" class="button button-outline button-small" data-ai-again hidden>{{ _("Suggest details again") }}</button>
+          </div>
+        {% endif %}
+      </section>
+
       {{ render_field(form.name, placeholder=_("Blue denim jacket")) }}
       <div class="field-row">
         {{ render_field(form.category_id) }}
         {{ render_field(form.color) }}
       </div>
-      <div class="field-row">
-        {{ render_field(form.season) }}
-        {{ render_field(form.style) }}
-      </div>
+      {{ render_chips(form.seasons) }}
+      {{ render_chips(form.styles) }}
+      {{ render_chips(form.moods) }}
       <div class="field-row">
         {{ render_field(form.brand) }}
         {{ render_field(form.size, placeholder="M, 38, 10…") }}
@@ -42,15 +81,6 @@
         {{ render_field(form.priority) }}
       {% endif %}
 
-      {% if item and item.image_path %}
-        <img src="{{ url_for('main.uploaded_file', filename=item.image_path) }}"
-             alt="{{ _('Current photo') }}" class="photo-preview">
-      {% endif %}
-      {{ render_field(form.photo, accept="image/*") }}
-      <div class="field checkbox">{{ form.remove_background() }} {{ form.remove_background.label }}</div>
-      {% if form.remove_photo %}
-        <div class="field checkbox">{{ form.remove_photo() }} {{ form.remove_photo.label }}</div>
-      {% endif %}
       {{ render_field(form.notes, rows=3) }}
 
       <div class="actions">
@@ -69,4 +99,5 @@
   {% if form.shop_url %}
     <script src="{{ url_for('static', filename='js/autofill.js') }}"></script>
   {% endif %}
+  <script src="{{ url_for('static', filename='js/photo_review.js') }}"></script>
 {% endblock %}

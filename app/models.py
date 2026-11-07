@@ -120,8 +120,6 @@ class Item(db.Model):
     color = db.Column(db.String(30), nullable=False)
     brand = db.Column(db.String(60))
     size = db.Column(db.String(20))
-    season = db.Column(db.String(20), nullable=False, default="all")
-    style = db.Column(db.String(30))
     purchase_date = db.Column(db.Date)
     image_path = db.Column(db.String(255))
     notes = db.Column(db.Text)
@@ -161,6 +159,47 @@ class Item(db.Model):
     trip_links = db.relationship(
         "TripItem", back_populates="item", cascade="all, delete-orphan",
     )
+    # Seasons, styles and moods: you can pick several of each, so they live
+    # in their own table (ItemTag), one row per choice.
+    tags = db.relationship("ItemTag", back_populates="item", cascade="all, delete-orphan")
+
+    def tag_values(self, kind):
+        """["winter", "autumn"]: this item's choices of one kind."""
+        return [tag.value for tag in self.tags if tag.kind == kind]
+
+    def set_tags(self, kind, values):
+        """Replace the item's choices of one kind with `values`."""
+        keep = [tag for tag in self.tags if tag.kind != kind]
+        unique = list(dict.fromkeys(values))  # drops repeats, keeps the order
+        self.tags = keep + [ItemTag(kind=kind, value=value) for value in unique]
+
+    @property
+    def seasons(self):
+        """An empty list means "all seasons"."""
+        return self.tag_values("season")
+
+    @property
+    def styles(self):
+        return self.tag_values("style")
+
+    @property
+    def moods(self):
+        return self.tag_values("mood")
+
+    def fits_season(self, season):
+        """True if you can wear it in that season ("all"-season items always fit)."""
+        return not self.seasons or season in self.seasons
+
+    @classmethod
+    def tagged(cls, kind, value):
+        """A WHERE condition: "this item has the tag". Use it in queries:
+        Item.owned_by(1).where(Item.tagged("mood", "home"))."""
+        return cls.tags.any(kind=kind, value=value)
+
+    @classmethod
+    def in_season(cls, season):
+        """WHERE condition: tagged with the season, or no season at all (all year)."""
+        return cls.tagged("season", season) | ~cls.tags.any(kind="season")
 
     @property
     def outfits(self):
@@ -190,6 +229,26 @@ class Item(db.Model):
 
     def __repr__(self):
         return f"<Item {self.name!r} of user {self.user_id}>"
+
+
+class ItemTag(db.Model):
+    """One season, style or mood picked for an item.
+
+    A coat for "autumn" and "winter" has two rows here:
+    (7, "season", "autumn") and (7, "season", "winter").
+    The three columns together are the primary key, so the same choice
+    can't be saved twice. `value` is the English word from the Option table,
+    like Item.color.
+    """
+
+    item_id = db.Column(db.Integer, db.ForeignKey("item.id"), primary_key=True)
+    kind = db.Column(db.String(10), primary_key=True)  # season, style, mood
+    value = db.Column(db.String(30), primary_key=True, index=True)
+
+    item = db.relationship("Item", back_populates="tags")
+
+    def __repr__(self):
+        return f"<ItemTag {self.kind}={self.value!r} on item {self.item_id}>"
 
 
 class Outfit(db.Model):
@@ -227,6 +286,19 @@ class Outfit(db.Model):
     @property
     def items(self):
         return [link.item for link in self.item_links]
+
+    @property
+    def moods(self):
+        """The moods every item of the outfit shares, e.g. ["comfortable"].
+
+        Worked out from the items, so there's nothing extra to fill in.
+        Items without a mood are skipped, so one plain belt doesn't
+        cancel the outfit's mood.
+        """
+        with_mood = [item.moods for item in self.items if item.moods]
+        if not with_mood:
+            return []
+        return [mood for mood in with_mood[0] if all(mood in moods for moods in with_mood)]
 
     @property
     def board(self):
@@ -314,7 +386,7 @@ class ScheduledOutfit(db.Model):
 
 
 class Option(db.Model):
-    """One choice in a shared list: a colour, season, style or occasion.
+    """One choice in a shared list: a colour, season, style, mood or occasion.
 
     Items store the English `value` itself ("light blue"), not this row's
     id, so the lists could move here from code without touching any item.
@@ -322,7 +394,7 @@ class Option(db.Model):
     """
 
     id = db.Column(db.Integer, primary_key=True)
-    kind = db.Column(db.String(10), nullable=False)  # color, season, style, occasion
+    kind = db.Column(db.String(10), nullable=False)  # color, season, style, mood, occasion
     value = db.Column(db.String(30), nullable=False)
     name_uk = db.Column(db.String(50))  # empty = the translation in messages.po, if any
     hex = db.Column(db.String(120))  # colours only: the dot ("#3b6fd1" or a gradient)
@@ -498,3 +570,18 @@ class Idea(db.Model):
 
     def __repr__(self):
         return f"<Idea {self.id} of user {self.user_id}>"
+
+
+class AiUsage(db.Model):
+    """How many AI requests a user made on one day (for the daily limit).
+
+    One row per user per day: (3, 07.11.2026, 12). Old rows are harmless;
+    they also show how much the AI is used.
+    """
+
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), primary_key=True)
+    day = db.Column(db.Date, primary_key=True)
+    count = db.Column(db.Integer, nullable=False, default=0)
+
+    def __repr__(self):
+        return f"<AiUsage user {self.user_id} on {self.day}: {self.count}>"

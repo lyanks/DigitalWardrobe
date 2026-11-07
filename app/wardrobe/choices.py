@@ -1,6 +1,6 @@
 """Starting lists, and the fixed ones.
 
-Categories, colours, seasons, styles and occasions now live in the
+Categories, colours, seasons, styles, moods and occasions now live in the
 database (app/options.py), and the admin changes them on /admin/options.
 The lists below are only what seed.py puts there on a fresh database.
 Currencies and priorities are still fixed here.
@@ -42,7 +42,10 @@ COLORS = {
 
 SEASONS = ["all", "spring", "summer", "autumn", "winter"]
 
-STYLES = ["casual", "formal", "business", "sporty", "streetwear", "classic", "party", "home"]
+# Style = how it looks. Mood = how it feels and where you'd wear it.
+STYLES = ["casual", "formal", "business", "sporty", "streetwear", "classic", "party",
+          "minimalist", "vintage"]
+MOODS = ["home", "comfortable", "classy", "elegant"]
 
 # What an outfit is for. Optional on the outfit form.
 OCCASIONS = ["casual", "work", "formal", "party", "date", "sport", "travel", "home"]

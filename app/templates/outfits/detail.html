@@ -12,6 +12,8 @@
     <div>
       <h1>{{ outfit.name }}</h1>
       {% if outfit.occasion %}<p class="muted">{{ outfit.occasion | tr | capitalize }}</p>{% endif %}
+      {# Worked out from the items (Outfit.moods): the moods they all share. #}
+      {% if outfit.moods %}<p class="muted">{{ _("Mood") }}: {{ outfit.moods | map("tr") | map("capitalize") | join(", ") }}</p>{% endif %}
     </div>
     <div class="actions">
       <a href="{{ url_for('outfits.edit', outfit_id=outfit.id) }}" class="button">{{ _("Edit") }}</a>

@@ -7,7 +7,7 @@ what the admin changed on /admin/options is never undone.
 from app import create_app
 from app.extensions import db
 from app.models import Category, Option
-from app.wardrobe.choices import CATEGORIES, COLORS, OCCASIONS, SEASONS, STYLES
+from app.wardrobe.choices import CATEGORIES, COLORS, MOODS, OCCASIONS, SEASONS, STYLES
 
 
 def seed_categories():
@@ -20,12 +20,13 @@ def seed_categories():
 
 
 def seed_options():
-    """Colours, seasons, styles and occasions (the lists in wardrobe/choices.py)."""
+    """Colours, seasons, styles, moods and occasions (the lists in wardrobe/choices.py)."""
     added = 0
     starting = {
         "color": list(COLORS.items()),
         "season": [(value, None) for value in SEASONS],
         "style": [(value, None) for value in STYLES],
+        "mood": [(value, None) for value in MOODS],
         "occasion": [(value, None) for value in OCCASIONS],
     }
     for kind, rows in starting.items():
