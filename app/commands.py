@@ -16,7 +16,7 @@ from PIL import Image
 from app.extensions import db
 from app.goals import GOALS
 from app.models import GoalAnswer, Item
-from app.services.images import cut_out_white, write_image
+from app.services.images import cut_out_background, write_image
 
 ORIGINALS = "items/originals"
 
@@ -42,7 +42,7 @@ def _full(relative_path):
 @photos.command("cut-out")
 @click.argument("item_ids", nargs=-1, type=int)
 def cut_out(item_ids):
-    """Remove the white background from item photos.
+    """Remove a plain background from item photos.
 
     flask photos cut-out        every item photo
     flask photos cut-out 3 7    only items 3 and 7
@@ -56,9 +56,9 @@ def cut_out(item_ids):
             click.echo(f"#{item.id} {item.name}: photo file missing, skipped")
             continue
         with Image.open(path) as image:
-            cut = cut_out_white(image)
+            cut = cut_out_background(image)
         if cut is None:
-            click.echo(f"#{item.id} {item.name}: no white background found, kept")
+            click.echo(f"#{item.id} {item.name}: no plain background found, kept")
             continue
         name = os.path.splitext(os.path.basename(item.image_path))[0]
         item.image_path = write_image(cut, "items", name=name)

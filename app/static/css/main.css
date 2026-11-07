@@ -2043,6 +2043,31 @@ body.landing {
 }
 
 
+/* ===== "Cut out with AI" on the item form (js/cutout.js) ===== */
+
+.ai-cutout {
+    margin: 0 0 var(--space);
+}
+.cutout-status {
+    margin: 0.5rem 0 0;
+    font-size: 0.9rem;
+}
+.cutout-status:empty {
+    display: none;
+}
+.cutout-preview {                   /* a chequered tile shows what became see-through */
+    display: block;
+    width: 200px;
+    height: 200px;
+    margin-top: 0.75rem;
+    object-fit: contain;
+    border-radius: var(--radius);
+    background:
+        repeating-conic-gradient(rgba(255, 255, 255, 0.08) 0 25%, transparent 0 50%) 0 0 / 20px 20px,
+        var(--color-photo-bg);
+}
+
+
 /* ===== Look picker on the profile page (idea #5) ===== */
 
 .sr-only {                          /* there for screen readers, hidden on screen */

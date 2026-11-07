@@ -850,8 +850,8 @@ msgstr "Прибрати з цього дня"
 msgid "Remove the current photo"
 msgstr "Видалити поточне фото"
 
-msgid "Remove the white background"
-msgstr "Прибрати білий фон"
+msgid "Remove a plain background"
+msgstr "Прибрати однотонний фон"
 
 msgid "Remove this look"
 msgstr "Видалити цей образ"
@@ -1003,8 +1003,8 @@ msgstr "Стиль"
 msgid "Suitcase"
 msgstr "Валіза"
 
-msgid "Take a photo on a white background, and the app cuts the white away."
-msgstr "Сфотографуй річ на білому тлі, і застосунок сам прибере біле."
+msgid "Take a photo on a plain background, and the app cuts it away. For a busy one, press “Cut out with AI”."
+msgstr "Сфотографуй річ на однотонному тлі, і застосунок сам його прибере. Для строкатого тла натисни «Вирізати з ШІ»."
 
 msgid "Take out"
 msgstr "Вийняти"
@@ -1757,3 +1757,36 @@ msgstr "Вихідні"
 
 msgid "Office"
 msgstr "Офіс"
+
+msgid "Cut out with AI"
+msgstr "Вирізати з ШІ"
+
+msgid "The cut-out"
+msgstr "Вирізана річ"
+
+msgid "Use this"
+msgstr "Використати"
+
+msgid "Keep the original"
+msgstr "Залишити оригінал"
+
+msgid "Downloading the AI model (only the first time): %(percent)s"
+msgstr "Завантажую модель ШІ (лише першого разу): %(percent)s"
+
+msgid "Cutting out…"
+msgstr "Вирізаю…"
+
+msgid "Choose a photo first."
+msgstr "Спершу вибери фото."
+
+msgid "Loading the AI tool…"
+msgstr "Завантажую інструмент ШІ…"
+
+msgid "Done. Use it, or keep the original."
+msgstr "Готово. Використай або залиш оригінал."
+
+msgid "The AI cut-out didn't work in this browser. The photo will be saved as it is."
+msgstr "У цьому браузері вирізання з ШІ не спрацювало. Фото збережеться як є."
+
+msgid "The cut-out will be saved when you press Save."
+msgstr "Вирізане фото збережеться, коли натиснеш «Зберегти»."

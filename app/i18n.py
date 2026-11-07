@@ -149,6 +149,11 @@ JS_TEXTS = [
     N_("The page had no details we could read. Fill the form in by hand."),
     N_("Something went wrong. Try again, or fill the form in by hand."),
     N_("Show password"), N_("Hide password"),
+    N_("Downloading the AI model (only the first time): %(percent)s"),
+    N_("Cutting out…"), N_("Choose a photo first."), N_("Loading the AI tool…"),
+    N_("Done. Use it, or keep the original."),
+    N_("The AI cut-out didn't work in this browser. The photo will be saved as it is."),
+    N_("The cut-out will be saved when you press Save."),
     N_("Copied: %(text)s"), N_("Couldn't copy. Select the code and copy it by hand."),
 ]
 

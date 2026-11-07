@@ -385,7 +385,7 @@ def _fill_item_from_form(item, form):
             return False
     if photo:
         try:
-            new_path = save_image(photo, "items", remove_white=form.remove_white.data)
+            new_path = save_image(photo, "items", remove_background=form.remove_background.data)
         except InvalidImageError as error:
             form.photo.errors.append(str(error))
             return False

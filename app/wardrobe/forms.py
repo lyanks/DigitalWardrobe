@@ -38,9 +38,9 @@ class ItemForm(BaseForm):
     photo = FileField(_l("Photo"), validators=[
         FileAllowed(IMAGE_TYPES, _l("Images only (jpg, png, webp, gif).")),
     ])
-    # Ticked by default: product photos on white look better cut out.
-    # Untick it for white clothes on a white background.
-    remove_white = BooleanField(_l("Remove the white background"), default=True)
+    # Ticked by default: photos on a plain background look better cut out.
+    # Untick it for clothes the same colour as the background.
+    remove_background = BooleanField(_l("Remove a plain background"), default=True)
     remove_photo = BooleanField(_l("Remove the current photo"))
     notes = TextAreaField(_l("Notes"), validators=[Optional(), Length(max=2000)])
 
