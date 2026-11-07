@@ -3517,3 +3517,65 @@ input[type="radio"] {
         max-height: 320px;
     }
 }
+
+/* --- Suggest a look (outfits/suggest.html) --- */
+.page-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.suggest-filters {
+    display: grid;
+    gap: var(--space);
+    justify-items: start;
+}
+.suggest-filters fieldset {
+    border: 0;
+    padding: 0;
+    margin: 0;
+}
+.suggest-filters legend {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.suggest-tip {
+    margin: var(--space) 0;
+}
+.suggest-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: var(--space);
+    margin-top: var(--space);
+}
+.suggest-card {
+    min-width: 0;
+}
+.suggest-card > * + * {
+    margin-top: 0.75rem;
+}
+.suggest-card .board {
+    width: 100%;
+}
+.suggest-items,
+.suggest-reasons {
+    margin: 0;
+    padding-left: 1.1rem;
+}
+.suggest-reasons {
+    font-size: 0.9rem;
+}
+.suggest-save {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.suggest-save input[type="text"] {
+    flex: 1 1 100%;
+    min-width: 0;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--color-field-border);
+    border-radius: 12px;
+    background: var(--color-field);
+    color: var(--color-field-text);
+    font: inherit;
+}

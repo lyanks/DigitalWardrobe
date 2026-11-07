@@ -51,6 +51,18 @@
     </form>
   </div>
 
+  <div class="card">
+    <h2>{{ _("For outfit suggestions") }}</h2>
+    <p class="muted">{{ _("Optional and only visible to you. Suggest a look uses them to "
+           "prefer colours and proportions that tend to flatter you. Leave them empty to skip.") }}</p>
+    <form method="post" novalidate>
+      {{ suggest_form.hidden_tag() }}
+      {{ render_field(suggest_form.undertone) }}
+      {{ render_field(suggest_form.body_shape) }}
+      {{ suggest_form.submit(class="button") }}
+    </form>
+  </div>
+
   {# A guest has no password: their visit ends when they leave. #}
   {% if not is_guest() %}
   <div class="card">

@@ -47,3 +47,10 @@ class OutfitForm(BaseForm):
 class DeleteOutfitForm(BaseForm):
     """Only carries the CSRF token for the delete button."""
     submit = SubmitField(_l("Yes, delete it"))
+
+
+class SaveSuggestionForm(BaseForm):
+    """"Save as outfit" under a suggested look. item_ids = "3,7,12"."""
+    name = StringField(_l("Name"), validators=[DataRequired(), Length(max=100)])
+    item_ids = HiddenField(validators=[DataRequired()])
+    submit = SubmitField(_l("Save as outfit"))

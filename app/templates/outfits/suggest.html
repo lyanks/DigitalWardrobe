@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% from "macros/board.html" import board %}
+
+{% block title %}{{ title }} · Digital Wardrobe{% endblock %}
+
+{% block content %}
+  <div class="page-head">
+    <h1>{{ _("Suggest a look") }}</h1>
+    <a href="{{ url_for('outfits.index') }}" class="button button-outline">{{ _("Your outfits") }}</a>
+  </div>
+
+  {# A plain GET form: the choices end up in the address, so a look can be
+     reloaded or bookmarked. Pressing the button again shuffles. #}
+  <form method="get" class="card suggest-filters">
+    <fieldset>
+      <legend>{{ _("Season") }}</legend>
+      <div class="chips">
+        {% for value in seasons %}
+          <label class="chip">
+            <input type="radio" name="season" value="{{ value }}" {% if value == season %}checked{% endif %}>
+            <span>{{ value | tr | capitalize }}</span>
+          </label>
+        {% endfor %}
+      </div>
+    </fieldset>
+    {% if moods %}
+      <fieldset>
+        <legend>{{ _("Mood") }} <span class="muted">{{ _("(pick any)") }}</span></legend>
+        <div class="chips">
+          {% for value in moods %}
+            <label class="chip">
+              <input type="checkbox" name="mood" value="{{ value }}" {% if value in picked_moods %}checked{% endif %}>
+              <span>{{ value | tr | capitalize }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </fieldset>
+    {% endif %}
+    <button type="submit" class="button">{{ _("Show other looks") if looks else _("Suggest") }}</button>
+  </form>
+
+  {% if not current_user.undertone and not current_user.body_shape %}
+    <p class="muted suggest-tip">
+      {{ _("Tip: add your skin undertone and body shape on your profile for more personal suggestions.") }}
+      <a href="{{ url_for('auth.profile') }}">{{ _("Profile") }}</a>
+    </p>
+  {% endif %}
+
+  {% if looks %}
+    <div class="suggest-grid">
+      {% for look, pieces in looks %}
+        <article class="card suggest-card">
+          {{ board(pieces, "board-mini") }}
+          <ul class="suggest-items">
+            {% for item in look.items %}<li>{{ item.name }}</li>{% endfor %}
+          </ul>
+          {% if look.reasons %}
+            <ul class="suggest-reasons muted">
+              {% for reason in look.reasons[:3] %}<li>{{ reason }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+          <form method="post" action="{{ url_for('outfits.save_suggestion') }}" class="suggest-save">
+            {{ form.csrf_token }}
+            {{ form.item_ids(value=look.item_ids | join(",")) }}
+            {{ form.name(value=_("Look %(number)s", number=loop.index), **{"aria-label": _("Name")}) }}
+            {{ form.submit(class="button button-small") }}
+          </form>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="card empty-state">
+      {% if item_count < 2 %}
+        <p>{{ _("Add a few clothes first: at least a top and a bottom, or a dress.") }}</p>
+        <a href="{{ url_for('wardrobe.create') }}" class="button">{{ _("Add an item") }}</a>
+      {% else %}
+        <p>{{ _("No look fits these choices. Try another season or fewer moods, or check what's in the wash.") }}</p>
+      {% endif %}
+    </div>
+  {% endif %}
+{% endblock %}

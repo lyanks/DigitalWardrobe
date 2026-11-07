@@ -10,6 +10,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 
 from app.auth.forms import (
     INVALID_INVITE, ChangePasswordForm, LoginForm, LookForm, ProfileForm, RegistrationForm,
+    SuggestProfileForm,
 )
 from app.extensions import db, oauth
 from app.guests import is_guest, leave
@@ -96,6 +97,14 @@ def profile():
     profile_form = ProfileForm(prefix="profile")
     password_form = ChangePasswordForm(prefix="pw")
     look_form = LookForm(prefix="look")
+    suggest_form = SuggestProfileForm(prefix="suggest")
+
+    if suggest_form.submit.data and suggest_form.validate_on_submit():
+        current_user.undertone = suggest_form.undertone.data or None
+        current_user.body_shape = suggest_form.body_shape.data or None
+        db.session.commit()
+        flash(_("Saved. Suggestions will use it."), "success")
+        return redirect(url_for("auth.profile"))
 
     if look_form.submit.data and look_form.validate_on_submit():
         current_user.theme = look_form.theme.data
@@ -142,10 +151,13 @@ def profile():
         look_form.theme.data = current_user.theme
         look_form.use_theme_accent.data = current_user.accent_color is None
         look_form.accent_color.data = current_user.accent_color or "#c4a8ff"
+        suggest_form.undertone.data = current_user.undertone or ""
+        suggest_form.body_shape.data = current_user.body_shape or ""
 
     return render_template(
         "auth/profile.html", title=_("Profile"),
         profile_form=profile_form, password_form=password_form, look_form=look_form,
+        suggest_form=suggest_form,
         themes=THEMES,
     )
 

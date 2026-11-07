@@ -1,7 +1,7 @@
 from flask_babel import lazy_gettext as _l
 from flask_login import current_user
 from flask_wtf.file import FileAllowed, FileField
-from wtforms import BooleanField, PasswordField, RadioField, StringField, SubmitField
+from wtforms import BooleanField, PasswordField, RadioField, SelectField, StringField, SubmitField
 from wtforms.validators import (
     DataRequired, Email, EqualTo, Length, Optional, Regexp, ValidationError,
 )
@@ -9,8 +9,10 @@ from wtforms.validators import (
 from app.auth.validators import StrongPassword
 from app.extensions import db
 from app.forms import BaseForm
+from app.i18n import tr
 from app.invites import find_usable
 from app.models import User
+from app.services.suggest import BODY_SHAPES, UNDERTONES
 from app.themes import DEFAULT_THEME, HEX_COLOR, THEMES
 
 IMAGE_TYPES = ["jpg", "jpeg", "png", "webp", "gif"]
@@ -101,3 +103,21 @@ class LookForm(BaseForm):
     ])
     use_theme_accent = BooleanField(_l("Use the theme's own colour"), default=True)
     submit = SubmitField(_l("Save look"))
+
+
+class SuggestProfileForm(BaseForm):
+    """Optional, private details that "Suggest a look" uses.
+
+    "" = not set. The labels are filled in __init__, in the page's language.
+    """
+    undertone = SelectField(_l("Skin undertone"), validators=[Optional()], description=_l(
+        "Look at the veins on your wrist in daylight: greenish = warm, bluish or purple = cool, "
+        "hard to tell = neutral."))
+    body_shape = SelectField(_l("Body shape"), validators=[Optional()])
+    submit = SubmitField(_l("Save"))
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        not_set = ("", _l("Not set"))
+        self.undertone.choices = [not_set] + [(key, tr(label)) for key, label in UNDERTONES.items()]
+        self.body_shape.choices = [not_set] + [(key, tr(label)) for key, label in BODY_SHAPES.items()]

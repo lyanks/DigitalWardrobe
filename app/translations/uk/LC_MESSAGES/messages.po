@@ -1955,3 +1955,115 @@ msgstr "Підказано за фото: %(fields)s. Перевір перед 
 
 msgid "The details are already filled in, so nothing was changed."
 msgstr "Усе вже заповнено, тож нічого не змінено."
+
+# --- Suggest a look (services/suggest.py, outfits/suggest.html, profile) ---
+msgid "Suggest a look"
+msgstr "Підібрати образ"
+
+msgid "Show other looks"
+msgstr "Показати інші образи"
+
+msgid "Suggest"
+msgstr "Підібрати"
+
+msgid "(pick any)"
+msgstr "(можна кілька)"
+
+msgid "Save as outfit"
+msgstr "Зберегти як образ"
+
+msgid "Look %(number)s"
+msgstr "Образ %(number)s"
+
+msgid "Tip: add your skin undertone and body shape on your profile for more personal suggestions."
+msgstr "Порада: додай підтон шкіри й тип фігури в профілі, і добірки стануть точнішими."
+
+msgid "Add a few clothes first: at least a top and a bottom, or a dress."
+msgstr "Спершу додай кілька речей: хоча б верх і низ або сукню."
+
+msgid "No look fits these choices. Try another season or fewer moods, or check what's in the wash."
+msgstr "Під ці умови не підходить жоден образ. Спробуй інший сезон чи менше настроїв або глянь, що в пранні."
+
+msgid "That look couldn't be saved. Try another one."
+msgstr "Цей образ не вдалося зберегти. Спробуй інший."
+
+msgid "For outfit suggestions"
+msgstr "Для добірки образів"
+
+msgid "Optional and only visible to you. Suggest a look uses them to prefer colours and proportions that tend to flatter you. Leave them empty to skip."
+msgstr "Необов'язково, бачиш лише ти. «Підібрати образ» враховує це, щоб частіше пропонувати кольори й пропорції, які тобі пасують. Залиш порожнім, якщо не треба."
+
+msgid "Skin undertone"
+msgstr "Підтон шкіри"
+
+msgid "Look at the veins on your wrist in daylight: greenish = warm, bluish or purple = cool, hard to tell = neutral."
+msgstr "Глянь на вени на зап'ясті при денному світлі: зеленуваті — теплий, сині чи фіолетові — холодний, важко сказати — нейтральний."
+
+msgid "Body shape"
+msgstr "Тип фігури"
+
+msgid "Not set"
+msgstr "Не вказано"
+
+msgid "Saved. Suggestions will use it."
+msgstr "Збережено. Добірки це врахують."
+
+msgid "Warm"
+msgstr "Теплий"
+
+msgid "Cool"
+msgstr "Холодний"
+
+msgid "Neutral"
+msgstr "Нейтральний"
+
+msgid "Hips wider than shoulders"
+msgstr "Стегна ширші за плечі"
+
+msgid "Shoulders wider than hips"
+msgstr "Плечі ширші за стегна"
+
+msgid "Shoulders and hips even, defined waist"
+msgstr "Плечі й стегна рівні, виражена талія"
+
+msgid "Shoulders, waist and hips about even"
+msgstr "Плечі, талія й стегна майже рівні"
+
+msgid "Fuller around the middle"
+msgstr "Повніша в області талії"
+
+msgid "%(colors)s can clash."
+msgstr "%(colors)s можуть не поєднуватися."
+
+msgid "Calm colours: at most one bright piece."
+msgstr "Спокійні кольори: не більше однієї яскравої речі."
+
+msgid "%(color)s near your face suits your undertone (%(undertone)s)."
+msgstr "%(color)s біля обличчя пасує до твого підтону (%(undertone)s)."
+
+msgid "A dress follows your waist."
+msgstr "Сукня підкреслює талію."
+
+msgid "An open layer makes a long line."
+msgstr "Розстебнутий верхній шар витягує силует."
+
+msgid "Lighter on top, darker below: balances the hips."
+msgstr "Світліший верх, темніший низ: урівноважує стегна."
+
+msgid "Darker on top, lighter below: balances the shoulders."
+msgstr "Темніший верх, світліший низ: урівноважує плечі."
+
+msgid "Contrast between top and bottom shapes the waist."
+msgstr "Контраст верху й низу підкреслює талію."
+
+msgid "One colour top to bottom makes a long line."
+msgstr "Один колір згори донизу витягує силует."
+
+msgid "Fits the mood you picked."
+msgstr "Пасує до вибраного настрою."
+
+msgid "Gives %(name)s more wear."
+msgstr "%(name)s нарешті частіше в ділі."
+
+msgid "You wore this combination this week."
+msgstr "Це поєднання вже було цього тижня."

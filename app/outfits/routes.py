@@ -1,15 +1,18 @@
-from datetime import date
+from datetime import date, timedelta
 
-from flask import Blueprint, abort, flash, redirect, render_template, url_for
+from flask import Blueprint, abort, flash, redirect, render_template, request, url_for
 from flask_babel import gettext as _
 from flask_login import current_user, login_required
 
+from app import options
 from app.extensions import db
 from app.models import Category, Item, Outfit, OutfitItem
-from app.outfits.forms import DeleteOutfitForm, OutfitForm
+from app.outfits.forms import DeleteOutfitForm, OutfitForm, SaveSuggestionForm
+from app.services.combo_check import WINDOW_DAYS, worn_between
 from app.services.images import InvalidImageError, delete_image, save_image
-from app.services.outfit_board import apply_layout, editor_spots, parse_layout
+from app.services.outfit_board import apply_layout, editor_spots, parse_layout, place
 from app.services.outfit_rules import outfit_problems, sort_by_slot
+from app.services.suggest import season_of, suggest
 
 bp = Blueprint("outfits", __name__, url_prefix="/outfits")
 
@@ -128,6 +131,52 @@ def create():
         flash(_("Saved the outfit “%(name)s”.", name=outfit.name), "success")
         return redirect(url_for("outfits.detail", outfit_id=outfit.id))
     return _render_form(_("New outfit"), form, groups, None)
+
+
+# ---------- Suggest a look (services/suggest.py) ----------
+
+@bp.route("/suggest")
+def suggest_look():
+    """Three looks from your own clothes. ?season=winter&mood=classy&mood=home"""
+    seasons = [value for value in options.values("season") if value != "all"]
+    moods = options.values("mood")
+    season = request.args.get("season")
+    if season not in seasons:
+        season = season_of(date.today())
+    picked_moods = [mood for mood in request.args.getlist("mood") if mood in moods]
+
+    items = db.session.scalars(Item.owned_by(current_user.id)).all()
+    today = date.today()
+    recent = worn_between(current_user.id, today - timedelta(days=WINDOW_DAYS), today - timedelta(days=1))
+    looks = suggest(items, season, picked_moods, current_user.undertone, current_user.body_shape,
+                    recent.values())
+    # Each look as a board, with every piece in its usual spot.
+    boards = [[(item, place(item)) for item in look.items] for look in looks]
+    form = SaveSuggestionForm()
+    return render_template(
+        "outfits/suggest.html", title=_("Suggest a look"), looks=list(zip(looks, boards)),
+        seasons=seasons, season=season, moods=moods, picked_moods=picked_moods, form=form,
+        item_count=len(items),
+    )
+
+
+@bp.route("/suggest/save", methods=["POST"])
+def save_suggestion():
+    form = SaveSuggestionForm()
+    if form.validate_on_submit():
+        wanted = {int(part) for part in form.item_ids.data.split(",") if part.strip().isdigit()}
+        # Only your own clothes: someone else's ids simply aren't found.
+        items = db.session.scalars(Item.owned_by(current_user.id).where(Item.id.in_(wanted))).all()
+        if items and not outfit_problems(items):
+            outfit = Outfit(user_id=current_user.id, name=form.name.data)
+            outfit.item_links = [OutfitItem(item=item, position=number)
+                                 for number, item in enumerate(sort_by_slot(items))]
+            db.session.add(outfit)
+            db.session.commit()
+            flash(_("Saved the outfit “%(name)s”.", name=outfit.name), "success")
+            return redirect(url_for("outfits.detail", outfit_id=outfit.id))
+    flash(_("That look couldn't be saved. Try another one."), "error")
+    return redirect(url_for("outfits.suggest_look"))
 
 
 # ---------- Read: one outfit ----------

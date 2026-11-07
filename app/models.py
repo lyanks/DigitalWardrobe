@@ -36,6 +36,10 @@ class User(UserMixin, db.Model):
     tutorial_seen_at = db.Column(db.DateTime(timezone=True))
     # "en" or "uk" (app/i18n.py). Empty = follow the browser.
     language = db.Column(db.String(5))
+    # For "Suggest a look" (app/services/suggest.py). Optional and private:
+    # empty = not set, and then the rules simply skip them.
+    undertone = db.Column(db.String(10))    # "warm", "cool" or "neutral"
+    body_shape = db.Column(db.String(20))   # a key of BODY_SHAPES there
     created_at = db.Column(db.DateTime(timezone=True), default=utcnow, nullable=False)
 
     # One user -> many items. Deleting a user deletes their items too.
